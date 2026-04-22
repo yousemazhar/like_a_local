@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
@@ -12,7 +16,92 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  bool _showingNearMe = false;
+  static const CameraPosition _fallbackCamera = CameraPosition(
+    target: LatLng(52.5200, 13.4050),
+    zoom: 12,
+  );
+
+  final Completer<GoogleMapController> _mapController = Completer();
+  bool _isLocatingUser = false;
+  bool _hasLocationPermission = false;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_initializeMap());
+  }
+
+  Future<void> _initializeMap() async {
+    final permission = await _ensureLocationPermission();
+    if (!permission) {
+      return;
+    }
+
+    await _moveCameraToCurrentLocation();
+  }
+
+  Future<bool> _ensureLocationPermission() async {
+    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      _showMessage('Enable location services to center the map near you.');
+      return false;
+    }
+
+    var permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+
+    final granted = permission == LocationPermission.always ||
+        permission == LocationPermission.whileInUse;
+
+    if (mounted) {
+      setState(() => _hasLocationPermission = granted);
+    }
+
+    if (!granted) {
+      _showMessage('Location permission denied. The map will stay interactive.');
+    }
+
+    return granted;
+  }
+
+  Future<void> _moveCameraToCurrentLocation() async {
+    if (_isLocatingUser) {
+      return;
+    }
+
+    setState(() => _isLocatingUser = true);
+
+    try {
+      final position = await Geolocator.getCurrentPosition();
+      final controller = await _mapController.future;
+      await controller.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: LatLng(position.latitude, position.longitude),
+            zoom: 15,
+          ),
+        ),
+      );
+    } catch (_) {
+      _showMessage('Unable to fetch your current location right now.');
+    } finally {
+      if (mounted) {
+        setState(() => _isLocatingUser = false);
+      }
+    }
+  }
+
+  void _showMessage(String message) {
+    if (!mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,28 +109,18 @@ class _MapScreenState extends State<MapScreen> {
       backgroundColor: LALColors.bg,
       body: Stack(
         children: [
-          // Map placeholder (replace with GoogleMap widget after API key setup)
           Positioned.fill(
-            child: Container(
-              color: LALColors.c50,
-              child: const Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.map_outlined, color: LALColors.c300, size: 64),
-                    SizedBox(height: 12),
-                    Text('Add Google Maps API key\nto enable the map',
-                        style: LALTypography.bodyMedium,
-                        textAlign: TextAlign.center),
-                    SizedBox(height: 8),
-                    Text(
-                      'android/app/src/main/AndroidManifest.xml\nios/Runner/AppDelegate.swift',
-                      style: LALTypography.bodySmall,
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
+            child: GoogleMap(
+              initialCameraPosition: _fallbackCamera,
+              myLocationEnabled: _hasLocationPermission,
+              myLocationButtonEnabled: false,
+              zoomControlsEnabled: false,
+              mapToolbarEnabled: false,
+              onMapCreated: (controller) {
+                if (!_mapController.isCompleted) {
+                  _mapController.complete(controller);
+                }
+              },
             ),
           ),
 
@@ -73,7 +152,7 @@ class _MapScreenState extends State<MapScreen> {
                           borderRadius: LALRadii.pillBorder,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
+                              color: Colors.black.withValues(alpha: 0.08),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
@@ -102,16 +181,31 @@ class _MapScreenState extends State<MapScreen> {
             bottom: 240,
             right: 20,
             child: FloatingActionButton.extended(
-              onPressed: () => setState(() => _showingNearMe = !_showingNearMe),
+              onPressed: () async {
+                final permission = await _ensureLocationPermission();
+                if (!permission) {
+                  return;
+                }
+                await _moveCameraToCurrentLocation();
+              },
               backgroundColor:
-                  _showingNearMe ? LALColors.accent : LALColors.surface,
+                  _hasLocationPermission ? LALColors.accent : LALColors.surface,
               foregroundColor:
-                  _showingNearMe ? Colors.white : LALColors.c900,
+                  _hasLocationPermission ? Colors.white : LALColors.c900,
               elevation: 2,
-              icon: const Icon(Icons.my_location_rounded, size: 18),
-              label: const Text('Near Me',
-                  style: TextStyle(
-                      fontSize: 13, fontWeight: FontWeight.w600)),
+              icon: Icon(
+                _isLocatingUser
+                    ? Icons.location_searching_rounded
+                    : Icons.my_location_rounded,
+                size: 18,
+              ),
+              label: Text(
+                _isLocatingUser ? 'Locating…' : 'Near Me',
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ),
 
