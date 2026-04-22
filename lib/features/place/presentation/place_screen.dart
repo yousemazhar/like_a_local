@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
 
+const _contentOverlap = 22.0;
+
 class PlaceScreen extends StatelessWidget {
   const PlaceScreen({super.key, required this.placeId});
 
@@ -75,65 +77,70 @@ class PlaceScreen extends StatelessWidget {
             ),
           ),
           SliverToBoxAdapter(
-            child: Container(
-              margin: const EdgeInsets.only(top: -22),
-              decoration: const BoxDecoration(
-                color: LALColors.bg,
-                borderRadius: BorderRadius.vertical(top: LALRadii.xl),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 24),
-                  // Title & category
-                  Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: LALSpacing.xl),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 4),
-                          decoration: const BoxDecoration(
-                            color: LALColors.surfaceAlt,
-                            borderRadius: LALRadii.pillBorder,
-                          ),
-                          child: const Text('Restaurant',
-                              style: LALTypography.labelSmall),
-                        ),
-                        const SizedBox(height: 8),
-                        Text('Tasca do Chico',
-                            style:
-                                Theme.of(context).textTheme.headlineLarge),
-                        const SizedBox(height: 4),
-                        const Text('Alfama · Lisbon',
-                            style: LALTypography.bodySmall),
-                        const SizedBox(height: 12),
-                        Row(children: [
-                          const Icon(Icons.star_rounded,
-                              color: LALColors.accent, size: 16),
-                          const SizedBox(width: 4),
-                          const Text('4.8',
-                              style: LALTypography.labelMedium),
-                          const SizedBox(width: 4),
-                          const Text('(47 reviews)',
-                              style: LALTypography.bodySmall),
-                        ]),
-                      ],
-                    ),
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: _contentOverlap),
+              child: Transform.translate(
+                offset: const Offset(0, -_contentOverlap),
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: LALColors.bg,
+                    borderRadius: BorderRadius.vertical(top: LALRadii.xl),
                   ),
-                  const SizedBox(height: 24),
-                  // Tips card
-                  _TipsCard(),
-                  const SizedBox(height: 20),
-                  // Dishes
-                  _DishesSection(),
-                  const SizedBox(height: 20),
-                  // Contributor card
-                  _ContributorCard(),
-                  const SizedBox(height: 100), // bottom bar clearance
-                ],
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 24),
+                      // Title & category
+                      Padding(
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: LALSpacing.xl),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 4),
+                              decoration: const BoxDecoration(
+                                color: LALColors.surfaceAlt,
+                                borderRadius: LALRadii.pillBorder,
+                              ),
+                              child: const Text('Restaurant',
+                                  style: LALTypography.labelSmall),
+                            ),
+                            const SizedBox(height: 8),
+                            Text('Tasca do Chico',
+                                style:
+                                    Theme.of(context).textTheme.headlineLarge),
+                            const SizedBox(height: 4),
+                            const Text('Alfama · Lisbon',
+                                style: LALTypography.bodySmall),
+                            const SizedBox(height: 12),
+                            Row(children: [
+                              const Icon(Icons.star_rounded,
+                                  color: LALColors.accent, size: 16),
+                              const SizedBox(width: 4),
+                              const Text('4.8',
+                                  style: LALTypography.labelMedium),
+                              const SizedBox(width: 4),
+                              const Text('(47 reviews)',
+                                  style: LALTypography.bodySmall),
+                            ]),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      // Tips card
+                      _TipsCard(),
+                      const SizedBox(height: 20),
+                      // Dishes
+                      _DishesSection(),
+                      const SizedBox(height: 20),
+                      // Contributor card
+                      _ContributorCard(),
+                      const SizedBox(height: 100), // bottom bar clearance
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
