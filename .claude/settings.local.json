@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p /tmp/llll)",
+      "Bash(cp \"C:/Users/youse/.claude/projects/C--Users-youse-StudioProjects-like-a-local/299b7878-a3f0-4b35-8280-bc91d0804a2e/tool-results/webfetch-1776875395293-q3hw01.bin\" /tmp/llll/design.gz)",
+      "Bash(gunzip -f /tmp/llll/design.gz)",
+      "Read(//tmp/llll/**)",
+      "Read(//tmp/**)"
+    ]
+  }
+}
