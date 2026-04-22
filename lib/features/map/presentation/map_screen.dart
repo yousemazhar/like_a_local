@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
@@ -17,17 +18,76 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   static const CameraPosition _fallbackCamera = CameraPosition(
-    target: LatLng(52.5200, 13.4050),
+    target: LatLng(30.0444, 31.2357),
     zoom: 12,
   );
+
+  static const List<_DemoMapPlace> _cairoPlaces = [
+    _DemoMapPlace(
+      id: 'khan-el-khalili',
+      title: 'Khan El Khalili',
+      neighborhood: 'Islamic Cairo',
+      category: 'Market',
+      lat: 30.0478,
+      lng: 31.2625,
+      rating: 4.7,
+    ),
+    _DemoMapPlace(
+      id: 'zooba-zamalek',
+      title: 'Zooba Zamalek',
+      neighborhood: 'Zamalek',
+      category: 'Restaurant',
+      lat: 30.0628,
+      lng: 31.2197,
+      rating: 4.5,
+    ),
+    _DemoMapPlace(
+      id: 'cairo-tower',
+      title: 'Cairo Tower',
+      neighborhood: 'Gezira',
+      category: 'Viewpoint',
+      lat: 30.0459,
+      lng: 31.2243,
+      rating: 4.6,
+    ),
+    _DemoMapPlace(
+      id: 'maadi-grand-mall',
+      title: 'Grand Cafe Maadi',
+      neighborhood: 'Maadi',
+      category: 'Cafe',
+      lat: 29.9602,
+      lng: 31.2569,
+      rating: 4.4,
+    ),
+    _DemoMapPlace(
+      id: 'al-azhar-park',
+      title: 'Al-Azhar Park',
+      neighborhood: 'Salah Salem',
+      category: 'Park',
+      lat: 30.0400,
+      lng: 31.2612,
+      rating: 4.8,
+    ),
+    _DemoMapPlace(
+      id: 'point-90',
+      title: 'Point 90',
+      neighborhood: 'New Cairo',
+      category: 'Lifestyle',
+      lat: 30.0284,
+      lng: 31.4917,
+      rating: 4.3,
+    ),
+  ];
 
   final Completer<GoogleMapController> _mapController = Completer();
   bool _isLocatingUser = false;
   bool _hasLocationPermission = false;
+  late _DemoMapPlace _selectedPlace;
 
   @override
   void initState() {
     super.initState();
+    _selectedPlace = _cairoPlaces.first;
     unawaited(_initializeMap());
   }
 
@@ -103,6 +163,55 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
+  Future<void> _openDirections(_DemoMapPlace place) async {
+    final directionsUri = Uri.parse(
+      'https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}&travelmode=driving',
+    );
+
+    final launched = await launchUrl(
+      directionsUri,
+      mode: LaunchMode.externalApplication,
+    );
+
+    if (!launched) {
+      _showMessage('Unable to open Google Maps right now.');
+    }
+  }
+
+  Set<Marker> _buildMarkers() {
+    return _cairoPlaces.map((place) {
+      final isSelected = place.id == _selectedPlace.id;
+      return Marker(
+        markerId: MarkerId(place.id),
+        position: LatLng(place.lat, place.lng),
+        infoWindow: InfoWindow(
+          title: place.title,
+          snippet: '${place.category} · ${place.neighborhood}',
+        ),
+        zIndexInt: isSelected ? 2 : 1,
+        icon: BitmapDescriptor.defaultMarkerWithHue(
+          isSelected ? BitmapDescriptor.hueOrange : BitmapDescriptor.hueRose,
+        ),
+        onTap: () {
+          setState(() => _selectedPlace = place);
+          unawaited(_focusPlace(place));
+        },
+      );
+    }).toSet();
+  }
+
+  Future<void> _focusPlace(_DemoMapPlace place) async {
+    final controller = await _mapController.future;
+    await controller.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: LatLng(place.lat, place.lng),
+          zoom: 14.5,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,6 +221,7 @@ class _MapScreenState extends State<MapScreen> {
           Positioned.fill(
             child: GoogleMap(
               initialCameraPosition: _fallbackCamera,
+              markers: _buildMarkers(),
               myLocationEnabled: _hasLocationPermission,
               myLocationButtonEnabled: false,
               zoomControlsEnabled: false,
@@ -214,7 +324,11 @@ class _MapScreenState extends State<MapScreen> {
             bottom: 0,
             left: 0,
             right: 0,
-            child: _MapBottomSheet(),
+            child: _MapBottomSheet(
+              place: _selectedPlace,
+              placeCount: _cairoPlaces.length,
+              onDirectionsTap: () => _openDirections(_selectedPlace),
+            ),
           ),
         ],
       ),
@@ -223,6 +337,16 @@ class _MapScreenState extends State<MapScreen> {
 }
 
 class _MapBottomSheet extends StatelessWidget {
+  const _MapBottomSheet({
+    required this.place,
+    required this.placeCount,
+    required this.onDirectionsTap,
+  });
+
+  final _DemoMapPlace place;
+  final int placeCount;
+  final VoidCallback onDirectionsTap;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -250,19 +374,45 @@ class _MapBottomSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          const Text('Tap a pin to preview',
-              style: LALTypography.bodyMedium),
+          Text(
+            '${place.category} in ${place.neighborhood}',
+            style: LALTypography.bodyMedium.copyWith(color: LALColors.c500),
+          ),
           const SizedBox(height: 8),
-          Text('3 places near you',
-              style: LALTypography.headlineSmall.copyWith(fontSize: 16)),
+          Text(
+            place.title,
+            style: LALTypography.headlineSmall.copyWith(fontSize: 16),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Text(
+                '$placeCount Cairo picks',
+                style: LALTypography.bodySmall,
+              ),
+              if (place.rating != null) ...[
+                const SizedBox(width: 10),
+                const Icon(
+                  Icons.star_rounded,
+                  size: 14,
+                  color: LALColors.accent,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  place.rating!.toStringAsFixed(1),
+                  style: LALTypography.labelSmall,
+                ),
+              ],
+            ],
+          ),
           const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.notifications_outlined, size: 16),
-                  label: const Text('Remind me near'),
+                  onPressed: onDirectionsTap,
+                  icon: const Icon(Icons.directions_outlined, size: 16),
+                  label: const Text('Directions'),
                 ),
               ),
               const SizedBox(width: 12),
@@ -279,4 +429,24 @@ class _MapBottomSheet extends StatelessWidget {
       ),
     );
   }
+}
+
+class _DemoMapPlace {
+  const _DemoMapPlace({
+    required this.id,
+    required this.title,
+    required this.neighborhood,
+    required this.category,
+    required this.lat,
+    required this.lng,
+    this.rating,
+  });
+
+  final String id;
+  final String title;
+  final String neighborhood;
+  final String category;
+  final double lat;
+  final double lng;
+  final double? rating;
 }
