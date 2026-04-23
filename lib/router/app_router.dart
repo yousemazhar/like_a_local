@@ -14,6 +14,7 @@ import '../features/chat/presentation/inbox_screen.dart';
 import '../features/discover/presentation/discover_screen.dart';
 import '../features/map/presentation/map_screen.dart';
 import '../features/notifications/presentation/notifications_screen.dart';
+import '../features/payments/presentation/test_payment_screen.dart';
 import '../features/place/presentation/place_screen.dart';
 import '../features/premium/presentation/premium_screen.dart';
 import '../features/profile/presentation/profile_screen.dart';
@@ -94,6 +95,13 @@ GoRouter appRouter(AppRouterRef ref) {
         pageBuilder: (_, __) => const MaterialPage(
           fullscreenDialog: true,
           child: PremiumScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/test-payment',
+        pageBuilder: (_, __) => const MaterialPage(
+          fullscreenDialog: true,
+          child: TestPaymentScreen(),
         ),
       ),
       StatefulShellRoute.indexedStack(

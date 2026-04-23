@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -34,6 +35,17 @@ class ProfileScreen extends StatelessWidget {
                 _StatsRow(),
                 const SizedBox(height: 16),
                 _TrustStrip(),
+                if (kDebugMode) ...[
+                  const SizedBox(height: 12),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: OutlinedButton.icon(
+                      onPressed: () => context.push('/test-payment'),
+                      icon: const Icon(Icons.credit_card),
+                      label: const Text('Test Pay (debug)'),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 24),
                 _PlacesGrid(),
                 const SizedBox(height: 40),

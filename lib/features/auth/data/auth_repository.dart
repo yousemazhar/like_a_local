@@ -81,6 +81,7 @@ class AuthRepository {
           locale: data['locale'] as String? ?? 'en',
           role: data['role'] as String? ?? 'user',
           emailVerified: user.emailVerified,
+          premium: data['premium'] as bool? ?? false,
           preferences: data['preferences'] != null
               ? UserPreferences.fromJson(
                   Map<String, dynamic>.from(data['preferences'] as Map))

@@ -40,5 +40,22 @@ final authStateProvider = StreamProvider<AppUser?>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef AuthStateRef = StreamProviderRef<AppUser?>;
+String _$currentUserDocHash() => r'6cd3e3cf19791c47b03602c55241ac4a0b4c6e2f';
+
+/// See also [currentUserDoc].
+@ProviderFor(currentUserDoc)
+final currentUserDocProvider = StreamProvider<AppUser?>.internal(
+  currentUserDoc,
+  name: r'currentUserDocProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$currentUserDocHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef CurrentUserDocRef = StreamProviderRef<AppUser?>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

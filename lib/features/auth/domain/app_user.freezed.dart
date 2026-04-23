@@ -28,6 +28,7 @@ mixin _$AppUser {
   String get locale => throw _privateConstructorUsedError;
   String get role => throw _privateConstructorUsedError;
   bool get emailVerified => throw _privateConstructorUsedError;
+  bool get premium => throw _privateConstructorUsedError;
   UserPreferences get preferences => throw _privateConstructorUsedError;
 
   /// Serializes this AppUser to a JSON map.
@@ -52,6 +53,7 @@ abstract class $AppUserCopyWith<$Res> {
     String locale,
     String role,
     bool emailVerified,
+    bool premium,
     UserPreferences preferences,
   });
 
@@ -80,6 +82,7 @@ class _$AppUserCopyWithImpl<$Res, $Val extends AppUser>
     Object? locale = null,
     Object? role = null,
     Object? emailVerified = null,
+    Object? premium = null,
     Object? preferences = null,
   }) {
     return _then(
@@ -111,6 +114,10 @@ class _$AppUserCopyWithImpl<$Res, $Val extends AppUser>
             emailVerified: null == emailVerified
                 ? _value.emailVerified
                 : emailVerified // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            premium: null == premium
+                ? _value.premium
+                : premium // ignore: cast_nullable_to_non_nullable
                       as bool,
             preferences: null == preferences
                 ? _value.preferences
@@ -148,6 +155,7 @@ abstract class _$$AppUserImplCopyWith<$Res> implements $AppUserCopyWith<$Res> {
     String locale,
     String role,
     bool emailVerified,
+    bool premium,
     UserPreferences preferences,
   });
 
@@ -176,6 +184,7 @@ class __$$AppUserImplCopyWithImpl<$Res>
     Object? locale = null,
     Object? role = null,
     Object? emailVerified = null,
+    Object? premium = null,
     Object? preferences = null,
   }) {
     return _then(
@@ -208,6 +217,10 @@ class __$$AppUserImplCopyWithImpl<$Res>
             ? _value.emailVerified
             : emailVerified // ignore: cast_nullable_to_non_nullable
                   as bool,
+        premium: null == premium
+            ? _value.premium
+            : premium // ignore: cast_nullable_to_non_nullable
+                  as bool,
         preferences: null == preferences
             ? _value.preferences
             : preferences // ignore: cast_nullable_to_non_nullable
@@ -228,6 +241,7 @@ class _$AppUserImpl implements _AppUser {
     this.locale = 'en',
     this.role = 'user',
     this.emailVerified = false,
+    this.premium = false,
     this.preferences = const UserPreferences(),
   });
 
@@ -253,11 +267,14 @@ class _$AppUserImpl implements _AppUser {
   final bool emailVerified;
   @override
   @JsonKey()
+  final bool premium;
+  @override
+  @JsonKey()
   final UserPreferences preferences;
 
   @override
   String toString() {
-    return 'AppUser(uid: $uid, email: $email, displayName: $displayName, photoUrl: $photoUrl, locale: $locale, role: $role, emailVerified: $emailVerified, preferences: $preferences)';
+    return 'AppUser(uid: $uid, email: $email, displayName: $displayName, photoUrl: $photoUrl, locale: $locale, role: $role, emailVerified: $emailVerified, premium: $premium, preferences: $preferences)';
   }
 
   @override
@@ -275,6 +292,7 @@ class _$AppUserImpl implements _AppUser {
             (identical(other.role, role) || other.role == role) &&
             (identical(other.emailVerified, emailVerified) ||
                 other.emailVerified == emailVerified) &&
+            (identical(other.premium, premium) || other.premium == premium) &&
             (identical(other.preferences, preferences) ||
                 other.preferences == preferences));
   }
@@ -290,6 +308,7 @@ class _$AppUserImpl implements _AppUser {
     locale,
     role,
     emailVerified,
+    premium,
     preferences,
   );
 
@@ -316,6 +335,7 @@ abstract class _AppUser implements AppUser {
     final String locale,
     final String role,
     final bool emailVerified,
+    final bool premium,
     final UserPreferences preferences,
   }) = _$AppUserImpl;
 
@@ -335,6 +355,8 @@ abstract class _AppUser implements AppUser {
   String get role;
   @override
   bool get emailVerified;
+  @override
+  bool get premium;
   @override
   UserPreferences get preferences;
 

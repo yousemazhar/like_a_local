@@ -15,6 +15,7 @@ _$AppUserImpl _$$AppUserImplFromJson(Map<String, dynamic> json) =>
       locale: json['locale'] as String? ?? 'en',
       role: json['role'] as String? ?? 'user',
       emailVerified: json['emailVerified'] as bool? ?? false,
+      premium: json['premium'] as bool? ?? false,
       preferences: json['preferences'] == null
           ? const UserPreferences()
           : UserPreferences.fromJson(
@@ -31,6 +32,7 @@ Map<String, dynamic> _$$AppUserImplToJson(_$AppUserImpl instance) =>
       'locale': instance.locale,
       'role': instance.role,
       'emailVerified': instance.emailVerified,
+      'premium': instance.premium,
       'preferences': instance.preferences,
     };
 

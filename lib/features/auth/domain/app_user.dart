@@ -13,6 +13,7 @@ class AppUser with _$AppUser {
     @Default('en') String locale,
     @Default('user') String role,
     @Default(false) bool emailVerified,
+    @Default(false) bool premium,
     @Default(UserPreferences()) UserPreferences preferences,
   }) = _AppUser;
 
