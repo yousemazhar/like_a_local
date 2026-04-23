@@ -1,0 +1,76 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+import '../domain/place.dart';
+
+class PlaceRepository {
+  PlaceRepository(this._db);
+
+  final FirebaseFirestore _db;
+
+  CollectionReference<Map<String, dynamic>> get _places =>
+      _db.collection('places');
+
+  Stream<List<Place>> discoverFeed({int limit = 20}) => _places
+      .where('hidden', isEqualTo: false)
+      .orderBy('createdAt', descending: true)
+      .limit(limit)
+      .snapshots()
+      .map(_toDomain);
+
+  Stream<List<Place>> featured({int limit = 10}) => _places
+      .where('hidden', isEqualTo: false)
+      .where('featured', isEqualTo: true)
+      .limit(limit)
+      .snapshots()
+      .map(_toDomain);
+
+  Stream<List<Place>> trending({int limit = 10}) => _places
+      .where('hidden', isEqualTo: false)
+      .orderBy('saveCount', descending: true)
+      .limit(limit)
+      .snapshots()
+      .map(_toDomain);
+
+  Stream<Place?> placeById(String id) => _places
+      .doc(id)
+      .snapshots()
+      .map((d) => d.exists ? _docToPlace(d) : null);
+
+  Stream<List<Place>> search(String query) {
+    if (query.length < 2) return const Stream.empty();
+    return _places
+        .where('title', isGreaterThanOrEqualTo: query)
+        .where('title', isLessThanOrEqualTo: '$query\uf8ff')
+        .where('hidden', isEqualTo: false)
+        .limit(30)
+        .snapshots()
+        .map(_toDomain);
+  }
+
+  Stream<List<Place>> byOwner(String uid) => _places
+      .where('ownerUid', isEqualTo: uid)
+      .orderBy('createdAt', descending: true)
+      .snapshots()
+      .map(_toDomain);
+
+  Future<String> createPlace(Place place) async {
+    final ref = _places.doc();
+    await ref.set({
+      ...place.toJson(),
+      'id': ref.id,
+      'createdAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
+      'saveCount': 0,
+      'ratingAvg': 0.0,
+      'ratingCount': 0,
+      'hidden': false,
+    });
+    return ref.id;
+  }
+
+  List<Place> _toDomain(QuerySnapshot<Map<String, dynamic>> snap) =>
+      snap.docs.map(_docToPlace).toList();
+
+  Place _docToPlace(DocumentSnapshot<Map<String, dynamic>> doc) =>
+      Place.fromJson({...doc.data()!, 'id': doc.id});
+}

@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
+import '../data/auth_repository.dart';
+import '../domain/auth_providers.dart';
 
-class SignUpScreen extends StatefulWidget {
+class SignUpScreen extends ConsumerStatefulWidget {
   const SignUpScreen({super.key});
 
   @override
-  State<SignUpScreen> createState() => _SignUpScreenState();
+  ConsumerState<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _SignUpScreenState extends State<SignUpScreen> {
+class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   final _name = TextEditingController();
   final _email = TextEditingController();
   final _password = TextEditingController();
   bool _loading = false;
+  String? _error;
 
   @override
   void dispose() {
@@ -45,13 +49,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 16),
-              Text('Create\naccount.', style: Theme.of(context).textTheme.displayMedium),
+              Text('Create\naccount.',
+                  style: Theme.of(context).textTheme.displayMedium),
               const SizedBox(height: 8),
               const Text(
                 'Join a community of locals sharing hidden gems.',
                 style: LALTypography.bodyMedium,
               ),
               const SizedBox(height: 40),
+              if (_error != null) ...[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: LALColors.error.withValues(alpha: 0.1),
+                    borderRadius: LALRadii.mdBorder,
+                  ),
+                  child: Text(_error!,
+                      style: LALTypography.bodySmall
+                          .copyWith(color: LALColors.error)),
+                ),
+                const SizedBox(height: 16),
+              ],
               TextField(
                 controller: _name,
                 textCapitalization: TextCapitalization.words,
@@ -73,7 +91,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 onSubmitted: (_) => _signUp(),
                 decoration: const InputDecoration(
                   labelText: 'Password',
-                  helperText: 'At least 8 characters',
+                  helperText: 'At least 6 characters',
                 ),
               ),
               const SizedBox(height: 32),
@@ -113,12 +131,35 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   Future<void> _signUp() async {
-    setState(() => _loading = true);
-    // TODO: FirebaseAuth.instance.createUserWithEmailAndPassword(...)
-    await Future.delayed(const Duration(milliseconds: 800));
-    if (mounted) {
-      setState(() => _loading = false);
-      context.go('/discover');
+    if (_name.text.trim().isEmpty) {
+      setState(() => _error = 'Please enter your name.');
+      return;
+    }
+    if (_email.text.trim().isEmpty) {
+      setState(() => _error = 'Please enter your email.');
+      return;
+    }
+    if (_password.text.length < 6) {
+      setState(() => _error = 'Password must be at least 6 characters.');
+      return;
+    }
+
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+
+    try {
+      await ref
+          .read(authRepositoryProvider)
+          .signUp(_email.text, _password.text, _name.text);
+      if (mounted) context.go('/onboarding');
+    } catch (e) {
+      if (mounted) {
+        setState(() => _error = AuthRepository.friendlyAuthError(e));
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
     }
   }
 }

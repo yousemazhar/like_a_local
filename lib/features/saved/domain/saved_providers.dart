@@ -1,0 +1,57 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../../auth/domain/auth_providers.dart';
+import '../data/saved_repository.dart';
+import 'saved_pin.dart';
+
+part 'saved_providers.g.dart';
+
+@Riverpod(keepAlive: true)
+SavedRepository savedRepository(SavedRepositoryRef ref) =>
+    SavedRepository(FirebaseFirestore.instance);
+
+@riverpod
+Stream<List<SavedPin>> savedPins(SavedPinsRef ref) {
+  final user = ref.watch(authStateProvider).valueOrNull;
+  if (user == null) return const Stream.empty();
+  return ref.watch(savedRepositoryProvider).pinsStream(user.uid);
+}
+
+@riverpod
+Stream<List<SavedCollection>> savedCollections(SavedCollectionsRef ref) {
+  final user = ref.watch(authStateProvider).valueOrNull;
+  if (user == null) return const Stream.empty();
+  return ref.watch(savedRepositoryProvider).collectionsStream(user.uid);
+}
+
+@riverpod
+Stream<bool> isPlacePinned(IsPlacePinnedRef ref, String placeId) {
+  final user = ref.watch(authStateProvider).valueOrNull;
+  if (user == null) return Stream.value(false);
+  return ref.watch(savedRepositoryProvider).isPinned(user.uid, placeId);
+}
+
+@riverpod
+class SavedNotifier extends _$SavedNotifier {
+  @override
+  void build() {}
+
+  Future<void> togglePin(String placeId) async {
+    final user = ref.read(authStateProvider).valueOrNull;
+    if (user == null) return;
+    final repo = ref.read(savedRepositoryProvider);
+    final pinned = await repo.isPinned(user.uid, placeId).first;
+    if (pinned) {
+      await repo.unpinPlace(user.uid, placeId);
+    } else {
+      await repo.pinPlace(user.uid, placeId);
+    }
+  }
+
+  Future<void> createCollection(String name) async {
+    final user = ref.read(authStateProvider).valueOrNull;
+    if (user == null) return;
+    await ref.read(savedRepositoryProvider).createCollection(user.uid, name);
+  }
+}

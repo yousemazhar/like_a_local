@@ -1,18 +1,119 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/widgets/skeleton.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
+import '../../saved/domain/saved_providers.dart';
+import '../domain/place.dart';
+import '../domain/place_providers.dart';
 
 const _contentOverlap = 22.0;
 
-class PlaceScreen extends StatelessWidget {
+class PlaceScreen extends ConsumerWidget {
   const PlaceScreen({super.key, required this.placeId});
 
   final String placeId;
 
   @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final placeAsync = ref.watch(placeDetailProvider(placeId));
+
+    return placeAsync.when(
+      loading: () => const _PlaceScaffoldLoading(),
+      error: (e, _) => _PlaceScaffoldError(onBack: () => context.pop()),
+      data: (place) => place == null
+          ? _PlaceScaffoldError(onBack: () => context.pop())
+          : _PlaceScaffoldData(place: place),
+    );
+  }
+}
+
+class _PlaceScaffoldLoading extends StatelessWidget {
+  const _PlaceScaffoldLoading();
+
+  @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: LALColors.bg,
+      body: Column(
+        children: [
+          const SkeletonBox(width: double.infinity, height: 420),
+          const SizedBox(height: 24),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: LALSpacing.xl),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SkeletonBox(width: 80, height: 24),
+                const SizedBox(height: 10),
+                const SkeletonBox(width: 220, height: 32),
+                const SizedBox(height: 8),
+                const SkeletonBox(width: 140, height: 16),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PlaceScaffoldError extends StatelessWidget {
+  const _PlaceScaffoldError({required this.onBack});
+
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: LALColors.bg,
+      appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.error_outline, color: LALColors.c300, size: 48),
+              const SizedBox(height: 16),
+              const Text('Place not found', style: LALTypography.labelLarge),
+              const SizedBox(height: 8),
+              const Text(
+                'This place may have been removed or is no longer available.',
+                style: LALTypography.bodySmall,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: onBack,
+                child: const Text('Go back'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PlaceScaffoldData extends ConsumerStatefulWidget {
+  const _PlaceScaffoldData({required this.place});
+
+  final Place place;
+
+  @override
+  ConsumerState<_PlaceScaffoldData> createState() => _PlaceScaffoldDataState();
+}
+
+class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
+  @override
+  Widget build(BuildContext context) {
+    final place = widget.place;
+    final savedAsync = ref.watch(isPlacePinnedProvider(place.id));
+    final isSaved = savedAsync.valueOrNull ?? false;
+
     return Scaffold(
       backgroundColor: LALColors.bg,
       body: CustomScrollView(
@@ -24,7 +125,7 @@ class PlaceScreen extends StatelessWidget {
             leading: Padding(
               padding: const EdgeInsets.all(8),
               child: CircleAvatar(
-                backgroundColor: Colors.white.withOpacity(0.9),
+                backgroundColor: Colors.white.withValues(alpha: 0.9),
                 child: IconButton(
                   icon: const Icon(Icons.arrow_back_ios_new_rounded,
                       size: 16, color: LALColors.c900),
@@ -36,7 +137,7 @@ class PlaceScreen extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(8),
                 child: CircleAvatar(
-                  backgroundColor: Colors.white.withOpacity(0.9),
+                  backgroundColor: Colors.white.withValues(alpha: 0.9),
                   child: IconButton(
                     icon: const Icon(Icons.share_outlined,
                         size: 16, color: LALColors.c900),
@@ -49,29 +150,32 @@ class PlaceScreen extends StatelessWidget {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Container(color: LALColors.c100),
-                  const Center(
-                    child: Icon(Icons.image_not_supported_outlined,
-                        color: LALColors.c300, size: 40),
-                  ),
-                  // Image counter
-                  Positioned(
-                    bottom: 16,
-                    right: 16,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.5),
-                        borderRadius: LALRadii.pillBorder,
+                  if (place.mediaUrls.isNotEmpty)
+                    Image.network(
+                      place.mediaUrls.first,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => const _HeroPlaceholder(),
+                    )
+                  else
+                    const _HeroPlaceholder(),
+                  if (place.mediaUrls.length > 1)
+                    Positioned(
+                      bottom: 16,
+                      right: 16,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.5),
+                          borderRadius: LALRadii.pillBorder,
+                        ),
+                        child: Text('1 / ${place.mediaUrls.length}',
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500)),
                       ),
-                      child: const Text('1 / 3',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500)),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -90,10 +194,9 @@ class PlaceScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 24),
-                      // Title & category
                       Padding(
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: LALSpacing.xl),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: LALSpacing.xl),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -104,40 +207,50 @@ class PlaceScreen extends StatelessWidget {
                                 color: LALColors.surfaceAlt,
                                 borderRadius: LALRadii.pillBorder,
                               ),
-                              child: const Text('Restaurant',
+                              child: Text(place.category,
                                   style: LALTypography.labelSmall),
                             ),
                             const SizedBox(height: 8),
-                            Text('Tasca do Chico',
-                                style:
-                                    Theme.of(context).textTheme.headlineLarge),
+                            Text(place.title,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineLarge),
                             const SizedBox(height: 4),
-                            const Text('Alfama · Lisbon',
-                                style: LALTypography.bodySmall),
-                            const SizedBox(height: 12),
-                            Row(children: [
-                              const Icon(Icons.star_rounded,
-                                  color: LALColors.accent, size: 16),
-                              const SizedBox(width: 4),
-                              const Text('4.8',
-                                  style: LALTypography.labelMedium),
-                              const SizedBox(width: 4),
-                              const Text('(47 reviews)',
-                                  style: LALTypography.bodySmall),
-                            ]),
+                            Text(
+                              [
+                                if (place.neighborhood.isNotEmpty)
+                                  place.neighborhood,
+                                if (place.city.isNotEmpty) place.city,
+                              ].join(' · '),
+                              style: LALTypography.bodySmall,
+                            ),
+                            if (place.ratingAvg > 0) ...[
+                              const SizedBox(height: 12),
+                              Row(children: [
+                                const Icon(Icons.star_rounded,
+                                    color: LALColors.accent, size: 16),
+                                const SizedBox(width: 4),
+                                Text(place.ratingAvg.toStringAsFixed(1),
+                                    style: LALTypography.labelMedium),
+                                const SizedBox(width: 4),
+                                Text('(${place.ratingCount} reviews)',
+                                    style: LALTypography.bodySmall),
+                              ]),
+                            ],
                           ],
                         ),
                       ),
                       const SizedBox(height: 24),
-                      // Tips card
-                      _TipsCard(),
-                      const SizedBox(height: 20),
-                      // Dishes
-                      _DishesSection(),
-                      const SizedBox(height: 20),
-                      // Contributor card
-                      _ContributorCard(),
-                      const SizedBox(height: 100), // bottom bar clearance
+                      if (place.tips.isNotEmpty) ...[
+                        _TipsCard(tips: place.tips),
+                        const SizedBox(height: 20),
+                      ],
+                      _ContributorCard(
+                        ownerDisplayName: place.ownerDisplayName,
+                        ownerIsSuper: place.ownerIsSuper,
+                        ownerUid: place.ownerUid,
+                      ),
+                      const SizedBox(height: 100),
                     ],
                   ),
                 ),
@@ -146,20 +259,36 @@ class PlaceScreen extends StatelessWidget {
           ),
         ],
       ),
-      // Sticky bottom bar
-      bottomNavigationBar: _PlaceBottomBar(),
+      bottomNavigationBar: _PlaceBottomBar(
+        place: place,
+        isSaved: isSaved,
+        onToggleSave: () =>
+            ref.read(savedNotifierProvider.notifier).togglePin(place.id),
+      ),
     );
   }
 }
 
+class _HeroPlaceholder extends StatelessWidget {
+  const _HeroPlaceholder();
+
+  @override
+  Widget build(BuildContext context) => Container(
+        color: LALColors.c100,
+        child: const Center(
+          child: Icon(Icons.image_not_supported_outlined,
+              color: LALColors.c300, size: 40),
+        ),
+      );
+}
+
 class _TipsCard extends StatelessWidget {
+  const _TipsCard({required this.tips});
+
+  final List<PlaceTip> tips;
+
   @override
   Widget build(BuildContext context) {
-    const tips = [
-      'Order the bacalhau à brás — it\'s not on the menu but ask for it.',
-      'Go early or expect a queue. Worth every minute.',
-      'Cash only. There\'s an ATM around the corner.',
-    ];
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: LALSpacing.xl),
       padding: const EdgeInsets.all(16),
@@ -184,16 +313,14 @@ class _TipsCard extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                   child: Center(
-                    child: Text(
-                      '${i + 1}',
-                      style: LALTypography.labelSmall
-                          .copyWith(color: LALColors.c700),
-                    ),
+                    child: Text('${i + 1}',
+                        style: LALTypography.labelSmall
+                            .copyWith(color: LALColors.c700)),
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Text(tips[i], style: LALTypography.bodyMedium),
+                  child: Text(tips[i].text, style: LALTypography.bodyMedium),
                 ),
               ],
             ),
@@ -205,70 +332,17 @@ class _TipsCard extends StatelessWidget {
   }
 }
 
-class _DishesSection extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    const dishes = [
-      (name: 'Bacalhau à Brás', note: 'Off-menu, must ask'),
-      (name: 'Pastel de Nata', note: 'Fresh every morning'),
-      (name: 'Vinho Verde', note: 'House pour, affordable'),
-    ];
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: LALSpacing.xl),
-          child: Text('Must-Try Dishes', style: LALTypography.labelLarge),
-        ),
-        const SizedBox(height: 10),
-        SizedBox(
-          height: 120,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            padding:
-                const EdgeInsets.symmetric(horizontal: LALSpacing.xl),
-            itemCount: dishes.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 10),
-            itemBuilder: (_, i) => Container(
-              width: 140,
-              padding: const EdgeInsets.all(12),
-              decoration: const BoxDecoration(
-                color: LALColors.surface,
-                borderRadius: LALRadii.lgBorder,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: const BoxDecoration(
-                      color: LALColors.surfaceAlt,
-                      borderRadius: LALRadii.mdBorder,
-                    ),
-                    child: const Icon(Icons.restaurant_menu,
-                        color: LALColors.c300, size: 20),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(dishes[i].name,
-                      style: LALTypography.labelMedium,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis),
-                  Text(dishes[i].note,
-                      style: LALTypography.bodySmall,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class _ContributorCard extends StatelessWidget {
+  const _ContributorCard({
+    required this.ownerDisplayName,
+    required this.ownerIsSuper,
+    required this.ownerUid,
+  });
+
+  final String ownerDisplayName;
+  final bool ownerIsSuper;
+  final String ownerUid;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -287,22 +361,23 @@ class _ContributorCard extends StatelessWidget {
                 backgroundColor: LALColors.c100,
                 child: Icon(Icons.person, color: LALColors.c400),
               ),
-              Positioned(
-                top: 0,
-                right: 0,
-                child: Container(
-                  width: 14,
-                  height: 14,
-                  decoration: const BoxDecoration(
-                    color: LALColors.accent,
-                    shape: BoxShape.circle,
-                    border: Border.fromBorderSide(
-                        BorderSide(color: Colors.white, width: 1.5)),
+              if (ownerIsSuper)
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Container(
+                    width: 14,
+                    height: 14,
+                    decoration: const BoxDecoration(
+                      color: LALColors.accent,
+                      shape: BoxShape.circle,
+                      border: Border.fromBorderSide(
+                          BorderSide(color: Colors.white, width: 1.5)),
+                    ),
+                    child: const Icon(Icons.workspace_premium_rounded,
+                        color: Colors.white, size: 8),
                   ),
-                  child: const Icon(Icons.workspace_premium_rounded,
-                      color: Colors.white, size: 8),
                 ),
-              ),
             ],
           ),
           const SizedBox(width: 12),
@@ -310,15 +385,21 @@ class _ContributorCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('João Silva', style: LALTypography.labelLarge),
-                Text('Super Local · 23 places',
-                    style: LALTypography.bodySmall
-                        .copyWith(color: LALColors.accent)),
+                Text(
+                    ownerDisplayName.isNotEmpty
+                        ? ownerDisplayName
+                        : 'Anonymous',
+                    style: LALTypography.labelLarge),
+                Text(
+                  ownerIsSuper ? 'Super Local' : 'Contributor',
+                  style:
+                      LALTypography.bodySmall.copyWith(color: LALColors.accent),
+                ),
               ],
             ),
           ),
           ElevatedButton(
-            onPressed: () => context.push('/chat/joao-silva'),
+            onPressed: () => context.push('/chat/$ownerUid'),
             style: ElevatedButton.styleFrom(
               padding:
                   const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -333,13 +414,16 @@ class _ContributorCard extends StatelessWidget {
   }
 }
 
-class _PlaceBottomBar extends StatefulWidget {
-  @override
-  State<_PlaceBottomBar> createState() => _PlaceBottomBarState();
-}
+class _PlaceBottomBar extends StatelessWidget {
+  const _PlaceBottomBar({
+    required this.place,
+    required this.isSaved,
+    required this.onToggleSave,
+  });
 
-class _PlaceBottomBarState extends State<_PlaceBottomBar> {
-  bool _saved = false;
+  final Place place;
+  final bool isSaved;
+  final VoidCallback onToggleSave;
 
   @override
   Widget build(BuildContext context) {
@@ -362,13 +446,13 @@ class _PlaceBottomBarState extends State<_PlaceBottomBar> {
           const SizedBox(width: 12),
           Expanded(
             child: ElevatedButton.icon(
-              onPressed: () => setState(() => _saved = !_saved),
+              onPressed: onToggleSave,
               icon: Icon(
-                _saved ? Icons.bookmark : Icons.bookmark_border,
+                isSaved ? Icons.bookmark : Icons.bookmark_border,
                 size: 16,
               ),
-              label: Text(_saved ? 'Saved' : 'Save place'),
-              style: _saved
+              label: Text(isSaved ? 'Saved' : 'Save place'),
+              style: isSaved
                   ? ElevatedButton.styleFrom(
                       backgroundColor: LALColors.accentSoft,
                       foregroundColor: LALColors.accentDark,

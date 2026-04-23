@@ -102,7 +102,7 @@ class _NotificationTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: notification.read ? null : LALColors.accentSoft.withOpacity(0.3),
+      color: notification.read ? null : LALColors.accentSoft.withValues(alpha: 0.3),
       child: ListTile(
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 20, vertical: 8),

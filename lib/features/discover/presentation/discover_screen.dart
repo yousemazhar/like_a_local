@@ -1,15 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/widgets/lal_chip.dart';
 import '../../../core/widgets/lal_header.dart';
+import '../../../core/widgets/offline_banner.dart';
 import '../../../core/widgets/place_card.dart';
 import '../../../core/widgets/section_title.dart';
+import '../../../core/widgets/skeleton.dart';
+import '../../../features/place/domain/place.dart';
+import '../../../features/place/domain/place_providers.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
 
-// Placeholder data until Firestore is connected
-const _featuredPlaces = [
+const _categories = [
+  'All',
+  'Restaurant',
+  'Café',
+  'Bar',
+  'Viewpoint',
+  'Market',
+  'Museum',
+  'Park',
+];
+
+const _demoPlaces = [
   (
     title: 'Tasca do Chico',
     neighborhood: 'Alfama',
@@ -33,41 +48,53 @@ const _featuredPlaces = [
   ),
 ];
 
-const _categories = [
-  'All', 'Restaurant', 'Café', 'Bar', 'Viewpoint', 'Market', 'Museum', 'Park',
-];
-
-class DiscoverScreen extends StatefulWidget {
+class DiscoverScreen extends ConsumerStatefulWidget {
   const DiscoverScreen({super.key});
 
   @override
-  State<DiscoverScreen> createState() => _DiscoverScreenState();
+  ConsumerState<DiscoverScreen> createState() => _DiscoverScreenState();
 }
 
-class _DiscoverScreenState extends State<DiscoverScreen> {
+class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
   int _selectedCategory = 0;
 
   @override
   Widget build(BuildContext context) {
+    final featuredAsync = ref.watch(featuredPlacesProvider);
+    final trendingAsync = ref.watch(trendingPlacesProvider);
+
     return Scaffold(
       backgroundColor: LALColors.bg,
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: LALHeader(
-              location: 'Lisbon',
-              onNotificationsTap: () => context.push('/notifications'),
+      body: Column(
+        children: [
+          const OfflineBanner(),
+          Expanded(
+            child: CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: LALHeader(
+                    location: 'Lisbon',
+                    onNotificationsTap: () => context.push('/notifications'),
+                  ),
+                ),
+                SliverToBoxAdapter(child: _SearchPill()),
+                SliverToBoxAdapter(
+                  child: _FeaturedSection(featuredAsync: featuredAsync),
+                ),
+                SliverToBoxAdapter(
+                  child: _CategoryChips(
+                    selected: _selectedCategory,
+                    onSelect: (i) => setState(() => _selectedCategory = i),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: _TrendingSection(trendingAsync: trendingAsync),
+                ),
+                SliverToBoxAdapter(child: _LocalOfWeekCard()),
+                const SliverToBoxAdapter(child: SizedBox(height: 24)),
+              ],
             ),
           ),
-          SliverToBoxAdapter(child: _SearchPill()),
-          SliverToBoxAdapter(child: _FeaturedSection()),
-          SliverToBoxAdapter(child: _CategoryChips(
-            selected: _selectedCategory,
-            onSelect: (i) => setState(() => _selectedCategory = i),
-          )),
-          SliverToBoxAdapter(child: _TrendingSection()),
-          SliverToBoxAdapter(child: _LocalOfWeekCard()),
-          const SliverToBoxAdapter(child: SizedBox(height: 24)),
         ],
       ),
     );
@@ -105,31 +132,73 @@ class _SearchPill extends StatelessWidget {
 }
 
 class _FeaturedSection extends StatelessWidget {
+  const _FeaturedSection({required this.featuredAsync});
+
+  final AsyncValue<List<Place>> featuredAsync;
+
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SectionTitle(title: 'Near You', action: 'See all', onActionTap: () => context.push('/map')),
+        SectionTitle(
+          title: 'Near You',
+          action: 'See all',
+          onActionTap: () => context.push('/map'),
+        ),
         const SizedBox(height: 12),
         SizedBox(
           height: 360,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: LALSpacing.xl),
-            itemCount: _featuredPlaces.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 12),
-            itemBuilder: (_, i) => PlaceCard(
-              imageUrl: _featuredPlaces[i].imageUrl,
-              title: _featuredPlaces[i].title,
-              neighborhood: _featuredPlaces[i].neighborhood,
-              category: _featuredPlaces[i].category,
-              onTap: () => context.push('/place/demo-$i'),
+          child: featuredAsync.when(
+            loading: () => SkeletonList(
+              scrollDirection: Axis.horizontal,
+              itemCount: 3,
+              padding: const EdgeInsets.symmetric(horizontal: LALSpacing.xl),
+              itemBuilder: (_, __) =>
+                  const SkeletonCard(width: 240, height: 340),
             ),
+            error: (_, __) => _demoFeaturedList(context),
+            data: (places) => places.isEmpty
+                ? _demoFeaturedList(context)
+                : ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: LALSpacing.xl),
+                    itemCount: places.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 12),
+                    itemBuilder: (_, i) => PlaceCard(
+                      imageUrl: places[i].mediaUrls.isNotEmpty
+                          ? places[i].mediaUrls.first
+                          : '',
+                      title: places[i].title,
+                      neighborhood: places[i].neighborhood,
+                      category: places[i].category,
+                      rating: places[i].ratingAvg > 0
+                          ? places[i].ratingAvg
+                          : null,
+                      onTap: () => context.push('/place/${places[i].id}'),
+                    ),
+                  ),
           ),
         ),
         const SizedBox(height: 24),
       ],
+    );
+  }
+
+  Widget _demoFeaturedList(BuildContext context) {
+    return ListView.separated(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: LALSpacing.xl),
+      itemCount: _demoPlaces.length,
+      separatorBuilder: (_, __) => const SizedBox(width: 12),
+      itemBuilder: (_, i) => PlaceCard(
+        imageUrl: _demoPlaces[i].imageUrl,
+        title: _demoPlaces[i].title,
+        neighborhood: _demoPlaces[i].neighborhood,
+        category: _demoPlaces[i].category,
+        onTap: () => context.push('/place/demo-$i'),
+      ),
     );
   }
 }
@@ -160,6 +229,10 @@ class _CategoryChips extends StatelessWidget {
 }
 
 class _TrendingSection extends StatelessWidget {
+  const _TrendingSection({required this.trendingAsync});
+
+  final AsyncValue<List<Place>> trendingAsync;
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -170,21 +243,53 @@ class _TrendingSection extends StatelessWidget {
         const SizedBox(height: 12),
         SizedBox(
           height: 168,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: LALSpacing.xl),
-            itemCount: _featuredPlaces.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 12),
-            itemBuilder: (_, i) => PlaceCard(
-              imageUrl: _featuredPlaces[i].imageUrl,
-              title: _featuredPlaces[i].title,
-              neighborhood: _featuredPlaces[i].neighborhood,
-              variant: PlaceCardVariant.trending,
-              onTap: () => context.push('/place/demo-$i'),
+          child: trendingAsync.when(
+            loading: () => SkeletonList(
+              scrollDirection: Axis.horizontal,
+              itemCount: 3,
+              padding:
+                  const EdgeInsets.symmetric(horizontal: LALSpacing.xl),
+              itemBuilder: (_, __) =>
+                  const SkeletonCard(width: 200, height: 148),
             ),
+            error: (_, __) => _demoTrendingList(context),
+            data: (places) => places.isEmpty
+                ? _demoTrendingList(context)
+                : ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: LALSpacing.xl),
+                    itemCount: places.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 12),
+                    itemBuilder: (_, i) => PlaceCard(
+                      imageUrl: places[i].mediaUrls.isNotEmpty
+                          ? places[i].mediaUrls.first
+                          : '',
+                      title: places[i].title,
+                      neighborhood: places[i].neighborhood,
+                      variant: PlaceCardVariant.trending,
+                      onTap: () => context.push('/place/${places[i].id}'),
+                    ),
+                  ),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _demoTrendingList(BuildContext context) {
+    return ListView.separated(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: LALSpacing.xl),
+      itemCount: _demoPlaces.length,
+      separatorBuilder: (_, __) => const SizedBox(width: 12),
+      itemBuilder: (_, i) => PlaceCard(
+        imageUrl: _demoPlaces[i].imageUrl,
+        title: _demoPlaces[i].title,
+        neighborhood: _demoPlaces[i].neighborhood,
+        variant: PlaceCardVariant.trending,
+        onTap: () => context.push('/place/demo-$i'),
+      ),
     );
   }
 }
@@ -214,8 +319,8 @@ class _LocalOfWeekCard extends StatelessWidget {
                       const SizedBox(width: 6),
                       Text(
                         'LOCAL OF THE WEEK',
-                        style: LALTypography.labelSmall
-                            .copyWith(color: LALColors.accent, letterSpacing: 1),
+                        style: LALTypography.labelSmall.copyWith(
+                            color: LALColors.accent, letterSpacing: 1),
                       ),
                     ],
                   ),
@@ -241,18 +346,18 @@ class _LocalOfWeekCard extends StatelessWidget {
                     ),
                     child: Text(
                       'View Profile',
-                      style: LALTypography.labelMedium
-                          .copyWith(color: Colors.white),
+                      style:
+                          LALTypography.labelMedium.copyWith(color: Colors.white),
                     ),
                   ),
                 ],
               ),
             ),
             const SizedBox(width: 16),
-            CircleAvatar(
+            const CircleAvatar(
               radius: 44,
               backgroundColor: LALColors.c800,
-              child: const Icon(Icons.person, color: LALColors.c400, size: 40),
+              child: Icon(Icons.person, color: LALColors.c400, size: 40),
             ),
           ],
         ),

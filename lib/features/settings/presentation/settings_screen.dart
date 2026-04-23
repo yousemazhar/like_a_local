@@ -205,7 +205,7 @@ class _ToggleTile extends StatelessWidget {
         trailing: Switch.adaptive(
           value: value,
           onChanged: onChanged,
-          activeColor: LALColors.accent,
+          activeTrackColor: LALColors.accent,
         ),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 20, vertical: 2),

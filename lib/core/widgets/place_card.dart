@@ -252,7 +252,7 @@ class _GradientOverlay extends StatelessWidget {
           end: Alignment.bottomCenter,
           colors: [
             Colors.transparent,
-            Colors.black.withOpacity(0.65),
+            Colors.black.withValues(alpha: 0.65),
           ],
           stops: const [0.45, 1.0],
         ),

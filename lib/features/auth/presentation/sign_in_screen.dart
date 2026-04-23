@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
+import '../data/auth_repository.dart';
+import '../domain/auth_providers.dart';
 
-class SignInScreen extends StatefulWidget {
+class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({super.key});
 
   @override
-  State<SignInScreen> createState() => _SignInScreenState();
+  ConsumerState<SignInScreen> createState() => _SignInScreenState();
 }
 
-class _SignInScreenState extends State<SignInScreen> {
+class _SignInScreenState extends ConsumerState<SignInScreen> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   bool _loading = false;
+  String? _error;
 
   @override
   void dispose() {
@@ -34,7 +38,7 @@ class _SignInScreenState extends State<SignInScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 60),
-              _LALLogoHero(),
+              const _LALLogoHero(),
               const SizedBox(height: 40),
               Text('Welcome\nback.', style: Theme.of(context).textTheme.displayMedium),
               const SizedBox(height: 8),
@@ -43,6 +47,19 @@ class _SignInScreenState extends State<SignInScreen> {
                 style: LALTypography.bodyMedium,
               ),
               const SizedBox(height: 40),
+              if (_error != null) ...[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: LALColors.error.withValues(alpha: 0.1),
+                    borderRadius: LALRadii.mdBorder,
+                  ),
+                  child: Text(_error!,
+                      style: LALTypography.bodySmall
+                          .copyWith(color: LALColors.error)),
+                ),
+                const SizedBox(height: 16),
+              ],
               TextField(
                 controller: _email,
                 keyboardType: TextInputType.emailAddress,
@@ -60,7 +77,7 @@ class _SignInScreenState extends State<SignInScreen> {
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: () => _showForgotPassword(context),
                   child: const Text('Forgot password?'),
                 ),
               ),
@@ -101,17 +118,70 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   Future<void> _signIn() async {
-    setState(() => _loading = true);
-    // TODO: FirebaseAuth.instance.signInWithEmailAndPassword(...)
-    await Future.delayed(const Duration(milliseconds: 800));
-    if (mounted) {
-      setState(() => _loading = false);
-      context.go('/discover');
+    if (_email.text.trim().isEmpty || _password.text.isEmpty) {
+      setState(() => _error = 'Please enter your email and password.');
+      return;
     }
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      await ref
+          .read(authRepositoryProvider)
+          .signIn(_email.text, _password.text);
+      if (mounted) context.go('/discover');
+    } catch (e) {
+      if (mounted) {
+        setState(() => _error = AuthRepository.friendlyAuthError(e));
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  void _showForgotPassword(BuildContext context) {
+    final emailCtrl = TextEditingController(text: _email.text.trim());
+    showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Reset password'),
+        content: TextField(
+          controller: emailCtrl,
+          keyboardType: TextInputType.emailAddress,
+          decoration: const InputDecoration(labelText: 'Email'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              try {
+                await ref
+                    .read(authRepositoryProvider)
+                    .sendPasswordResetEmail(emailCtrl.text);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Password reset email sent.')),
+                  );
+                }
+              } catch (_) {}
+            },
+            child: const Text('Send'),
+          ),
+        ],
+      ),
+    );
   }
 }
 
 class _LALLogoHero extends StatelessWidget {
+  const _LALLogoHero();
+
   @override
   Widget build(BuildContext context) {
     return Row(

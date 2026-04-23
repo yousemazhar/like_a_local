@@ -36,7 +36,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: LALColors.accent.withOpacity(0.2),
+                  color: LALColors.accent.withValues(alpha: 0.2),
                   borderRadius: LALRadii.pillBorder,
                 ),
                 child: Row(
@@ -167,7 +167,7 @@ class _FeatureRow extends StatelessWidget {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: LALColors.accent.withOpacity(0.15),
+              color: LALColors.accent.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
             child: Icon(feature.icon, color: LALColors.accent, size: 16),
@@ -209,7 +209,7 @@ class _PlanCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: isSelected
-              ? LALColors.accent.withOpacity(0.15)
+              ? LALColors.accent.withValues(alpha: 0.15)
               : LALColors.c800,
           borderRadius: LALRadii.lgBorder,
           border: Border.all(

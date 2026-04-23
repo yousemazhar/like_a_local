@@ -60,18 +60,34 @@ class SkeletonCard extends StatelessWidget {
 }
 
 class SkeletonList extends StatelessWidget {
-  const SkeletonList({super.key, this.itemCount = 5});
+  const SkeletonList({
+    super.key,
+    this.itemCount = 5,
+    this.scrollDirection = Axis.vertical,
+    this.padding,
+    this.itemBuilder,
+  });
 
   final int itemCount;
+  final Axis scrollDirection;
+  final EdgeInsets? padding;
+  final NullableIndexedWidgetBuilder? itemBuilder;
 
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
+      scrollDirection: scrollDirection,
+      padding: padding,
+      shrinkWrap: scrollDirection == Axis.vertical,
+      physics: scrollDirection == Axis.vertical
+          ? const NeverScrollableScrollPhysics()
+          : null,
       itemCount: itemCount,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (_, __) => const _SkeletonListItem(),
+      separatorBuilder: (_, __) => SizedBox(
+        width: scrollDirection == Axis.horizontal ? 12 : 0,
+        height: scrollDirection == Axis.vertical ? 12 : 0,
+      ),
+      itemBuilder: itemBuilder ?? (_, i) => const _SkeletonListItem(),
     );
   }
 }
