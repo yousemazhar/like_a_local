@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/widgets/empty_view.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
 
@@ -37,30 +38,31 @@ class NotificationsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: LALColors.bg,
       appBar: AppBar(
-        title: const Text('Notifications'),
+        title: Text(t.notificationsTitle),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
           onPressed: () => context.pop(),
         ),
       ),
       body: _todayNotifications.isEmpty && _earlierNotifications.isEmpty
-          ? const EmptyView(
+          ? EmptyView(
               icon: Icons.notifications_none_rounded,
-              title: 'You\'re all caught up',
-              body: 'New notifications will appear here.',
+              title: t.notificationsEmpty,
+              body: t.notificationsEmptyBody,
             )
           : ListView(
               children: [
                 if (_todayNotifications.isNotEmpty) ...[
-                  _GroupHeader('Today'),
+                  _GroupHeader(t.notificationsToday),
                   for (final n in _todayNotifications)
                     _NotificationTile(notification: n),
                 ],
                 if (_earlierNotifications.isNotEmpty) ...[
-                  _GroupHeader('Earlier'),
+                  _GroupHeader(t.notificationsEarlier),
                   for (final n in _earlierNotifications)
                     _NotificationTile(notification: n),
                 ],

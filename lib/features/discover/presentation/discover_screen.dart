@@ -10,19 +10,9 @@ import '../../../core/widgets/section_title.dart';
 import '../../../core/widgets/skeleton.dart';
 import '../../../features/place/domain/place.dart';
 import '../../../features/place/domain/place_providers.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
-
-const _categories = [
-  'All',
-  'Restaurant',
-  'Café',
-  'Bar',
-  'Viewpoint',
-  'Market',
-  'Museum',
-  'Park',
-];
 
 const _demoPlaces = [
   (
@@ -104,6 +94,7 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
 class _SearchPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: () => context.go('/search'),
       child: Container(
@@ -120,7 +111,7 @@ class _SearchPill extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                'Search restaurants, places…',
+                t.discoverSearchHint,
                 style: LALTypography.bodyMedium.copyWith(color: LALColors.c400),
               ),
             ),
@@ -138,12 +129,13 @@ class _FeaturedSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SectionTitle(
-          title: 'Near You',
-          action: 'See all',
+          title: t.discoverNearYou,
+          action: t.discoverSeeAll,
           onActionTap: () => context.push('/map'),
         ),
         const SizedBox(height: 12),
@@ -211,15 +203,26 @@ class _CategoryChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    final categories = <String>[
+      t.categoryAll,
+      t.categoryRestaurant,
+      t.categoryCafe,
+      t.categoryBar,
+      t.categoryViewpoint,
+      t.categoryMarket,
+      t.categoryMuseum,
+      t.categoryPark,
+    ];
     return SizedBox(
       height: 40,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: LALSpacing.xl),
-        itemCount: _categories.length,
+        itemCount: categories.length,
         separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (_, i) => LALChip(
-          label: _categories[i],
+          label: categories[i],
           isSelected: selected == i,
           onTap: () => onSelect(i),
         ),
@@ -235,11 +238,12 @@ class _TrendingSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 24),
-        const SectionTitle(title: 'Trending Now'),
+        SectionTitle(title: t.discoverTrending),
         const SizedBox(height: 12),
         SizedBox(
           height: 168,
@@ -297,6 +301,7 @@ class _TrendingSection extends StatelessWidget {
 class _LocalOfWeekCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: () => context.push('/place/local-of-week'),
       child: Container(
@@ -318,7 +323,7 @@ class _LocalOfWeekCard extends StatelessWidget {
                           color: LALColors.accent, size: 16),
                       const SizedBox(width: 6),
                       Text(
-                        'LOCAL OF THE WEEK',
+                        t.discoverLocalOfWeekBadge,
                         style: LALTypography.labelSmall.copyWith(
                             color: LALColors.accent, letterSpacing: 1),
                       ),
@@ -345,7 +350,7 @@ class _LocalOfWeekCard extends StatelessWidget {
                       borderRadius: LALRadii.pillBorder,
                     ),
                     child: Text(
-                      'View Profile',
+                      t.discoverViewProfile,
                       style:
                           LALTypography.labelMedium.copyWith(color: Colors.white),
                     ),

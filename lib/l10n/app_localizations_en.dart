@@ -42,10 +42,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get discoverLocalOfWeek => 'Local of the Week';
 
   @override
+  String get discoverLocalOfWeekBadge => 'LOCAL OF THE WEEK';
+
+  @override
+  String get discoverViewProfile => 'View Profile';
+
+  @override
   String get discoverSeeAll => 'See all';
 
   @override
   String get discoverSearchHint => 'Search restaurants, places…';
+
+  @override
+  String get categoryAll => 'All';
+
+  @override
+  String get categoryRestaurant => 'Restaurant';
+
+  @override
+  String get categoryCafe => 'Café';
+
+  @override
+  String get categoryBar => 'Bar';
+
+  @override
+  String get categoryViewpoint => 'Viewpoint';
+
+  @override
+  String get categoryMarket => 'Market';
+
+  @override
+  String get categoryMuseum => 'Museum';
+
+  @override
+  String get categoryPark => 'Park';
 
   @override
   String get searchTitle => 'Search';
@@ -67,6 +97,27 @@ class AppLocalizationsEn extends AppLocalizations {
       'Try different keywords or remove some filters.';
 
   @override
+  String get moodRomantic => 'Romantic';
+
+  @override
+  String get moodFamily => 'Family';
+
+  @override
+  String get moodHiddenGem => 'Hidden Gem';
+
+  @override
+  String get moodLively => 'Lively';
+
+  @override
+  String get moodPeaceful => 'Peaceful';
+
+  @override
+  String get moodFoodie => 'Foodie';
+
+  @override
+  String get moodOffBeaten => 'Off-the-beaten-track';
+
+  @override
   String get savedTitle => 'Saved';
 
   @override
@@ -85,6 +136,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get savedEmptyBody => 'Save places you love to find them later.';
 
   @override
+  String get savedUnlockCollections => 'Unlock unlimited collections';
+
+  @override
+  String get savedFreePlan => 'Free plan: up to 10 saved places.';
+
+  @override
+  String get savedUpgrade => 'Upgrade';
+
+  @override
+  String get savedNoCollections => 'No collections yet';
+
+  @override
+  String get savedNoCollectionsBody =>
+      'Group your saved places into collections.';
+
+  @override
+  String get savedCreateCollection => 'Create collection';
+
+  @override
+  String get savedNewCollection => 'New collection';
+
+  @override
+  String get savedCollectionName => 'Collection name';
+
+  @override
+  String get savedCreate => 'Create';
+
+  @override
+  String savedPlacesCount(int count) {
+    return '$count places';
+  }
+
+  @override
+  String get savedNoReminders => 'No reminders set';
+
+  @override
+  String get savedNoRemindersBody =>
+      'Set location reminders on any saved place.';
+
+  @override
   String get inboxTitle => 'Inbox';
 
   @override
@@ -92,6 +183,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get inboxEmptyBody => 'Start a conversation with a local contributor.';
+
+  @override
+  String get chatLocalBadge => 'LOCAL';
+
+  @override
+  String get chatMessageHint => 'Message…';
+
+  @override
+  String get chatSuperLocal => 'Super Local';
 
   @override
   String get profileTitle => 'Profile';
@@ -106,6 +206,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileSavedPlaces => 'Saved Places';
 
   @override
+  String get profileYourName => 'Your Name';
+
+  @override
+  String get profileLocation => 'Lisbon, Portugal';
+
+  @override
+  String get profileStatPlaces => 'Places';
+
+  @override
+  String get profileStatSaved => 'Saved';
+
+  @override
+  String get profileStatHelpful => 'Helpful';
+
+  @override
+  String get profileVerified => 'Verified Member';
+
+  @override
+  String get profileVerifiedBody => 'Share 5 places to become a Super Local';
+
+  @override
+  String get profileMyPlaces => 'My Places';
+
+  @override
+  String get profileNoPlaces => 'No places shared yet';
+
+  @override
+  String get profileTestPay => 'Test Pay (debug)';
+
+  @override
   String get placeDetails => 'Details';
 
   @override
@@ -116,6 +246,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get placeReviews => 'Reviews';
+
+  @override
+  String placeReviewsCount(int count) {
+    return '($count reviews)';
+  }
 
   @override
   String get placeRemindMe => 'Remind me near';
@@ -130,16 +265,67 @@ class AppLocalizationsEn extends AppLocalizations {
   String get placeChatContributor => 'Chat with contributor';
 
   @override
+  String get placeNotFound => 'Place not found';
+
+  @override
+  String get placeNotFoundBody =>
+      'This place may have been removed or is no longer available.';
+
+  @override
+  String get placeGoBack => 'Go back';
+
+  @override
+  String get placeAnonymous => 'Anonymous';
+
+  @override
+  String get placeContributor => 'Contributor';
+
+  @override
+  String get placeSuperLocal => 'Super Local';
+
+  @override
+  String get placeChat => 'Chat';
+
+  @override
   String get mapTitle => 'Map';
 
   @override
   String get mapNearMe => 'Near Me';
 
   @override
+  String get mapLocating => 'Locating…';
+
+  @override
+  String get mapSearchOnMap => 'Search on map…';
+
+  @override
+  String get mapDirections => 'Directions';
+
+  @override
   String get mapNoLocation => 'Location access needed';
 
   @override
   String get mapNoLocationBody => 'Enable location to see places near you.';
+
+  @override
+  String get mapEnableLocationServices =>
+      'Enable location services to center the map near you.';
+
+  @override
+  String get mapLocationDenied =>
+      'Location permission denied. The map will stay interactive.';
+
+  @override
+  String get mapCannotFetchLocation =>
+      'Unable to fetch your current location right now.';
+
+  @override
+  String get mapCannotOpenMaps => 'Unable to open Google Maps right now.';
+
+  @override
+  String mapPickCount(int count) {
+    return '$count picks';
+  }
 
   @override
   String get addPlaceTitle => 'Add Place';
@@ -160,16 +346,102 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addPlacePublish => 'Publish Place';
 
   @override
+  String addPlaceNext(String step) {
+    return 'Next: $step';
+  }
+
+  @override
+  String get addPlacePhotosTitle => 'Add photos';
+
+  @override
+  String get addPlacePhotosHint => 'At least 1 photo required.';
+
+  @override
+  String get addPlaceDetailsTitle => 'Place details';
+
+  @override
+  String get addPlaceName => 'Place name';
+
+  @override
+  String get addPlaceNeighborhood => 'Neighborhood';
+
+  @override
+  String get addPlaceDescription => 'Description';
+
+  @override
+  String get addPlaceCategory => 'Category';
+
+  @override
+  String get addPlaceTipsSubtitle => 'Add up to 5 local tips.';
+
+  @override
+  String get addPlaceTipLabel => 'Tip 1';
+
+  @override
+  String get addPlaceTipHint => 'What should visitors know?';
+
+  @override
+  String get addPlaceAddTip => 'Add another tip';
+
+  @override
+  String get addPlaceDishName => 'Dish name';
+
+  @override
+  String get addPlaceAddDish => 'Add a dish';
+
+  @override
+  String get addPlaceReadyTitle => 'Ready to publish?';
+
+  @override
+  String get addPlaceReadyBody =>
+      'Your place will be visible to everyone once published.';
+
+  @override
   String get aiTitle => 'Local AI';
 
   @override
   String get aiPlaceholder => 'Ask about the best places…';
 
   @override
+  String get aiPoweredBy => 'Powered by Gemini';
+
+  @override
+  String get aiGreeting =>
+      'Hi! I\'m your Local AI. I know the city\'s hidden gems inside out. What are you looking for today?';
+
+  @override
+  String get aiSuggestion1 => 'Where to eat solo tonight?';
+
+  @override
+  String get aiSuggestion2 => 'Best Sunday brunch spots';
+
+  @override
+  String get aiSuggestion3 => 'Hidden bars in the old town';
+
+  @override
+  String get aiSuggestion4 => 'Viewpoints without the crowds';
+
+  @override
+  String get aiFallbackReply =>
+      'Great question! Based on your preferences, I can suggest a few hidden gems locals love. Would you like me to narrow down by cuisine or atmosphere?';
+
+  @override
   String get premiumTitle => 'Go Premium';
 
   @override
   String get premiumSubtitle => 'Unlock the full\nlocal experience.';
+
+  @override
+  String get premiumBadge => 'PREMIUM';
+
+  @override
+  String get premiumHeadlinePrefix => 'Unlock the full\n';
+
+  @override
+  String get premiumHeadlineAccent => 'local';
+
+  @override
+  String get premiumHeadlineSuffix => ' experience.';
 
   @override
   String get premiumMonthly => 'Monthly';
@@ -184,6 +456,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get premiumYearlyPrice => '€2.99 / month';
 
   @override
+  String get premiumPriceMonthly => '€4.99';
+
+  @override
+  String get premiumPriceYearly => '€2.99';
+
+  @override
+  String get premiumPeriod => '/ month';
+
+  @override
   String get premiumYearlyBadge => 'Save 40%';
 
   @override
@@ -191,6 +472,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get premiumRestorePurchases => 'Restore purchases';
+
+  @override
+  String get premiumCancelAnnually => 'Cancel anytime. Billed annually.';
+
+  @override
+  String get premiumCancelMonthly => 'Cancel anytime. Billed monthly.';
+
+  @override
+  String get premiumFeatureUnlimitedSaves => 'Unlimited saved places';
+
+  @override
+  String get premiumFeatureUnlimitedCollections => 'Unlimited collections';
+
+  @override
+  String get premiumFeatureAiChat => 'Local AI chat assistant';
+
+  @override
+  String get premiumFeatureOfflineMaps => 'Offline neighborhood maps';
+
+  @override
+  String get premiumFeatureReminders => 'Location reminders';
 
   @override
   String get settingsTitle => 'Settings';
@@ -205,6 +507,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsPersonalization => 'Personalization';
 
   @override
+  String get settingsAccount => 'Account';
+
+  @override
   String get settingsLanguage => 'Language';
 
   @override
@@ -212,6 +517,55 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsGerman => 'German';
+
+  @override
+  String get settingsGermanNative => 'Deutsch';
+
+  @override
+  String get settingsEnableChat => 'Enable chat';
+
+  @override
+  String get settingsEnableChatSubtitle => 'Allow contributors to message you';
+
+  @override
+  String get settingsAwayMode => 'Away mode';
+
+  @override
+  String get settingsAwayModeSubtitle => 'Decline new messages temporarily';
+
+  @override
+  String get settingsChatSchedule => 'Chat schedule';
+
+  @override
+  String get settingsChatScheduleSubtitle => 'Set available hours';
+
+  @override
+  String get settingsShareLocation => 'Share location';
+
+  @override
+  String get settingsShareLocationSubtitle => 'Used for Near Me and reminders';
+
+  @override
+  String get settingsWhoCanFindMe => 'Who can find me';
+
+  @override
+  String get settingsEveryone => 'Everyone';
+
+  @override
+  String get settingsAiRecommendations => 'AI recommendations';
+
+  @override
+  String get settingsAiRecommendationsSubtitle =>
+      'Personalize your feed with Gemini';
+
+  @override
+  String get settingsPreferences => 'Preferences';
+
+  @override
+  String get settingsPreferencesSubtitle => 'Place types, mood, budget';
+
+  @override
+  String get settingsSignOut => 'Sign out';
 
   @override
   String get notificationsTitle => 'Notifications';
@@ -241,16 +595,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authPassword => 'Password';
 
   @override
+  String get authPasswordHelper => 'At least 6 characters';
+
+  @override
   String get authName => 'Full Name';
 
   @override
   String get authForgotPassword => 'Forgot password?';
 
   @override
-  String get authNoAccount => 'Don\'t have an account?';
+  String get authNoAccount => 'Don\'t have an account? ';
 
   @override
-  String get authHaveAccount => 'Already have an account?';
+  String get authHaveAccount => 'Already have an account? ';
 
   @override
   String get authSignInLink => 'Sign in';
@@ -259,7 +616,116 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authSignUpLink => 'Sign up';
 
   @override
+  String get authWelcomeBack => 'Welcome\nback.';
+
+  @override
+  String get authWelcomeSubtitle => 'Sign in to discover your next local gem.';
+
+  @override
+  String get authCreateAccount => 'Create\naccount.';
+
+  @override
+  String get authCreateSubtitle =>
+      'Join a community of locals sharing hidden gems.';
+
+  @override
+  String get authCreateAccountButton => 'Create account';
+
+  @override
+  String get authSignInButton => 'Sign in';
+
+  @override
+  String get authEnterEmailPassword => 'Please enter your email and password.';
+
+  @override
+  String get authEnterName => 'Please enter your name.';
+
+  @override
+  String get authEnterEmail => 'Please enter your email.';
+
+  @override
+  String get authPasswordMinLength => 'Password must be at least 6 characters.';
+
+  @override
+  String get authResetPasswordTitle => 'Reset password';
+
+  @override
+  String get authResetSend => 'Send';
+
+  @override
+  String get authResetSent => 'Password reset email sent.';
+
+  @override
+  String get authErrorInvalidCredential => 'Email or password is incorrect.';
+
+  @override
+  String get authErrorEmailInUse => 'This email is already registered.';
+
+  @override
+  String get authErrorWeakPassword => 'Password must be at least 6 characters.';
+
+  @override
+  String get authErrorInvalidEmail => 'Please enter a valid email address.';
+
+  @override
+  String get authErrorNoInternet => 'No internet connection. Please try again.';
+
+  @override
+  String get authErrorSignInFailed => 'Sign in failed. Please try again.';
+
+  @override
+  String onboardingGreeting(String name) {
+    return 'Hey $name 👋';
+  }
+
+  @override
+  String get onboardingSubtitle =>
+      'Tell us what you love — we\'ll personalise your feed.';
+
+  @override
+  String get onboardingPlaceTypes => 'What kind of places?';
+
+  @override
+  String get onboardingVibe => 'What\'s your vibe?';
+
+  @override
+  String get onboardingStart => 'Start exploring';
+
+  @override
+  String get onboardingSkip => 'Skip for now';
+
+  @override
+  String get onboardingDefaultName => 'there';
+
+  @override
+  String get placeTypeRestaurants => 'Restaurants';
+
+  @override
+  String get placeTypeCafes => 'Cafés';
+
+  @override
+  String get placeTypeBars => 'Bars';
+
+  @override
+  String get placeTypeViewpoints => 'Viewpoints';
+
+  @override
+  String get placeTypeMarkets => 'Markets';
+
+  @override
+  String get placeTypeMuseums => 'Museums';
+
+  @override
+  String get placeTypeParks => 'Parks';
+
+  @override
+  String get placeTypeHiddenGems => 'Hidden Gems';
+
+  @override
   String get errorGeneric => 'Something went wrong';
+
+  @override
+  String get errorGenericBody => 'Something went wrong.';
 
   @override
   String get errorRetry => 'Try again';

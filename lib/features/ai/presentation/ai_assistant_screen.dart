@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
 
@@ -14,22 +15,19 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
   final _controller = TextEditingController();
   final _scrollController = ScrollController();
 
-  static const _suggestions = [
-    'Where to eat solo tonight?',
-    'Best Sunday brunch spots',
-    'Hidden bars in Bairro Alto',
-    'Viewpoints without the crowds',
-  ];
-
-  final _messages = <({String text, bool isMe})>[
-    (
-      text:
-          'Hi! I\'m your Local AI. I know Lisbon\'s hidden gems inside out. What are you looking for today?',
-      isMe: false,
-    ),
-  ];
-
+  final _messages = <({String text, bool isMe})>[];
+  bool _initialized = false;
   bool _typing = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      final t = AppLocalizations.of(context)!;
+      _messages.add((text: t.aiGreeting, isMe: false));
+    }
+  }
 
   @override
   void dispose() {
@@ -40,6 +38,15 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
+    final suggestions = [
+      t.aiSuggestion1,
+      t.aiSuggestion2,
+      t.aiSuggestion3,
+      t.aiSuggestion4,
+    ];
+
     return Scaffold(
       backgroundColor: LALColors.bg,
       appBar: AppBar(
@@ -59,8 +66,8 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Local AI', style: LALTypography.labelLarge),
-                Text('Powered by Gemini',
+                Text(t.aiTitle, style: LALTypography.labelLarge),
+                Text(t.aiPoweredBy,
                     style: LALTypography.bodySmall.copyWith(fontSize: 10)),
               ],
             ),
@@ -90,10 +97,10 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: _suggestions.length,
+                itemCount: suggestions.length,
                 separatorBuilder: (_, __) => const SizedBox(width: 8),
                 itemBuilder: (_, i) => GestureDetector(
-                  onTap: () => _send(_suggestions[i]),
+                  onTap: () => _send(suggestions[i]),
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 14, vertical: 10),
@@ -102,7 +109,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                       borderRadius: LALRadii.pillBorder,
                       border: Border.all(color: LALColors.c200),
                     ),
-                    child: Text(_suggestions[i],
+                    child: Text(suggestions[i],
                         style: LALTypography.labelMedium),
                   ),
                 ),
@@ -123,7 +130,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                   child: TextField(
                     controller: _controller,
                     decoration: InputDecoration(
-                      hintText: 'Ask about the best places…',
+                      hintText: t.aiPlaceholder,
                       filled: true,
                       fillColor: LALColors.surfaceAlt,
                       border: OutlineInputBorder(
@@ -171,6 +178,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
   Future<void> _send(String text) async {
     final trimmed = text.trim();
     if (trimmed.isEmpty) return;
+    final t = AppLocalizations.of(context)!;
     _controller.clear();
     setState(() {
       _messages.add((text: trimmed, isMe: true));
@@ -181,11 +189,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
     if (mounted) {
       setState(() {
         _typing = false;
-        _messages.add((
-          text:
-              'Great question! Based on your preferences, I recommend checking out the Alfama area. There are some hidden gems that locals love. Would you like me to narrow down by cuisine or atmosphere?',
-          isMe: false,
-        ));
+        _messages.add((text: t.aiFallbackReply, isMe: false));
       });
     }
   }

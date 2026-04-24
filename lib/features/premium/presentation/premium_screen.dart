@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
 
@@ -16,6 +17,16 @@ class _PremiumScreenState extends State<PremiumScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
+    final features = [
+      (icon: Icons.bookmark_border, text: t.premiumFeatureUnlimitedSaves),
+      (icon: Icons.collections_bookmark_outlined, text: t.premiumFeatureUnlimitedCollections),
+      (icon: Icons.auto_awesome_outlined, text: t.premiumFeatureAiChat),
+      (icon: Icons.wifi_off_rounded, text: t.premiumFeatureOfflineMaps),
+      (icon: Icons.notifications_active_outlined, text: t.premiumFeatureReminders),
+    ];
+
     return Scaffold(
       backgroundColor: LALColors.c900,
       appBar: AppBar(
@@ -46,7 +57,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                         color: LALColors.accent, size: 14),
                     const SizedBox(width: 6),
                     Text(
-                      'PREMIUM',
+                      t.premiumBadge,
                       style: LALTypography.labelSmall
                           .copyWith(color: LALColors.accent, letterSpacing: 1.5),
                     ),
@@ -58,31 +69,31 @@ class _PremiumScreenState extends State<PremiumScreen> {
               RichText(
                 text: TextSpan(
                   style: LALTypography.displayMedium.copyWith(color: Colors.white),
-                  children: const [
-                    TextSpan(text: 'Unlock the full\n'),
+                  children: [
+                    TextSpan(text: t.premiumHeadlinePrefix),
                     TextSpan(
-                      text: 'local',
-                      style: TextStyle(
+                      text: t.premiumHeadlineAccent,
+                      style: const TextStyle(
                         color: LALColors.accent,
                         fontStyle: FontStyle.italic,
                       ),
                     ),
-                    TextSpan(text: ' experience.'),
+                    TextSpan(text: t.premiumHeadlineSuffix),
                   ],
                 ),
               ),
               const SizedBox(height: 32),
               // Feature list
-              for (final f in _features) _FeatureRow(feature: f),
+              for (final f in features) _FeatureRow(feature: f),
               const SizedBox(height: 32),
               // Plan cards
               Row(
                 children: [
                   Expanded(
                     child: _PlanCard(
-                      title: 'Monthly',
-                      price: '€4.99',
-                      period: '/ month',
+                      title: t.premiumMonthly,
+                      price: t.premiumPriceMonthly,
+                      period: t.premiumPeriod,
                       isSelected: !_yearlySelected,
                       onTap: () => setState(() => _yearlySelected = false),
                     ),
@@ -90,10 +101,10 @@ class _PremiumScreenState extends State<PremiumScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: _PlanCard(
-                      title: 'Yearly',
-                      price: '€2.99',
-                      period: '/ month',
-                      badge: 'Save 40%',
+                      title: t.premiumYearly,
+                      price: t.premiumPriceYearly,
+                      period: t.premiumPeriod,
+                      badge: t.premiumYearlyBadge,
                       isSelected: _yearlySelected,
                       onTap: () => setState(() => _yearlySelected = true),
                     ),
@@ -111,8 +122,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
                     foregroundColor: Colors.white,
                     minimumSize: const Size(double.infinity, 56),
                   ),
-                  child: const Text('Start Premium',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                  child: Text(t.premiumCta,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
                 ),
               ),
               const SizedBox(height: 12),
@@ -120,14 +131,14 @@ class _PremiumScreenState extends State<PremiumScreen> {
                 child: TextButton(
                   onPressed: () {},
                   child: Text(
-                    'Restore purchases',
+                    t.premiumRestorePurchases,
                     style: LALTypography.bodySmall.copyWith(color: LALColors.c400),
                   ),
                 ),
               ),
               Center(
                 child: Text(
-                  'Cancel anytime. Billed ${_yearlySelected ? "annually" : "monthly"}.',
+                  _yearlySelected ? t.premiumCancelAnnually : t.premiumCancelMonthly,
                   style: LALTypography.bodySmall.copyWith(color: LALColors.c600),
                   textAlign: TextAlign.center,
                 ),
@@ -142,14 +153,6 @@ class _PremiumScreenState extends State<PremiumScreen> {
   void _purchase() {
     // TODO: Purchases.purchasePackage(package)
   }
-
-  static const _features = [
-    (icon: Icons.bookmark_border, text: 'Unlimited saved places'),
-    (icon: Icons.collections_bookmark_outlined, text: 'Unlimited collections'),
-    (icon: Icons.auto_awesome_outlined, text: 'Local AI chat assistant'),
-    (icon: Icons.wifi_off_rounded, text: 'Offline neighborhood maps'),
-    (icon: Icons.notifications_active_outlined, text: 'Location reminders'),
-  ];
 }
 
 class _FeatureRow extends StatelessWidget {

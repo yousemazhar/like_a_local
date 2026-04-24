@@ -164,6 +164,18 @@ abstract class AppLocalizations {
   /// **'Local of the Week'**
   String get discoverLocalOfWeek;
 
+  /// No description provided for @discoverLocalOfWeekBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'LOCAL OF THE WEEK'**
+  String get discoverLocalOfWeekBadge;
+
+  /// No description provided for @discoverViewProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'View Profile'**
+  String get discoverViewProfile;
+
   /// No description provided for @discoverSeeAll.
   ///
   /// In en, this message translates to:
@@ -175,6 +187,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search restaurants, places…'**
   String get discoverSearchHint;
+
+  /// No description provided for @categoryAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get categoryAll;
+
+  /// No description provided for @categoryRestaurant.
+  ///
+  /// In en, this message translates to:
+  /// **'Restaurant'**
+  String get categoryRestaurant;
+
+  /// No description provided for @categoryCafe.
+  ///
+  /// In en, this message translates to:
+  /// **'Café'**
+  String get categoryCafe;
+
+  /// No description provided for @categoryBar.
+  ///
+  /// In en, this message translates to:
+  /// **'Bar'**
+  String get categoryBar;
+
+  /// No description provided for @categoryViewpoint.
+  ///
+  /// In en, this message translates to:
+  /// **'Viewpoint'**
+  String get categoryViewpoint;
+
+  /// No description provided for @categoryMarket.
+  ///
+  /// In en, this message translates to:
+  /// **'Market'**
+  String get categoryMarket;
+
+  /// No description provided for @categoryMuseum.
+  ///
+  /// In en, this message translates to:
+  /// **'Museum'**
+  String get categoryMuseum;
+
+  /// No description provided for @categoryPark.
+  ///
+  /// In en, this message translates to:
+  /// **'Park'**
+  String get categoryPark;
 
   /// No description provided for @searchTitle.
   ///
@@ -212,6 +272,48 @@ abstract class AppLocalizations {
   /// **'Try different keywords or remove some filters.'**
   String get searchNoResultsBody;
 
+  /// No description provided for @moodRomantic.
+  ///
+  /// In en, this message translates to:
+  /// **'Romantic'**
+  String get moodRomantic;
+
+  /// No description provided for @moodFamily.
+  ///
+  /// In en, this message translates to:
+  /// **'Family'**
+  String get moodFamily;
+
+  /// No description provided for @moodHiddenGem.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden Gem'**
+  String get moodHiddenGem;
+
+  /// No description provided for @moodLively.
+  ///
+  /// In en, this message translates to:
+  /// **'Lively'**
+  String get moodLively;
+
+  /// No description provided for @moodPeaceful.
+  ///
+  /// In en, this message translates to:
+  /// **'Peaceful'**
+  String get moodPeaceful;
+
+  /// No description provided for @moodFoodie.
+  ///
+  /// In en, this message translates to:
+  /// **'Foodie'**
+  String get moodFoodie;
+
+  /// No description provided for @moodOffBeaten.
+  ///
+  /// In en, this message translates to:
+  /// **'Off-the-beaten-track'**
+  String get moodOffBeaten;
+
   /// No description provided for @savedTitle.
   ///
   /// In en, this message translates to:
@@ -248,6 +350,78 @@ abstract class AppLocalizations {
   /// **'Save places you love to find them later.'**
   String get savedEmptyBody;
 
+  /// No description provided for @savedUnlockCollections.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock unlimited collections'**
+  String get savedUnlockCollections;
+
+  /// No description provided for @savedFreePlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Free plan: up to 10 saved places.'**
+  String get savedFreePlan;
+
+  /// No description provided for @savedUpgrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade'**
+  String get savedUpgrade;
+
+  /// No description provided for @savedNoCollections.
+  ///
+  /// In en, this message translates to:
+  /// **'No collections yet'**
+  String get savedNoCollections;
+
+  /// No description provided for @savedNoCollectionsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Group your saved places into collections.'**
+  String get savedNoCollectionsBody;
+
+  /// No description provided for @savedCreateCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'Create collection'**
+  String get savedCreateCollection;
+
+  /// No description provided for @savedNewCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'New collection'**
+  String get savedNewCollection;
+
+  /// No description provided for @savedCollectionName.
+  ///
+  /// In en, this message translates to:
+  /// **'Collection name'**
+  String get savedCollectionName;
+
+  /// No description provided for @savedCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get savedCreate;
+
+  /// No description provided for @savedPlacesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} places'**
+  String savedPlacesCount(int count);
+
+  /// No description provided for @savedNoReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'No reminders set'**
+  String get savedNoReminders;
+
+  /// No description provided for @savedNoRemindersBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Set location reminders on any saved place.'**
+  String get savedNoRemindersBody;
+
   /// No description provided for @inboxTitle.
   ///
   /// In en, this message translates to:
@@ -265,6 +439,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Start a conversation with a local contributor.'**
   String get inboxEmptyBody;
+
+  /// No description provided for @chatLocalBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'LOCAL'**
+  String get chatLocalBadge;
+
+  /// No description provided for @chatMessageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Message…'**
+  String get chatMessageHint;
+
+  /// No description provided for @chatSuperLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'Super Local'**
+  String get chatSuperLocal;
 
   /// No description provided for @profileTitle.
   ///
@@ -290,6 +482,66 @@ abstract class AppLocalizations {
   /// **'Saved Places'**
   String get profileSavedPlaces;
 
+  /// No description provided for @profileYourName.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Name'**
+  String get profileYourName;
+
+  /// No description provided for @profileLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Lisbon, Portugal'**
+  String get profileLocation;
+
+  /// No description provided for @profileStatPlaces.
+  ///
+  /// In en, this message translates to:
+  /// **'Places'**
+  String get profileStatPlaces;
+
+  /// No description provided for @profileStatSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get profileStatSaved;
+
+  /// No description provided for @profileStatHelpful.
+  ///
+  /// In en, this message translates to:
+  /// **'Helpful'**
+  String get profileStatHelpful;
+
+  /// No description provided for @profileVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified Member'**
+  String get profileVerified;
+
+  /// No description provided for @profileVerifiedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Share 5 places to become a Super Local'**
+  String get profileVerifiedBody;
+
+  /// No description provided for @profileMyPlaces.
+  ///
+  /// In en, this message translates to:
+  /// **'My Places'**
+  String get profileMyPlaces;
+
+  /// No description provided for @profileNoPlaces.
+  ///
+  /// In en, this message translates to:
+  /// **'No places shared yet'**
+  String get profileNoPlaces;
+
+  /// No description provided for @profileTestPay.
+  ///
+  /// In en, this message translates to:
+  /// **'Test Pay (debug)'**
+  String get profileTestPay;
+
   /// No description provided for @placeDetails.
   ///
   /// In en, this message translates to:
@@ -313,6 +565,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reviews'**
   String get placeReviews;
+
+  /// No description provided for @placeReviewsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'({count} reviews)'**
+  String placeReviewsCount(int count);
 
   /// No description provided for @placeRemindMe.
   ///
@@ -338,6 +596,48 @@ abstract class AppLocalizations {
   /// **'Chat with contributor'**
   String get placeChatContributor;
 
+  /// No description provided for @placeNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Place not found'**
+  String get placeNotFound;
+
+  /// No description provided for @placeNotFoundBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This place may have been removed or is no longer available.'**
+  String get placeNotFoundBody;
+
+  /// No description provided for @placeGoBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Go back'**
+  String get placeGoBack;
+
+  /// No description provided for @placeAnonymous.
+  ///
+  /// In en, this message translates to:
+  /// **'Anonymous'**
+  String get placeAnonymous;
+
+  /// No description provided for @placeContributor.
+  ///
+  /// In en, this message translates to:
+  /// **'Contributor'**
+  String get placeContributor;
+
+  /// No description provided for @placeSuperLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'Super Local'**
+  String get placeSuperLocal;
+
+  /// No description provided for @placeChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat'**
+  String get placeChat;
+
   /// No description provided for @mapTitle.
   ///
   /// In en, this message translates to:
@@ -350,6 +650,24 @@ abstract class AppLocalizations {
   /// **'Near Me'**
   String get mapNearMe;
 
+  /// No description provided for @mapLocating.
+  ///
+  /// In en, this message translates to:
+  /// **'Locating…'**
+  String get mapLocating;
+
+  /// No description provided for @mapSearchOnMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Search on map…'**
+  String get mapSearchOnMap;
+
+  /// No description provided for @mapDirections.
+  ///
+  /// In en, this message translates to:
+  /// **'Directions'**
+  String get mapDirections;
+
   /// No description provided for @mapNoLocation.
   ///
   /// In en, this message translates to:
@@ -361,6 +679,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enable location to see places near you.'**
   String get mapNoLocationBody;
+
+  /// No description provided for @mapEnableLocationServices.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable location services to center the map near you.'**
+  String get mapEnableLocationServices;
+
+  /// No description provided for @mapLocationDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission denied. The map will stay interactive.'**
+  String get mapLocationDenied;
+
+  /// No description provided for @mapCannotFetchLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to fetch your current location right now.'**
+  String get mapCannotFetchLocation;
+
+  /// No description provided for @mapCannotOpenMaps.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to open Google Maps right now.'**
+  String get mapCannotOpenMaps;
+
+  /// No description provided for @mapPickCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} picks'**
+  String mapPickCount(int count);
 
   /// No description provided for @addPlaceTitle.
   ///
@@ -398,6 +746,102 @@ abstract class AppLocalizations {
   /// **'Publish Place'**
   String get addPlacePublish;
 
+  /// No description provided for @addPlaceNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next: {step}'**
+  String addPlaceNext(String step);
+
+  /// No description provided for @addPlacePhotosTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add photos'**
+  String get addPlacePhotosTitle;
+
+  /// No description provided for @addPlacePhotosHint.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 1 photo required.'**
+  String get addPlacePhotosHint;
+
+  /// No description provided for @addPlaceDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Place details'**
+  String get addPlaceDetailsTitle;
+
+  /// No description provided for @addPlaceName.
+  ///
+  /// In en, this message translates to:
+  /// **'Place name'**
+  String get addPlaceName;
+
+  /// No description provided for @addPlaceNeighborhood.
+  ///
+  /// In en, this message translates to:
+  /// **'Neighborhood'**
+  String get addPlaceNeighborhood;
+
+  /// No description provided for @addPlaceDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get addPlaceDescription;
+
+  /// No description provided for @addPlaceCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get addPlaceCategory;
+
+  /// No description provided for @addPlaceTipsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add up to 5 local tips.'**
+  String get addPlaceTipsSubtitle;
+
+  /// No description provided for @addPlaceTipLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip 1'**
+  String get addPlaceTipLabel;
+
+  /// No description provided for @addPlaceTipHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What should visitors know?'**
+  String get addPlaceTipHint;
+
+  /// No description provided for @addPlaceAddTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Add another tip'**
+  String get addPlaceAddTip;
+
+  /// No description provided for @addPlaceDishName.
+  ///
+  /// In en, this message translates to:
+  /// **'Dish name'**
+  String get addPlaceDishName;
+
+  /// No description provided for @addPlaceAddDish.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a dish'**
+  String get addPlaceAddDish;
+
+  /// No description provided for @addPlaceReadyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to publish?'**
+  String get addPlaceReadyTitle;
+
+  /// No description provided for @addPlaceReadyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your place will be visible to everyone once published.'**
+  String get addPlaceReadyBody;
+
   /// No description provided for @aiTitle.
   ///
   /// In en, this message translates to:
@@ -410,6 +854,48 @@ abstract class AppLocalizations {
   /// **'Ask about the best places…'**
   String get aiPlaceholder;
 
+  /// No description provided for @aiPoweredBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Powered by Gemini'**
+  String get aiPoweredBy;
+
+  /// No description provided for @aiGreeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Hi! I\'m your Local AI. I know the city\'s hidden gems inside out. What are you looking for today?'**
+  String get aiGreeting;
+
+  /// No description provided for @aiSuggestion1.
+  ///
+  /// In en, this message translates to:
+  /// **'Where to eat solo tonight?'**
+  String get aiSuggestion1;
+
+  /// No description provided for @aiSuggestion2.
+  ///
+  /// In en, this message translates to:
+  /// **'Best Sunday brunch spots'**
+  String get aiSuggestion2;
+
+  /// No description provided for @aiSuggestion3.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden bars in the old town'**
+  String get aiSuggestion3;
+
+  /// No description provided for @aiSuggestion4.
+  ///
+  /// In en, this message translates to:
+  /// **'Viewpoints without the crowds'**
+  String get aiSuggestion4;
+
+  /// No description provided for @aiFallbackReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Great question! Based on your preferences, I can suggest a few hidden gems locals love. Would you like me to narrow down by cuisine or atmosphere?'**
+  String get aiFallbackReply;
+
   /// No description provided for @premiumTitle.
   ///
   /// In en, this message translates to:
@@ -421,6 +907,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unlock the full\nlocal experience.'**
   String get premiumSubtitle;
+
+  /// No description provided for @premiumBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'PREMIUM'**
+  String get premiumBadge;
+
+  /// No description provided for @premiumHeadlinePrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock the full\n'**
+  String get premiumHeadlinePrefix;
+
+  /// No description provided for @premiumHeadlineAccent.
+  ///
+  /// In en, this message translates to:
+  /// **'local'**
+  String get premiumHeadlineAccent;
+
+  /// No description provided for @premiumHeadlineSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **' experience.'**
+  String get premiumHeadlineSuffix;
 
   /// No description provided for @premiumMonthly.
   ///
@@ -446,6 +956,24 @@ abstract class AppLocalizations {
   /// **'€2.99 / month'**
   String get premiumYearlyPrice;
 
+  /// No description provided for @premiumPriceMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'€4.99'**
+  String get premiumPriceMonthly;
+
+  /// No description provided for @premiumPriceYearly.
+  ///
+  /// In en, this message translates to:
+  /// **'€2.99'**
+  String get premiumPriceYearly;
+
+  /// No description provided for @premiumPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'/ month'**
+  String get premiumPeriod;
+
   /// No description provided for @premiumYearlyBadge.
   ///
   /// In en, this message translates to:
@@ -463,6 +991,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Restore purchases'**
   String get premiumRestorePurchases;
+
+  /// No description provided for @premiumCancelAnnually.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel anytime. Billed annually.'**
+  String get premiumCancelAnnually;
+
+  /// No description provided for @premiumCancelMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel anytime. Billed monthly.'**
+  String get premiumCancelMonthly;
+
+  /// No description provided for @premiumFeatureUnlimitedSaves.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited saved places'**
+  String get premiumFeatureUnlimitedSaves;
+
+  /// No description provided for @premiumFeatureUnlimitedCollections.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited collections'**
+  String get premiumFeatureUnlimitedCollections;
+
+  /// No description provided for @premiumFeatureAiChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Local AI chat assistant'**
+  String get premiumFeatureAiChat;
+
+  /// No description provided for @premiumFeatureOfflineMaps.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline neighborhood maps'**
+  String get premiumFeatureOfflineMaps;
+
+  /// No description provided for @premiumFeatureReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Location reminders'**
+  String get premiumFeatureReminders;
 
   /// No description provided for @settingsTitle.
   ///
@@ -488,6 +1058,12 @@ abstract class AppLocalizations {
   /// **'Personalization'**
   String get settingsPersonalization;
 
+  /// No description provided for @settingsAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get settingsAccount;
+
   /// No description provided for @settingsLanguage.
   ///
   /// In en, this message translates to:
@@ -505,6 +1081,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'German'**
   String get settingsGerman;
+
+  /// No description provided for @settingsGermanNative.
+  ///
+  /// In en, this message translates to:
+  /// **'Deutsch'**
+  String get settingsGermanNative;
+
+  /// No description provided for @settingsEnableChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable chat'**
+  String get settingsEnableChat;
+
+  /// No description provided for @settingsEnableChatSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow contributors to message you'**
+  String get settingsEnableChatSubtitle;
+
+  /// No description provided for @settingsAwayMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Away mode'**
+  String get settingsAwayMode;
+
+  /// No description provided for @settingsAwayModeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline new messages temporarily'**
+  String get settingsAwayModeSubtitle;
+
+  /// No description provided for @settingsChatSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat schedule'**
+  String get settingsChatSchedule;
+
+  /// No description provided for @settingsChatScheduleSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set available hours'**
+  String get settingsChatScheduleSubtitle;
+
+  /// No description provided for @settingsShareLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Share location'**
+  String get settingsShareLocation;
+
+  /// No description provided for @settingsShareLocationSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Used for Near Me and reminders'**
+  String get settingsShareLocationSubtitle;
+
+  /// No description provided for @settingsWhoCanFindMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Who can find me'**
+  String get settingsWhoCanFindMe;
+
+  /// No description provided for @settingsEveryone.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone'**
+  String get settingsEveryone;
+
+  /// No description provided for @settingsAiRecommendations.
+  ///
+  /// In en, this message translates to:
+  /// **'AI recommendations'**
+  String get settingsAiRecommendations;
+
+  /// No description provided for @settingsAiRecommendationsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Personalize your feed with Gemini'**
+  String get settingsAiRecommendationsSubtitle;
+
+  /// No description provided for @settingsPreferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences'**
+  String get settingsPreferences;
+
+  /// No description provided for @settingsPreferencesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Place types, mood, budget'**
+  String get settingsPreferencesSubtitle;
+
+  /// No description provided for @settingsSignOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get settingsSignOut;
 
   /// No description provided for @notificationsTitle.
   ///
@@ -560,6 +1232,12 @@ abstract class AppLocalizations {
   /// **'Password'**
   String get authPassword;
 
+  /// No description provided for @authPasswordHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 6 characters'**
+  String get authPasswordHelper;
+
   /// No description provided for @authName.
   ///
   /// In en, this message translates to:
@@ -575,13 +1253,13 @@ abstract class AppLocalizations {
   /// No description provided for @authNoAccount.
   ///
   /// In en, this message translates to:
-  /// **'Don\'t have an account?'**
+  /// **'Don\'t have an account? '**
   String get authNoAccount;
 
   /// No description provided for @authHaveAccount.
   ///
   /// In en, this message translates to:
-  /// **'Already have an account?'**
+  /// **'Already have an account? '**
   String get authHaveAccount;
 
   /// No description provided for @authSignInLink.
@@ -596,11 +1274,221 @@ abstract class AppLocalizations {
   /// **'Sign up'**
   String get authSignUpLink;
 
+  /// No description provided for @authWelcomeBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome\nback.'**
+  String get authWelcomeBack;
+
+  /// No description provided for @authWelcomeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to discover your next local gem.'**
+  String get authWelcomeSubtitle;
+
+  /// No description provided for @authCreateAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create\naccount.'**
+  String get authCreateAccount;
+
+  /// No description provided for @authCreateSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Join a community of locals sharing hidden gems.'**
+  String get authCreateSubtitle;
+
+  /// No description provided for @authCreateAccountButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get authCreateAccountButton;
+
+  /// No description provided for @authSignInButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get authSignInButton;
+
+  /// No description provided for @authEnterEmailPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your email and password.'**
+  String get authEnterEmailPassword;
+
+  /// No description provided for @authEnterName.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your name.'**
+  String get authEnterName;
+
+  /// No description provided for @authEnterEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your email.'**
+  String get authEnterEmail;
+
+  /// No description provided for @authPasswordMinLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 6 characters.'**
+  String get authPasswordMinLength;
+
+  /// No description provided for @authResetPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset password'**
+  String get authResetPasswordTitle;
+
+  /// No description provided for @authResetSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get authResetSend;
+
+  /// No description provided for @authResetSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Password reset email sent.'**
+  String get authResetSent;
+
+  /// No description provided for @authErrorInvalidCredential.
+  ///
+  /// In en, this message translates to:
+  /// **'Email or password is incorrect.'**
+  String get authErrorInvalidCredential;
+
+  /// No description provided for @authErrorEmailInUse.
+  ///
+  /// In en, this message translates to:
+  /// **'This email is already registered.'**
+  String get authErrorEmailInUse;
+
+  /// No description provided for @authErrorWeakPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 6 characters.'**
+  String get authErrorWeakPassword;
+
+  /// No description provided for @authErrorInvalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email address.'**
+  String get authErrorInvalidEmail;
+
+  /// No description provided for @authErrorNoInternet.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection. Please try again.'**
+  String get authErrorNoInternet;
+
+  /// No description provided for @authErrorSignInFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in failed. Please try again.'**
+  String get authErrorSignInFailed;
+
+  /// No description provided for @onboardingGreeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Hey {name} 👋'**
+  String onboardingGreeting(String name);
+
+  /// No description provided for @onboardingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us what you love — we\'ll personalise your feed.'**
+  String get onboardingSubtitle;
+
+  /// No description provided for @onboardingPlaceTypes.
+  ///
+  /// In en, this message translates to:
+  /// **'What kind of places?'**
+  String get onboardingPlaceTypes;
+
+  /// No description provided for @onboardingVibe.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s your vibe?'**
+  String get onboardingVibe;
+
+  /// No description provided for @onboardingStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start exploring'**
+  String get onboardingStart;
+
+  /// No description provided for @onboardingSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip for now'**
+  String get onboardingSkip;
+
+  /// No description provided for @onboardingDefaultName.
+  ///
+  /// In en, this message translates to:
+  /// **'there'**
+  String get onboardingDefaultName;
+
+  /// No description provided for @placeTypeRestaurants.
+  ///
+  /// In en, this message translates to:
+  /// **'Restaurants'**
+  String get placeTypeRestaurants;
+
+  /// No description provided for @placeTypeCafes.
+  ///
+  /// In en, this message translates to:
+  /// **'Cafés'**
+  String get placeTypeCafes;
+
+  /// No description provided for @placeTypeBars.
+  ///
+  /// In en, this message translates to:
+  /// **'Bars'**
+  String get placeTypeBars;
+
+  /// No description provided for @placeTypeViewpoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Viewpoints'**
+  String get placeTypeViewpoints;
+
+  /// No description provided for @placeTypeMarkets.
+  ///
+  /// In en, this message translates to:
+  /// **'Markets'**
+  String get placeTypeMarkets;
+
+  /// No description provided for @placeTypeMuseums.
+  ///
+  /// In en, this message translates to:
+  /// **'Museums'**
+  String get placeTypeMuseums;
+
+  /// No description provided for @placeTypeParks.
+  ///
+  /// In en, this message translates to:
+  /// **'Parks'**
+  String get placeTypeParks;
+
+  /// No description provided for @placeTypeHiddenGems.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden Gems'**
+  String get placeTypeHiddenGems;
+
   /// No description provided for @errorGeneric.
   ///
   /// In en, this message translates to:
   /// **'Something went wrong'**
   String get errorGeneric;
+
+  /// No description provided for @errorGenericBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong.'**
+  String get errorGenericBody;
 
   /// No description provided for @errorRetry.
   ///

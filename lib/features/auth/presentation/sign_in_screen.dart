@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
 import '../data/auth_repository.dart';
@@ -29,6 +30,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: LALColors.bg,
       body: SafeArea(
@@ -40,10 +42,11 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               const SizedBox(height: 60),
               const _LALLogoHero(),
               const SizedBox(height: 40),
-              Text('Welcome\nback.', style: Theme.of(context).textTheme.displayMedium),
+              Text(t.authWelcomeBack,
+                  style: Theme.of(context).textTheme.displayMedium),
               const SizedBox(height: 8),
-              const Text(
-                'Sign in to discover your next local gem.',
+              Text(
+                t.authWelcomeSubtitle,
                 style: LALTypography.bodyMedium,
               ),
               const SizedBox(height: 40),
@@ -64,7 +67,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                 controller: _email,
                 keyboardType: TextInputType.emailAddress,
                 textInputAction: TextInputAction.next,
-                decoration: const InputDecoration(labelText: 'Email'),
+                decoration: InputDecoration(labelText: t.authEmail),
               ),
               const SizedBox(height: 16),
               TextField(
@@ -72,13 +75,13 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                 obscureText: true,
                 textInputAction: TextInputAction.done,
                 onSubmitted: (_) => _signIn(),
-                decoration: const InputDecoration(labelText: 'Password'),
+                decoration: InputDecoration(labelText: t.authPassword),
               ),
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: () => _showForgotPassword(context),
-                  child: const Text('Forgot password?'),
+                  child: Text(t.authForgotPassword),
                 ),
               ),
               const SizedBox(height: 8),
@@ -91,18 +94,18 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                         child: CircularProgressIndicator(
                             strokeWidth: 2, color: Colors.white),
                       )
-                    : const Text('Sign in'),
+                    : Text(t.authSignInButton),
               ),
               const SizedBox(height: 24),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text("Don't have an account? ",
+                  Text(t.authNoAccount,
                       style: LALTypography.bodySmall),
                   GestureDetector(
                     onTap: () => context.go('/auth/sign-up'),
                     child: Text(
-                      'Sign up',
+                      t.authSignUpLink,
                       style: LALTypography.labelMedium
                           .copyWith(color: LALColors.accent),
                     ),
@@ -118,8 +121,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   }
 
   Future<void> _signIn() async {
+    final t = AppLocalizations.of(context)!;
     if (_email.text.trim().isEmpty || _password.text.isEmpty) {
-      setState(() => _error = 'Please enter your email and password.');
+      setState(() => _error = t.authEnterEmailPassword);
       return;
     }
     setState(() {
@@ -133,7 +137,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       if (mounted) context.go('/discover');
     } catch (e) {
       if (mounted) {
-        setState(() => _error = AuthRepository.friendlyAuthError(e));
+        setState(
+            () => _error = AuthRepository.friendlyAuthError(e, context));
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -141,20 +146,21 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   }
 
   void _showForgotPassword(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final emailCtrl = TextEditingController(text: _email.text.trim());
     showDialog<void>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Reset password'),
+        title: Text(t.authResetPasswordTitle),
         content: TextField(
           controller: emailCtrl,
           keyboardType: TextInputType.emailAddress,
-          decoration: const InputDecoration(labelText: 'Email'),
+          decoration: InputDecoration(labelText: t.authEmail),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(t.buttonCancel),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -165,13 +171,12 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                     .sendPasswordResetEmail(emailCtrl.text);
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Password reset email sent.')),
+                    SnackBar(content: Text(t.authResetSent)),
                   );
                 }
               } catch (_) {}
             },
-            child: const Text('Send'),
+            child: Text(t.authResetSend),
           ),
         ],
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../theme/tokens.dart';
 import '../../theme/typography.dart';
 import '../errors/app_exception.dart';
@@ -16,11 +17,14 @@ class ErrorView extends StatelessWidget {
   final String? message;
   final VoidCallback? onRetry;
 
-  String get _displayMessage =>
-      exception?.userFriendlyMessage ?? message ?? 'Something went wrong.';
+  String _displayMessage(BuildContext context) =>
+      exception?.userFriendlyMessage ??
+      message ??
+      AppLocalizations.of(context)!.errorGenericBody;
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(40),
@@ -42,13 +46,13 @@ class ErrorView extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              'Something went wrong',
+              t.errorGeneric,
               style: LALTypography.headlineSmall,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
-              _displayMessage,
+              _displayMessage(context),
               style: LALTypography.bodyMedium,
               textAlign: TextAlign.center,
             ),
@@ -57,7 +61,7 @@ class ErrorView extends StatelessWidget {
               OutlinedButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh_rounded, size: 16),
-                label: const Text('Try again'),
+                label: Text(t.errorRetry),
               ),
             ],
           ],

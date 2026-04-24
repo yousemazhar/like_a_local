@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
 
@@ -10,6 +11,7 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: LALColors.bg,
       body: CustomScrollView(
@@ -17,7 +19,7 @@ class ProfileScreen extends StatelessWidget {
           SliverAppBar(
             backgroundColor: LALColors.surface,
             floating: true,
-            title: Text('Profile',
+            title: Text(t.profileTitle,
                 style: Theme.of(context).textTheme.headlineSmall),
             actions: [
               IconButton(
@@ -42,7 +44,7 @@ class ProfileScreen extends StatelessWidget {
                     child: OutlinedButton.icon(
                       onPressed: () => context.push('/test-payment'),
                       icon: const Icon(Icons.credit_card),
-                      label: const Text('Test Pay (debug)'),
+                      label: Text(t.profileTestPay),
                     ),
                   ),
                 ],
@@ -61,14 +63,15 @@ class ProfileScreen extends StatelessWidget {
 class _AvatarSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Column(
       children: [
         Stack(
           children: [
-            CircleAvatar(
+            const CircleAvatar(
               radius: 48,
               backgroundColor: LALColors.c100,
-              child: const Icon(Icons.person, color: LALColors.c400, size: 48),
+              child: Icon(Icons.person, color: LALColors.c400, size: 48),
             ),
             Positioned(
               top: -4,
@@ -87,9 +90,9 @@ class _AvatarSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        Text('Your Name', style: LALTypography.headlineMedium),
+        Text(t.profileYourName, style: LALTypography.headlineMedium),
         const SizedBox(height: 4),
-        const Text('Lisbon, Portugal', style: LALTypography.bodySmall),
+        Text(t.profileLocation, style: LALTypography.bodySmall),
       ],
     );
   }
@@ -98,14 +101,15 @@ class _AvatarSection extends StatelessWidget {
 class _StatsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: const [
-        _StatItem(value: '0', label: 'Places'),
-        _Divider(),
-        _StatItem(value: '0', label: 'Saved'),
-        _Divider(),
-        _StatItem(value: '0', label: 'Helpful'),
+      children: [
+        _StatItem(value: '0', label: t.profileStatPlaces),
+        const _Divider(),
+        _StatItem(value: '0', label: t.profileStatSaved),
+        const _Divider(),
+        _StatItem(value: '0', label: t.profileStatHelpful),
       ],
     );
   }
@@ -142,6 +146,7 @@ class _Divider extends StatelessWidget {
 class _TrustStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -158,8 +163,8 @@ class _TrustStrip extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Verified Member', style: LALTypography.labelLarge),
-                Text('Share 5 places to become a Super Local',
+                Text(t.profileVerified, style: LALTypography.labelLarge),
+                Text(t.profileVerifiedBody,
                     style: LALTypography.bodySmall.copyWith(fontSize: 11)),
               ],
             ),
@@ -173,23 +178,24 @@ class _TrustStrip extends StatelessWidget {
 class _PlacesGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          child: Text('My Places', style: LALTypography.labelLarge),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Text(t.profileMyPlaces, style: LALTypography.labelLarge),
         ),
         const SizedBox(height: 12),
-        const Center(
+        Center(
           child: Padding(
-            padding: EdgeInsets.all(40),
+            padding: const EdgeInsets.all(40),
             child: Column(
               children: [
-                Icon(Icons.add_location_alt_outlined,
+                const Icon(Icons.add_location_alt_outlined,
                     color: LALColors.c300, size: 40),
-                SizedBox(height: 12),
-                Text('No places shared yet',
+                const SizedBox(height: 12),
+                Text(t.profileNoPlaces,
                     style: LALTypography.bodyMedium),
               ],
             ),

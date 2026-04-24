@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/widgets/skeleton.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
 import '../../saved/domain/saved_providers.dart';
@@ -45,12 +46,12 @@ class _PlaceScaffoldLoading extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: LALSpacing.xl),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SkeletonBox(width: 80, height: 24),
-                const SizedBox(height: 10),
-                const SkeletonBox(width: 220, height: 32),
-                const SizedBox(height: 8),
-                const SkeletonBox(width: 140, height: 16),
+              children: const [
+                SkeletonBox(width: 80, height: 24),
+                SizedBox(height: 10),
+                SkeletonBox(width: 220, height: 32),
+                SizedBox(height: 8),
+                SkeletonBox(width: 140, height: 16),
               ],
             ),
           ),
@@ -67,6 +68,7 @@ class _PlaceScaffoldError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: LALColors.bg,
       appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
@@ -78,17 +80,17 @@ class _PlaceScaffoldError extends StatelessWidget {
             children: [
               const Icon(Icons.error_outline, color: LALColors.c300, size: 48),
               const SizedBox(height: 16),
-              const Text('Place not found', style: LALTypography.labelLarge),
+              Text(t.placeNotFound, style: LALTypography.labelLarge),
               const SizedBox(height: 8),
-              const Text(
-                'This place may have been removed or is no longer available.',
+              Text(
+                t.placeNotFoundBody,
                 style: LALTypography.bodySmall,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: onBack,
-                child: const Text('Go back'),
+                child: Text(t.placeGoBack),
               ),
             ],
           ),
@@ -110,6 +112,7 @@ class _PlaceScaffoldData extends ConsumerStatefulWidget {
 class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final place = widget.place;
     final savedAsync = ref.watch(isPlacePinnedProvider(place.id));
     final isSaved = savedAsync.valueOrNull ?? false;
@@ -233,7 +236,7 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
                                 Text(place.ratingAvg.toStringAsFixed(1),
                                     style: LALTypography.labelMedium),
                                 const SizedBox(width: 4),
-                                Text('(${place.ratingCount} reviews)',
+                                Text(t.placeReviewsCount(place.ratingCount),
                                     style: LALTypography.bodySmall),
                               ]),
                             ],
@@ -289,6 +292,7 @@ class _TipsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: LALSpacing.xl),
       padding: const EdgeInsets.all(16),
@@ -299,7 +303,7 @@ class _TipsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Local Tips', style: LALTypography.labelLarge),
+          Text(t.placeTips, style: LALTypography.labelLarge),
           const SizedBox(height: 12),
           for (var i = 0; i < tips.length; i++) ...[
             Row(
@@ -345,6 +349,7 @@ class _ContributorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: LALSpacing.xl),
       padding: const EdgeInsets.all(16),
@@ -388,10 +393,10 @@ class _ContributorCard extends StatelessWidget {
                 Text(
                     ownerDisplayName.isNotEmpty
                         ? ownerDisplayName
-                        : 'Anonymous',
+                        : t.placeAnonymous,
                     style: LALTypography.labelLarge),
                 Text(
-                  ownerIsSuper ? 'Super Local' : 'Contributor',
+                  ownerIsSuper ? t.placeSuperLocal : t.placeContributor,
                   style:
                       LALTypography.bodySmall.copyWith(color: LALColors.accent),
                 ),
@@ -406,7 +411,7 @@ class _ContributorCard extends StatelessWidget {
               minimumSize: Size.zero,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
-            child: const Text('Chat', style: TextStyle(fontSize: 13)),
+            child: Text(t.placeChat, style: const TextStyle(fontSize: 13)),
           ),
         ],
       ),
@@ -427,6 +432,7 @@ class _PlaceBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Container(
       padding: EdgeInsets.fromLTRB(
           20, 12, 20, 12 + MediaQuery.of(context).padding.bottom),
@@ -440,7 +446,7 @@ class _PlaceBottomBar extends StatelessWidget {
             child: OutlinedButton.icon(
               onPressed: () {},
               icon: const Icon(Icons.notifications_outlined, size: 16),
-              label: const Text('Remind me near'),
+              label: Text(t.placeRemindMe),
             ),
           ),
           const SizedBox(width: 12),
@@ -451,7 +457,7 @@ class _PlaceBottomBar extends StatelessWidget {
                 isSaved ? Icons.bookmark : Icons.bookmark_border,
                 size: 16,
               ),
-              label: Text(isSaved ? 'Saved' : 'Save place'),
+              label: Text(isSaved ? t.placeSaved : t.placeSave),
               style: isSaved
                   ? ElevatedButton.styleFrom(
                       backgroundColor: LALColors.accentSoft,

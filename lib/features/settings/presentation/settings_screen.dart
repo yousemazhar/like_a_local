@@ -1,29 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/providers/locale_provider.dart';
+import '../../../features/auth/domain/auth_providers.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
 
-class SettingsScreen extends StatefulWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool _chatEnabled = true;
   bool _awayMode = false;
   bool _showLocation = true;
   bool _aiRecommendations = true;
-  String _language = 'en';
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    final locale = ref.watch(localeProvider);
+    final languageCode = locale.languageCode;
+
     return Scaffold(
       backgroundColor: LALColors.bg,
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Text(t.settingsTitle),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
           onPressed: () => context.pop(),
@@ -32,71 +39,73 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         children: [
           // Chat
-          _SectionHeader('Chat'),
+          _SectionHeader(t.settingsChat),
           _ToggleTile(
             icon: Icons.chat_bubble_outline,
-            title: 'Enable chat',
-            subtitle: 'Allow contributors to message you',
+            title: t.settingsEnableChat,
+            subtitle: t.settingsEnableChatSubtitle,
             value: _chatEnabled,
             onChanged: (v) => setState(() => _chatEnabled = v),
           ),
           _ToggleTile(
             icon: Icons.do_not_disturb_alt_outlined,
-            title: 'Away mode',
-            subtitle: 'Decline new messages temporarily',
+            title: t.settingsAwayMode,
+            subtitle: t.settingsAwayModeSubtitle,
             value: _awayMode,
             onChanged: (v) => setState(() => _awayMode = v),
           ),
           _ActionTile(
             icon: Icons.schedule_outlined,
-            title: 'Chat schedule',
-            subtitle: 'Set available hours',
+            title: t.settingsChatSchedule,
+            subtitle: t.settingsChatScheduleSubtitle,
             onTap: () {},
           ),
 
           // Privacy
-          _SectionHeader('Privacy'),
+          _SectionHeader(t.settingsPrivacy),
           _ToggleTile(
             icon: Icons.location_on_outlined,
-            title: 'Share location',
-            subtitle: 'Used for Near Me and reminders',
+            title: t.settingsShareLocation,
+            subtitle: t.settingsShareLocationSubtitle,
             value: _showLocation,
             onChanged: (v) => setState(() => _showLocation = v),
           ),
           _ActionTile(
             icon: Icons.visibility_outlined,
-            title: 'Who can find me',
-            subtitle: 'Everyone',
+            title: t.settingsWhoCanFindMe,
+            subtitle: t.settingsEveryone,
             onTap: () {},
           ),
 
           // Personalization
-          _SectionHeader('Personalization'),
+          _SectionHeader(t.settingsPersonalization),
           _ToggleTile(
             icon: Icons.auto_awesome_outlined,
-            title: 'AI recommendations',
-            subtitle: 'Personalize your feed with Gemini',
+            title: t.settingsAiRecommendations,
+            subtitle: t.settingsAiRecommendationsSubtitle,
             value: _aiRecommendations,
             onChanged: (v) => setState(() => _aiRecommendations = v),
           ),
           _ActionTile(
             icon: Icons.language_outlined,
-            title: 'Language',
-            subtitle: _language == 'en' ? 'English' : 'Deutsch',
-            onTap: _showLanguagePicker,
+            title: t.settingsLanguage,
+            subtitle: languageCode == 'de'
+                ? t.settingsGermanNative
+                : t.settingsEnglish,
+            onTap: () => _showLanguagePicker(languageCode),
           ),
           _ActionTile(
             icon: Icons.tune_outlined,
-            title: 'Preferences',
-            subtitle: 'Place types, mood, budget',
+            title: t.settingsPreferences,
+            subtitle: t.settingsPreferencesSubtitle,
             onTap: () {},
           ),
 
           // Account
-          _SectionHeader('Account'),
+          _SectionHeader(t.settingsAccount),
           _ActionTile(
             icon: Icons.logout_rounded,
-            title: 'Sign out',
+            title: t.settingsSignOut,
             onTap: _signOut,
             color: LALColors.error,
           ),
@@ -106,7 +115,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showLanguagePicker() {
+  void _showLanguagePicker(String currentCode) {
+    final t = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       builder: (_) => SafeArea(
@@ -125,23 +135,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 16),
             ListTile(
               leading: const Text('🇬🇧', style: TextStyle(fontSize: 24)),
-              title: const Text('English'),
-              trailing: _language == 'en'
+              title: Text(t.settingsEnglish),
+              trailing: currentCode == 'en'
                   ? const Icon(Icons.check_rounded, color: LALColors.accent)
                   : null,
               onTap: () {
-                setState(() => _language = 'en');
+                ref.read(localeProvider.notifier).setLocale('en');
                 Navigator.pop(context);
               },
             ),
             ListTile(
               leading: const Text('🇩🇪', style: TextStyle(fontSize: 24)),
-              title: const Text('Deutsch'),
-              trailing: _language == 'de'
+              title: Text(t.settingsGermanNative),
+              trailing: currentCode == 'de'
                   ? const Icon(Icons.check_rounded, color: LALColors.accent)
                   : null,
               onTap: () {
-                setState(() => _language = 'de');
+                ref.read(localeProvider.notifier).setLocale('de');
                 Navigator.pop(context);
               },
             ),
@@ -152,9 +162,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _signOut() {
-    // TODO: FirebaseAuth.instance.signOut() then context.go('/auth/sign-in')
-    context.go('/auth/sign-in');
+  Future<void> _signOut() async {
+    await ref.read(authRepositoryProvider).signOut();
+    if (mounted) context.go('/auth/sign-in');
   }
 }
 

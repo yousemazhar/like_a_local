@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/widgets/empty_view.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
 
@@ -10,6 +11,7 @@ class InboxScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: LALColors.bg,
       body: SafeArea(
@@ -18,7 +20,7 @@ class InboxScreen extends StatelessWidget {
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-              child: Text('Inbox',
+              child: Text(t.inboxTitle,
                   style: Theme.of(context).textTheme.headlineLarge),
             ),
             const Divider(height: 1),
@@ -53,11 +55,12 @@ class _ThreadList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     if (_threads.isEmpty) {
-      return const EmptyView(
+      return EmptyView(
         icon: Icons.chat_bubble_outline_rounded,
-        title: 'No messages yet',
-        body: 'Start a conversation with a local contributor.',
+        title: t.inboxEmpty,
+        body: t.inboxEmptyBody,
       );
     }
 
@@ -66,7 +69,7 @@ class _ThreadList extends StatelessWidget {
       separatorBuilder: (_, __) =>
           const Divider(height: 1, indent: 76, endIndent: 0),
       itemBuilder: (_, i) {
-        final t = _threads[i];
+        final thread = _threads[i];
         return ListTile(
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -76,12 +79,12 @@ class _ThreadList extends StatelessWidget {
                 radius: 24,
                 backgroundColor: LALColors.c100,
                 child: Text(
-                  t.name[0],
+                  thread.name[0],
                   style: LALTypography.headlineSmall
                       .copyWith(color: LALColors.c600),
                 ),
               ),
-              if (t.isOnline)
+              if (thread.isOnline)
                 Positioned(
                   bottom: 0,
                   right: 0,
@@ -99,9 +102,9 @@ class _ThreadList extends StatelessWidget {
           ),
           title: Row(
             children: [
-              Text(t.name, style: LALTypography.labelLarge),
+              Text(thread.name, style: LALTypography.labelLarge),
               const SizedBox(width: 6),
-              if (t.isSuper)
+              if (thread.isSuper)
                 Container(
                   padding: const EdgeInsets.symmetric(
                       horizontal: 6, vertical: 2),
@@ -110,26 +113,26 @@ class _ThreadList extends StatelessWidget {
                     borderRadius: LALRadii.pillBorder,
                   ),
                   child: Text(
-                    'LOCAL',
+                    t.chatLocalBadge,
                     style: LALTypography.labelSmall
                         .copyWith(color: Colors.white, fontSize: 9),
                   ),
                 ),
               const Spacer(),
-              Text(t.time, style: LALTypography.bodySmall),
+              Text(thread.time, style: LALTypography.bodySmall),
             ],
           ),
           subtitle: Text(
-            t.lastMessage,
+            thread.lastMessage,
             style: LALTypography.bodySmall.copyWith(
-              color: t.unread > 0 ? LALColors.c900 : LALColors.c500,
+              color: thread.unread > 0 ? LALColors.c900 : LALColors.c500,
               fontWeight:
-                  t.unread > 0 ? FontWeight.w600 : FontWeight.normal,
+                  thread.unread > 0 ? FontWeight.w600 : FontWeight.normal,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          trailing: t.unread > 0
+          trailing: thread.unread > 0
               ? Container(
                   width: 20,
                   height: 20,
@@ -139,7 +142,7 @@ class _ThreadList extends StatelessWidget {
                   ),
                   child: Center(
                     child: Text(
-                      '${t.unread}',
+                      '${thread.unread}',
                       style: LALTypography.labelSmall
                           .copyWith(color: Colors.white, fontSize: 10),
                     ),

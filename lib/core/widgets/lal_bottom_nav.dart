@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../theme/tokens.dart';
 import '../../theme/typography.dart';
 
@@ -34,16 +35,16 @@ class LALBottomNav extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
 
-  static const _items = [
-    (icon: Icons.explore_outlined, active: Icons.explore, label: 'Discover'),
-    (icon: Icons.search_outlined, active: Icons.search, label: 'Search'),
-    (icon: Icons.bookmark_border, active: Icons.bookmark, label: 'Saved'),
-    (icon: Icons.chat_bubble_outline, active: Icons.chat_bubble, label: 'Inbox'),
-    (icon: Icons.person_outline, active: Icons.person, label: 'Profile'),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    final items = <({IconData icon, IconData active, String label})>[
+      (icon: Icons.explore_outlined, active: Icons.explore, label: t.tabDiscover),
+      (icon: Icons.search_outlined, active: Icons.search, label: t.tabSearch),
+      (icon: Icons.bookmark_border, active: Icons.bookmark, label: t.tabSaved),
+      (icon: Icons.chat_bubble_outline, active: Icons.chat_bubble, label: t.tabInbox),
+      (icon: Icons.person_outline, active: Icons.person, label: t.tabProfile),
+    ];
     return Container(
       decoration: const BoxDecoration(
         color: LALColors.surface,
@@ -56,11 +57,11 @@ class LALBottomNav extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              for (var i = 0; i < _items.length; i++)
+              for (var i = 0; i < items.length; i++)
                 _NavItem(
-                  icon: _items[i].icon,
-                  activeIcon: _items[i].active,
-                  label: _items[i].label,
+                  icon: items[i].icon,
+                  activeIcon: items[i].active,
+                  label: items[i].label,
                   isActive: currentIndex == i,
                   onTap: () => onTap(i),
                 ),

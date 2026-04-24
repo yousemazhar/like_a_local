@@ -2,30 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
 import '../domain/app_user.dart';
 import '../domain/auth_providers.dart';
-
-const _placeTypes = [
-  (label: 'Restaurants', icon: Icons.restaurant_outlined),
-  (label: 'Cafés', icon: Icons.coffee_outlined),
-  (label: 'Bars', icon: Icons.local_bar_outlined),
-  (label: 'Viewpoints', icon: Icons.landscape_outlined),
-  (label: 'Markets', icon: Icons.storefront_outlined),
-  (label: 'Museums', icon: Icons.museum_outlined),
-  (label: 'Parks', icon: Icons.park_outlined),
-  (label: 'Hidden Gems', icon: Icons.explore_outlined),
-];
-
-const _moods = [
-  'Romantic',
-  'Family',
-  'Lively',
-  'Peaceful',
-  'Foodie',
-  'Off-the-beaten-track',
-];
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
@@ -41,7 +22,30 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final user = ref.watch(authStateProvider).valueOrNull;
+
+    final placeTypes = <({String key, String label, IconData icon})>[
+      (key: 'Restaurants', label: t.placeTypeRestaurants, icon: Icons.restaurant_outlined),
+      (key: 'Cafés', label: t.placeTypeCafes, icon: Icons.coffee_outlined),
+      (key: 'Bars', label: t.placeTypeBars, icon: Icons.local_bar_outlined),
+      (key: 'Viewpoints', label: t.placeTypeViewpoints, icon: Icons.landscape_outlined),
+      (key: 'Markets', label: t.placeTypeMarkets, icon: Icons.storefront_outlined),
+      (key: 'Museums', label: t.placeTypeMuseums, icon: Icons.museum_outlined),
+      (key: 'Parks', label: t.placeTypeParks, icon: Icons.park_outlined),
+      (key: 'Hidden Gems', label: t.placeTypeHiddenGems, icon: Icons.explore_outlined),
+    ];
+
+    final moods = <({String key, String label})>[
+      (key: 'Romantic', label: t.moodRomantic),
+      (key: 'Family', label: t.moodFamily),
+      (key: 'Lively', label: t.moodLively),
+      (key: 'Peaceful', label: t.moodPeaceful),
+      (key: 'Foodie', label: t.moodFoodie),
+      (key: 'Off-the-beaten-track', label: t.moodOffBeaten),
+    ];
+
+    final name = user?.displayName?.split(' ').first ?? t.onboardingDefaultName;
 
     return Scaffold(
       backgroundColor: LALColors.bg,
@@ -56,47 +60,47 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Hey ${user?.displayName?.split(' ').first ?? 'there'} 👋',
+                      t.onboardingGreeting(name),
                       style: Theme.of(context).textTheme.headlineLarge,
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Tell us what you love — we\'ll personalise your feed.',
+                    Text(
+                      t.onboardingSubtitle,
                       style: LALTypography.bodyMedium,
                     ),
                     const SizedBox(height: 32),
-                    const Text('What kind of places?',
+                    Text(t.onboardingPlaceTypes,
                         style: LALTypography.labelLarge),
                     const SizedBox(height: 12),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
-                      children: _placeTypes.map((pt) {
-                        final sel = _placeTypesSel.contains(pt.label);
+                      children: placeTypes.map((pt) {
+                        final sel = _placeTypesSel.contains(pt.key);
                         return _PreferenceChip(
                           label: pt.label,
                           icon: pt.icon,
                           isSelected: sel,
                           onTap: () => setState(() => sel
-                              ? _placeTypesSel.remove(pt.label)
-                              : _placeTypesSel.add(pt.label)),
+                              ? _placeTypesSel.remove(pt.key)
+                              : _placeTypesSel.add(pt.key)),
                         );
                       }).toList(),
                     ),
                     const SizedBox(height: 28),
-                    const Text('What\'s your vibe?',
+                    Text(t.onboardingVibe,
                         style: LALTypography.labelLarge),
                     const SizedBox(height: 12),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
-                      children: _moods.map((m) {
-                        final sel = _moodsSel.contains(m);
+                      children: moods.map((m) {
+                        final sel = _moodsSel.contains(m.key);
                         return _PreferenceChip(
-                          label: m,
+                          label: m.label,
                           isSelected: sel,
                           onTap: () => setState(() =>
-                              sel ? _moodsSel.remove(m) : _moodsSel.add(m)),
+                              sel ? _moodsSel.remove(m.key) : _moodsSel.add(m.key)),
                         );
                       }).toList(),
                     ),
@@ -119,13 +123,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             child: CircularProgressIndicator(
                                 strokeWidth: 2, color: Colors.white),
                           )
-                        : const Text('Start exploring'),
+                        : Text(t.onboardingStart),
                   ),
                   const SizedBox(height: 8),
                   TextButton(
                     onPressed: () => context.go('/discover'),
                     child: Text(
-                      'Skip for now',
+                      t.onboardingSkip,
                       style: LALTypography.labelMedium
                           .copyWith(color: LALColors.c500),
                     ),

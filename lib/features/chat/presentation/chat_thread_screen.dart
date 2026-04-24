@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
 
@@ -33,6 +34,7 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: LALColors.bg,
       appBar: AppBar(
@@ -53,7 +55,7 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text('João Silva', style: LALTypography.labelLarge),
-                Text('Super Local',
+                Text(t.chatSuperLocal,
                     style: LALTypography.bodySmall
                         .copyWith(color: LALColors.accent, fontSize: 11)),
               ],
@@ -123,6 +125,7 @@ class _Composer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Container(
       padding: EdgeInsets.fromLTRB(
           16, 10, 16, 10 + MediaQuery.of(context).padding.bottom),
@@ -136,7 +139,7 @@ class _Composer extends StatelessWidget {
             child: TextField(
               controller: controller,
               decoration: InputDecoration(
-                hintText: 'Message…',
+                hintText: t.chatMessageHint,
                 filled: true,
                 fillColor: LALColors.surfaceAlt,
                 border: OutlineInputBorder(

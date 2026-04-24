@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/widgets/lal_chip.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
 
@@ -16,8 +17,6 @@ class _AddPlaceScreenState extends State<AddPlaceScreen> {
   int _step = 0;
   final _pageController = PageController();
 
-  static const _steps = ['Photos', 'Basics', 'Tips & Dishes', 'Preview'];
-
   @override
   void dispose() {
     _pageController.dispose();
@@ -25,7 +24,8 @@ class _AddPlaceScreenState extends State<AddPlaceScreen> {
   }
 
   void _next() {
-    if (_step < _steps.length - 1) {
+    final steps = _buildSteps(AppLocalizations.of(context)!);
+    if (_step < steps.length - 1) {
       setState(() => _step++);
       _pageController.nextPage(
           duration: const Duration(milliseconds: 300),
@@ -44,12 +44,22 @@ class _AddPlaceScreenState extends State<AddPlaceScreen> {
     }
   }
 
+  List<String> _buildSteps(AppLocalizations t) => [
+        t.addPlacePhotos,
+        t.addPlaceBasics,
+        t.addPlaceTips,
+        t.addPlacePreview,
+      ];
+
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    final steps = _buildSteps(t);
+
     return Scaffold(
       backgroundColor: LALColors.bg,
       appBar: AppBar(
-        title: Text(_steps[_step]),
+        title: Text(steps[_step]),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
           onPressed: _back,
@@ -57,7 +67,7 @@ class _AddPlaceScreenState extends State<AddPlaceScreen> {
         actions: [
           TextButton(
             onPressed: () => context.pop(),
-            child: const Text('Cancel'),
+            child: Text(t.buttonCancel),
           ),
         ],
       ),
@@ -68,7 +78,7 @@ class _AddPlaceScreenState extends State<AddPlaceScreen> {
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
             child: Row(
               children: [
-                for (var i = 0; i < _steps.length; i++) ...[
+                for (var i = 0; i < steps.length; i++) ...[
                   Expanded(
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
@@ -79,7 +89,7 @@ class _AddPlaceScreenState extends State<AddPlaceScreen> {
                       ),
                     ),
                   ),
-                  if (i < _steps.length - 1) const SizedBox(width: 6),
+                  if (i < steps.length - 1) const SizedBox(width: 6),
                 ],
               ],
             ),
@@ -105,12 +115,12 @@ class _AddPlaceScreenState extends State<AddPlaceScreen> {
               border: Border(top: BorderSide(color: LALColors.c100)),
             ),
             child: ElevatedButton(
-              onPressed: _step < _steps.length - 1
+              onPressed: _step < steps.length - 1
                   ? _next
                   : () => context.pop(),
-              child: Text(_step < _steps.length - 1
-                  ? 'Next: ${_steps[_step + 1]}'
-                  : 'Publish Place'),
+              child: Text(_step < steps.length - 1
+                  ? t.addPlaceNext(steps[_step + 1])
+                  : t.addPlacePublish),
             ),
           ),
         ],
@@ -124,15 +134,16 @@ class _PhotosStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Add photos', style: Theme.of(context).textTheme.headlineSmall),
+          Text(t.addPlacePhotosTitle,
+              style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 6),
-          const Text('At least 1 photo required.',
-              style: LALTypography.bodySmall),
+          Text(t.addPlacePhotosHint, style: LALTypography.bodySmall),
           const SizedBox(height: 20),
           Row(
             children: [
@@ -184,33 +195,39 @@ class _BasicsStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Place details',
+          Text(t.addPlaceDetailsTitle,
               style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 20),
-          const TextField(
-              decoration: InputDecoration(labelText: 'Place name')),
+          TextField(
+              decoration: InputDecoration(labelText: t.addPlaceName)),
           const SizedBox(height: 16),
-          const TextField(
-              decoration: InputDecoration(labelText: 'Neighborhood')),
+          TextField(
+              decoration: InputDecoration(labelText: t.addPlaceNeighborhood)),
           const SizedBox(height: 16),
-          const TextField(
-            decoration: InputDecoration(labelText: 'Description'),
+          TextField(
+            decoration: InputDecoration(labelText: t.addPlaceDescription),
             maxLines: 3,
           ),
           const SizedBox(height: 16),
-          const Text('Category', style: LALTypography.labelMedium),
+          Text(t.addPlaceCategory, style: LALTypography.labelMedium),
           const SizedBox(height: 10),
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: [
               for (final c in [
-                'Restaurant', 'Café', 'Bar', 'Market', 'Viewpoint', 'Museum',
+                t.categoryRestaurant,
+                t.categoryCafe,
+                t.categoryBar,
+                t.categoryMarket,
+                t.categoryViewpoint,
+                t.categoryMuseum,
               ])
                 LALChip(label: c),
             ],
@@ -226,21 +243,21 @@ class _TipsStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Tips & Dishes',
+          Text(t.addPlaceTips,
               style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 6),
-          const Text('Add up to 5 local tips.',
-              style: LALTypography.bodySmall),
+          Text(t.addPlaceTipsSubtitle, style: LALTypography.bodySmall),
           const SizedBox(height: 20),
-          const TextField(
+          TextField(
             decoration: InputDecoration(
-              labelText: 'Tip 1',
-              hintText: 'What should visitors know?',
+              labelText: t.addPlaceTipLabel,
+              hintText: t.addPlaceTipHint,
             ),
             maxLines: 2,
           ),
@@ -248,18 +265,17 @@ class _TipsStep extends StatelessWidget {
           TextButton.icon(
             onPressed: () {},
             icon: const Icon(Icons.add, size: 16),
-            label: const Text('Add another tip'),
+            label: Text(t.addPlaceAddTip),
           ),
           const Divider(height: 32),
-          const Text('Must-Try Dishes', style: LALTypography.labelLarge),
+          Text(t.placeDishes, style: LALTypography.labelLarge),
           const SizedBox(height: 12),
-          const TextField(
-              decoration: InputDecoration(labelText: 'Dish name')),
+          TextField(decoration: InputDecoration(labelText: t.addPlaceDishName)),
           const SizedBox(height: 12),
           TextButton.icon(
             onPressed: () {},
             icon: const Icon(Icons.add, size: 16),
-            label: const Text('Add a dish'),
+            label: Text(t.addPlaceAddDish),
           ),
         ],
       ),
@@ -272,6 +288,7 @@ class _PreviewStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(40),
@@ -289,11 +306,11 @@ class _PreviewStep extends StatelessWidget {
                   color: LALColors.accent, size: 36),
             ),
             const SizedBox(height: 20),
-            Text('Ready to publish?',
+            Text(t.addPlaceReadyTitle,
                 style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 8),
-            const Text(
-              'Your place will be visible to everyone once published.',
+            Text(
+              t.addPlaceReadyBody,
               style: LALTypography.bodyMedium,
               textAlign: TextAlign.center,
             ),

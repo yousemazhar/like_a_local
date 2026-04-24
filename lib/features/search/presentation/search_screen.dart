@@ -3,17 +3,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/widgets/lal_chip.dart';
 import '../../../core/widgets/place_card.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
-
-const _moods = [
-  (label: 'Romantic', icon: Icons.favorite_outline),
-  (label: 'Family', icon: Icons.family_restroom),
-  (label: 'Hidden Gem', icon: Icons.star_outline),
-  (label: 'Lively', icon: Icons.music_note_outlined),
-  (label: 'Peaceful', icon: Icons.spa_outlined),
-  (label: 'Foodie', icon: Icons.restaurant_outlined),
-];
 
 const _recentSearches = ['Alfama restaurants', 'Viewpoints', 'Sunday market'];
 
@@ -83,6 +75,7 @@ class _SearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Container(
       color: LALColors.surface,
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
@@ -92,7 +85,7 @@ class _SearchBar extends StatelessWidget {
         autofocus: false,
         onChanged: onChanged,
         decoration: InputDecoration(
-          hintText: 'Search places, neighborhoods…',
+          hintText: t.searchHint,
           prefixIcon:
               const Icon(Icons.search, color: LALColors.c400, size: 20),
           suffixIcon: controller.text.isNotEmpty
@@ -130,6 +123,15 @@ class _EmptySearch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    final moods = <({String label, IconData icon})>[
+      (label: t.moodRomantic, icon: Icons.favorite_outline),
+      (label: t.moodFamily, icon: Icons.family_restroom),
+      (label: t.moodHiddenGem, icon: Icons.star_outline),
+      (label: t.moodLively, icon: Icons.music_note_outlined),
+      (label: t.moodPeaceful, icon: Icons.spa_outlined),
+      (label: t.moodFoodie, icon: Icons.restaurant_outlined),
+    ];
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Column(
@@ -138,7 +140,7 @@ class _EmptySearch extends StatelessWidget {
           // Recent searches
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
-            child: Text('Recent', style: LALTypography.headlineSmall),
+            child: Text(t.searchRecent, style: LALTypography.headlineSmall),
           ),
           for (final s in _recentSearches)
             ListTile(
@@ -153,7 +155,7 @@ class _EmptySearch extends StatelessWidget {
           // Mood grid
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-            child: Text('Explore by Mood', style: LALTypography.headlineSmall),
+            child: Text(t.searchMoods, style: LALTypography.headlineSmall),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -161,7 +163,7 @@ class _EmptySearch extends StatelessWidget {
               spacing: 10,
               runSpacing: 10,
               children: [
-                for (final m in _moods)
+                for (final m in moods)
                   LALChip(label: m.label, leadingIcon: m.icon),
               ],
             ),
@@ -180,6 +182,7 @@ class _SearchResults extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     // TODO: Replace with Firestore search results
     final results = [
       (title: 'Tasca do Chico', neighborhood: 'Alfama', rating: 4.8,
@@ -189,18 +192,18 @@ class _SearchResults extends StatelessWidget {
     ];
 
     if (results.isEmpty) {
-      return const Center(
+      return Center(
         child: Padding(
-          padding: EdgeInsets.all(40),
+          padding: const EdgeInsets.all(40),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.search_off, color: LALColors.c300, size: 48),
-              SizedBox(height: 16),
-              Text('No places found', style: LALTypography.labelLarge),
-              SizedBox(height: 8),
+              const Icon(Icons.search_off, color: LALColors.c300, size: 48),
+              const SizedBox(height: 16),
+              Text(t.searchNoResults, style: LALTypography.labelLarge),
+              const SizedBox(height: 8),
               Text(
-                'Try different keywords or remove some filters.',
+                t.searchNoResultsBody,
                 style: LALTypography.bodySmall,
                 textAlign: TextAlign.center,
               ),

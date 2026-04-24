@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
 
@@ -101,9 +102,10 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Future<bool> _ensureLocationPermission() async {
+    final t = AppLocalizations.of(context)!;
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      _showMessage('Enable location services to center the map near you.');
+      _showMessage(t.mapEnableLocationServices);
       return false;
     }
 
@@ -120,7 +122,7 @@ class _MapScreenState extends State<MapScreen> {
     }
 
     if (!granted) {
-      _showMessage('Location permission denied. The map will stay interactive.');
+      _showMessage(t.mapLocationDenied);
     }
 
     return granted;
@@ -145,7 +147,9 @@ class _MapScreenState extends State<MapScreen> {
         ),
       );
     } catch (_) {
-      _showMessage('Unable to fetch your current location right now.');
+      if (mounted) {
+        _showMessage(AppLocalizations.of(context)!.mapCannotFetchLocation);
+      }
     } finally {
       if (mounted) {
         setState(() => _isLocatingUser = false);
@@ -173,8 +177,8 @@ class _MapScreenState extends State<MapScreen> {
       mode: LaunchMode.externalApplication,
     );
 
-    if (!launched) {
-      _showMessage('Unable to open Google Maps right now.');
+    if (!launched && mounted) {
+      _showMessage(AppLocalizations.of(context)!.mapCannotOpenMaps);
     }
   }
 
@@ -214,6 +218,7 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: LALColors.bg,
       body: Stack(
@@ -273,7 +278,7 @@ class _MapScreenState extends State<MapScreen> {
                             const Icon(Icons.search,
                                 color: LALColors.c400, size: 18),
                             const SizedBox(width: 8),
-                            Text('Search on map…',
+                            Text(t.mapSearchOnMap,
                                 style: LALTypography.bodyMedium
                                     .copyWith(color: LALColors.c400)),
                           ],
@@ -310,7 +315,7 @@ class _MapScreenState extends State<MapScreen> {
                 size: 18,
               ),
               label: Text(
-                _isLocatingUser ? 'Locating…' : 'Near Me',
+                _isLocatingUser ? t.mapLocating : t.mapNearMe,
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -349,6 +354,7 @@ class _MapBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Container(
       decoration: const BoxDecoration(
         color: LALColors.surface,
@@ -387,7 +393,7 @@ class _MapBottomSheet extends StatelessWidget {
           Row(
             children: [
               Text(
-                '$placeCount Cairo picks',
+                t.mapPickCount(placeCount),
                 style: LALTypography.bodySmall,
               ),
               if (place.rating != null) ...[
@@ -412,7 +418,7 @@ class _MapBottomSheet extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: onDirectionsTap,
                   icon: const Icon(Icons.directions_outlined, size: 16),
-                  label: const Text('Directions'),
+                  label: Text(t.mapDirections),
                 ),
               ),
               const SizedBox(width: 12),
@@ -420,7 +426,7 @@ class _MapBottomSheet extends StatelessWidget {
                 child: ElevatedButton.icon(
                   onPressed: () {},
                   icon: const Icon(Icons.bookmark_border, size: 16),
-                  label: const Text('Save place'),
+                  label: Text(t.placeSave),
                 ),
               ),
             ],

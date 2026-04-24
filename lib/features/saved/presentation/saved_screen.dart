@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/widgets/empty_view.dart';
 import '../../../core/widgets/skeleton.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
 import '../domain/saved_pin.dart';
@@ -34,6 +35,7 @@ class _SavedScreenState extends ConsumerState<SavedScreen>
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: LALColors.bg,
       body: SafeArea(
@@ -44,7 +46,7 @@ class _SavedScreenState extends ConsumerState<SavedScreen>
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
               child: Row(
                 children: [
-                  Text('Saved',
+                  Text(t.savedTitle,
                       style: Theme.of(context).textTheme.headlineLarge),
                   const Spacer(),
                   IconButton(
@@ -63,10 +65,10 @@ class _SavedScreenState extends ConsumerState<SavedScreen>
               indicatorSize: TabBarIndicatorSize.label,
               labelStyle: LALTypography.labelMedium,
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              tabs: const [
-                Tab(text: 'Collections'),
-                Tab(text: 'All Places'),
-                Tab(text: 'Reminders'),
+              tabs: [
+                Tab(text: t.savedCollections),
+                Tab(text: t.savedAllPlaces),
+                Tab(text: t.savedReminders),
               ],
             ),
             const Divider(height: 1),
@@ -92,6 +94,7 @@ class _CollectionsTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final t = AppLocalizations.of(context)!;
     final collectionsAsync = ref.watch(savedCollectionsProvider);
 
     return SingleChildScrollView(
@@ -114,11 +117,11 @@ class _CollectionsTab extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Unlock unlimited collections',
+                      Text(t.savedUnlockCollections,
                           style: LALTypography.labelLarge
                               .copyWith(color: LALColors.accentDark)),
                       const SizedBox(height: 2),
-                      Text('Free plan: up to 10 saved places.',
+                      Text(t.savedFreePlan,
                           style: LALTypography.bodySmall
                               .copyWith(color: LALColors.accentDark)),
                     ],
@@ -126,7 +129,7 @@ class _CollectionsTab extends ConsumerWidget {
                 ),
                 TextButton(
                   onPressed: () => context.push('/premium'),
-                  child: Text('Upgrade',
+                  child: Text(t.savedUpgrade,
                       style: LALTypography.labelMedium
                           .copyWith(color: LALColors.accentDark)),
                 ),
@@ -140,9 +143,9 @@ class _CollectionsTab extends ConsumerWidget {
             data: (cols) => cols.isEmpty
                 ? EmptyView(
                     icon: Icons.collections_bookmark_outlined,
-                    title: 'No collections yet',
-                    body: 'Group your saved places into collections.',
-                    action: 'Create collection',
+                    title: t.savedNoCollections,
+                    body: t.savedNoCollectionsBody,
+                    action: t.savedCreateCollection,
                     onActionTap: () => _createCollection(context, ref),
                   )
                 : _CollectionsGrid(collections: cols),
@@ -153,20 +156,21 @@ class _CollectionsTab extends ConsumerWidget {
   }
 
   void _createCollection(BuildContext context, WidgetRef ref) {
+    final t = AppLocalizations.of(context)!;
     final ctrl = TextEditingController();
     showDialog<void>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('New collection'),
+        title: Text(t.savedNewCollection),
         content: TextField(
           controller: ctrl,
           autofocus: true,
-          decoration: const InputDecoration(labelText: 'Collection name'),
+          decoration: InputDecoration(labelText: t.savedCollectionName),
         ),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel')),
+              child: Text(t.buttonCancel)),
           ElevatedButton(
             onPressed: () async {
               if (ctrl.text.trim().isEmpty) return;
@@ -175,7 +179,7 @@ class _CollectionsTab extends ConsumerWidget {
                   .read(savedNotifierProvider.notifier)
                   .createCollection(ctrl.text.trim());
             },
-            child: const Text('Create'),
+            child: Text(t.savedCreate),
           ),
         ],
       ),
@@ -212,6 +216,7 @@ class _CollectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Container(
       decoration: const BoxDecoration(
         color: LALColors.surface,
@@ -241,7 +246,7 @@ class _CollectionCard extends StatelessWidget {
                     style: LALTypography.labelMedium,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis),
-                Text('${collection.count} places',
+                Text(t.savedPlacesCount(collection.count),
                     style: LALTypography.bodySmall),
               ],
             ),
@@ -257,6 +262,7 @@ class _AllPlacesTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final t = AppLocalizations.of(context)!;
     final pinsAsync = ref.watch(savedPinsProvider);
 
     return pinsAsync.when(
@@ -264,16 +270,16 @@ class _AllPlacesTab extends ConsumerWidget {
         padding: EdgeInsets.all(20),
         child: SkeletonList(itemCount: 5),
       ),
-      error: (_, __) => const EmptyView(
+      error: (_, __) => EmptyView(
         icon: Icons.bookmark_border_rounded,
-        title: 'Nothing saved yet',
-        body: 'Save places you love to find them later.',
+        title: t.savedEmpty,
+        body: t.savedEmptyBody,
       ),
       data: (pins) => pins.isEmpty
-          ? const EmptyView(
+          ? EmptyView(
               icon: Icons.bookmark_border_rounded,
-              title: 'Nothing saved yet',
-              body: 'Save places you love to find them later.',
+              title: t.savedEmpty,
+              body: t.savedEmptyBody,
             )
           : ListView.separated(
               padding: const EdgeInsets.all(20),
@@ -344,10 +350,11 @@ class _RemindersTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const EmptyView(
+    final t = AppLocalizations.of(context)!;
+    return EmptyView(
       icon: Icons.notifications_none_rounded,
-      title: 'No reminders set',
-      body: 'Set location reminders on any saved place.',
+      title: t.savedNoReminders,
+      body: t.savedNoRemindersBody,
     );
   }
 }

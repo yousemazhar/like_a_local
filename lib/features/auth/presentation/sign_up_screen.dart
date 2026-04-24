@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
 import '../data/auth_repository.dart';
@@ -31,6 +32,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: LALColors.bg,
       appBar: AppBar(
@@ -49,11 +51,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 16),
-              Text('Create\naccount.',
+              Text(t.authCreateAccount,
                   style: Theme.of(context).textTheme.displayMedium),
               const SizedBox(height: 8),
-              const Text(
-                'Join a community of locals sharing hidden gems.',
+              Text(
+                t.authCreateSubtitle,
                 style: LALTypography.bodyMedium,
               ),
               const SizedBox(height: 40),
@@ -74,14 +76,14 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 controller: _name,
                 textCapitalization: TextCapitalization.words,
                 textInputAction: TextInputAction.next,
-                decoration: const InputDecoration(labelText: 'Full Name'),
+                decoration: InputDecoration(labelText: t.authName),
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: _email,
                 keyboardType: TextInputType.emailAddress,
                 textInputAction: TextInputAction.next,
-                decoration: const InputDecoration(labelText: 'Email'),
+                decoration: InputDecoration(labelText: t.authEmail),
               ),
               const SizedBox(height: 16),
               TextField(
@@ -89,9 +91,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 obscureText: true,
                 textInputAction: TextInputAction.done,
                 onSubmitted: (_) => _signUp(),
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                  helperText: 'At least 6 characters',
+                decoration: InputDecoration(
+                  labelText: t.authPassword,
+                  helperText: t.authPasswordHelper,
                 ),
               ),
               const SizedBox(height: 32),
@@ -104,18 +106,18 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         child: CircularProgressIndicator(
                             strokeWidth: 2, color: Colors.white),
                       )
-                    : const Text('Create account'),
+                    : Text(t.authCreateAccountButton),
               ),
               const SizedBox(height: 24),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('Already have an account? ',
+                  Text(t.authHaveAccount,
                       style: LALTypography.bodySmall),
                   GestureDetector(
                     onTap: () => context.go('/auth/sign-in'),
                     child: Text(
-                      'Sign in',
+                      t.authSignInLink,
                       style: LALTypography.labelMedium
                           .copyWith(color: LALColors.accent),
                     ),
@@ -131,16 +133,17 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   }
 
   Future<void> _signUp() async {
+    final t = AppLocalizations.of(context)!;
     if (_name.text.trim().isEmpty) {
-      setState(() => _error = 'Please enter your name.');
+      setState(() => _error = t.authEnterName);
       return;
     }
     if (_email.text.trim().isEmpty) {
-      setState(() => _error = 'Please enter your email.');
+      setState(() => _error = t.authEnterEmail);
       return;
     }
     if (_password.text.length < 6) {
-      setState(() => _error = 'Password must be at least 6 characters.');
+      setState(() => _error = t.authPasswordMinLength);
       return;
     }
 
@@ -156,7 +159,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       if (mounted) context.go('/onboarding');
     } catch (e) {
       if (mounted) {
-        setState(() => _error = AuthRepository.friendlyAuthError(e));
+        setState(
+            () => _error = AuthRepository.friendlyAuthError(e, context));
       }
     } finally {
       if (mounted) setState(() => _loading = false);

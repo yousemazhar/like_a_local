@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/providers/connectivity_provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../../theme/tokens.dart';
 import '../../theme/typography.dart';
 
@@ -10,6 +11,7 @@ class OfflineBanner extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final t = AppLocalizations.of(context)!;
     final isOnline = ref.watch(isOnlineProvider).valueOrNull ?? true;
     if (isOnline) return const SizedBox.shrink();
 
@@ -26,7 +28,7 @@ class OfflineBanner extends ConsumerWidget {
             const Icon(Icons.wifi_off_rounded, size: 14, color: Colors.white70),
             const SizedBox(width: 6),
             Text(
-              'No internet connection',
+              t.offlineBanner,
               style: LALTypography.labelSmall.copyWith(color: Colors.white70),
             ),
           ],

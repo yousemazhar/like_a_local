@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/widgets.dart';
 
+import '../../../core/providers/locale_provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../domain/app_user.dart';
 
 class AuthRepository {
@@ -43,7 +46,7 @@ class AuthRepository {
     await _db.collection('users').doc(cred.user!.uid).set({
       'displayName': displayName.trim(),
       'email': email.trim(),
-      'locale': 'en',
+      'locale': resolveDeviceLocale(),
       'role': 'user',
       'emailVerified': false,
       'preferences': {
@@ -100,19 +103,19 @@ class AuthRepository {
         emailVerified: user.emailVerified,
       );
 
-  static String friendlyAuthError(Object e) {
+  static String friendlyAuthError(Object e, BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     if (e is FirebaseAuthException) {
       return switch (e.code) {
         'user-not-found' || 'wrong-password' || 'invalid-credential' =>
-          'Email or password is incorrect.',
-        'email-already-in-use' => 'This email is already registered.',
-        'weak-password' => 'Password must be at least 6 characters.',
-        'invalid-email' => 'Please enter a valid email address.',
-        'network-request-failed' =>
-          'No internet connection. Please try again.',
-        _ => 'Sign in failed. Please try again.',
+          t.authErrorInvalidCredential,
+        'email-already-in-use' => t.authErrorEmailInUse,
+        'weak-password' => t.authErrorWeakPassword,
+        'invalid-email' => t.authErrorInvalidEmail,
+        'network-request-failed' => t.authErrorNoInternet,
+        _ => t.authErrorSignInFailed,
       };
     }
-    return 'Something went wrong. Please try again.';
+    return t.authErrorSignInFailed;
   }
 }
