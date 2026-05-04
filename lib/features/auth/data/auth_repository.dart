@@ -1,16 +1,38 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter/services.dart';
 
 import '../../../core/providers/locale_provider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../domain/app_user.dart';
 
+void _printGoogleSignInFailure(Object error, StackTrace stackTrace) {
+  print('Google sign-in failed.');
+  print('Google sign-in error runtimeType: ${error.runtimeType}');
+  print('Google sign-in error toString: $error');
+
+  if (error is PlatformException) {
+    print('Google sign-in PlatformException code: ${error.code}');
+    print('Google sign-in PlatformException message: ${error.message}');
+    print('Google sign-in PlatformException details: ${error.details}');
+  }
+
+  print('Google sign-in stackTrace: $stackTrace');
+}
+
 class AuthRepository {
-  AuthRepository(this._auth, this._db);
+  AuthRepository(this._auth, this._db, this._googleSignIn);
 
   final FirebaseAuth _auth;
   final FirebaseFirestore _db;
+  // GoogleSignIn should be instantiated with the Web OAuth client ID from
+  // Firebase google-services.json (`client_type: 3`), not the Android OAuth
+  // client ID. Android builds also need app signing SHA-1/SHA-256 fingerprints
+  // registered in Firebase, otherwise account selection can succeed and token
+  // exchange can fail after returning to MainActivity.
+  final GoogleSignIn _googleSignIn;
 
   Stream<AppUser?> get authStateChanges =>
       _auth.authStateChanges().asyncMap((user) async {
@@ -59,7 +81,74 @@ class AuthRepository {
     return _fromFirebaseUser(cred.user!);
   }
 
-  Future<void> signOut() => _auth.signOut();
+  /// Signs in with Google. Returns null if the user cancelled the flow.
+  Future<AppUser?> signInWithGoogle() async {
+    // Always show the account picker so the user can switch accounts.
+    await _googleSignIn.signOut();
+
+      final googleUser = await (() async {
+        try {
+          return await _googleSignIn.signIn();
+        } catch (e, stackTrace) {
+          _printGoogleSignInFailure(e, stackTrace);
+          rethrow;
+        }
+      })();
+      if (googleUser == null) {
+        print('Google sign-in returned null: user cancelled account picker.');
+      } else {
+        print(
+          'Google sign-in returned account: ${googleUser.email} '
+          '(${googleUser.id}).',
+        );
+      }
+    if (googleUser == null) return null; // user cancelled
+
+      final googleAuth = await (() async {
+        try {
+          return await googleUser.authentication;
+        } catch (e, stackTrace) {
+          _printGoogleSignInFailure(e, stackTrace);
+          rethrow;
+        }
+      })();
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    final cred = await _auth.signInWithCredential(credential);
+    final user = cred.user!;
+
+    // Upsert Firestore user doc (only on first sign-in via additionalUserInfo)
+    final isNew = cred.additionalUserInfo?.isNewUser ?? false;
+    if (isNew) {
+      await _db.collection('users').doc(user.uid).set({
+        'displayName': user.displayName ?? '',
+        'email': user.email ?? '',
+        'photoUrl': user.photoURL ?? '',
+        'locale': resolveDeviceLocale(),
+        'role': 'user',
+        'emailVerified': true,
+        'preferences': {
+          'placeTypes': [],
+          'moods': [],
+        },
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    }
+
+    return _enrichUser(user);
+  }
+
+  /// Signs out from both FirebaseAuth and GoogleSignIn so the account picker
+  /// is always shown on the next sign-in attempt.
+  Future<void> signOut() async {
+    await Future.wait([
+      _auth.signOut(),
+      _googleSignIn.signOut(),
+    ]);
+  }
 
   Future<void> sendPasswordResetEmail(String email) =>
       _auth.sendPasswordResetEmail(email: email.trim());

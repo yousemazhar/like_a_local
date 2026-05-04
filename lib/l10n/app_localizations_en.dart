@@ -750,4 +750,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get buttonDone => 'Done';
+
+  @override
+  String get authSignInWithGoogle => 'Sign in with Google';
+
+  @override
+  String get authSignUpWithGoogle => 'Sign up with Google';
 }

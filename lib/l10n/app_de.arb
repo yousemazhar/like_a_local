@@ -277,4 +277,12 @@
   "buttonSave": "Speichern",
   "buttonNext": "Weiter",
   "buttonDone": "Fertig"
+  ,"authSignInWithGoogle": "Mit Google anmelden",
+  "@authSignInWithGoogle": {
+    "description": "Button label for signing in with Google"
+  },
+  "authSignUpWithGoogle": "Mit Google registrieren",
+  "@authSignUpWithGoogle": {
+    "description": "Button label for signing up with Google"
+  }
 }

@@ -20,6 +20,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   bool _loading = false;
+  bool _googleLoading = false;
   String? _error;
 
   @override
@@ -108,6 +109,14 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       )
                     : Text(t.authCreateAccountButton),
               ),
+              const SizedBox(height: 16),
+              const _OrDivider(),
+              const SizedBox(height: 16),
+              _GoogleSignInButton(
+                loading: _googleLoading,
+                label: t.authSignUpWithGoogle,
+                onPressed: _signUpWithGoogle,
+              ),
               const SizedBox(height: 24),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -130,6 +139,20 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _signUpWithGoogle() async {
+    setState(() { _googleLoading = true; _error = null; });
+    try {
+      final user = await ref.read(authRepositoryProvider).signInWithGoogle();
+      if (!mounted) return;
+      // For Google sign-up, go to onboarding if new user, otherwise discover
+      if (user != null) context.go('/onboarding');
+    } catch (e) {
+      if (mounted) setState(() => _error = AuthRepository.friendlyAuthError(e, context));
+    } finally {
+      if (mounted) setState(() => _googleLoading = false);
+    }
   }
 
   Future<void> _signUp() async {
@@ -166,4 +189,94 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       if (mounted) setState(() => _loading = false);
     }
   }
+}
+class _OrDivider extends StatelessWidget {
+  const _OrDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const Expanded(child: Divider(color: LALColors.c200)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Text(
+            'or',
+            style: LALTypography.bodySmall.copyWith(color: LALColors.c400),
+          ),
+        ),
+        const Expanded(child: Divider(color: LALColors.c200)),
+      ],
+    );
+  }
+}
+
+class _GoogleSignInButton extends StatelessWidget {
+  const _GoogleSignInButton({
+    required this.loading,
+    required this.label,
+    required this.onPressed,
+  });
+
+  final bool loading;
+  final String label;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: OutlinedButton(
+        onPressed: loading ? null : onPressed,
+        style: OutlinedButton.styleFrom(
+          side: const BorderSide(color: LALColors.c200),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          backgroundColor: Colors.white,
+        ),
+        child: loading
+            ? const SizedBox(
+                height: 20, width: 20,
+                child: CircularProgressIndicator(strokeWidth: 2, color: LALColors.c600),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 20, height: 20,
+                    child: CustomPaint(painter: _GoogleLogoPainter()),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(label, style: LALTypography.labelMedium.copyWith(color: LALColors.c900)),
+                ],
+              ),
+      ),
+    );
+  }
+}
+
+class _GoogleLogoPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2;
+    final rect = Rect.fromCircle(center: center, radius: radius - 1);
+    const strokeWidth = 3.5;
+    void drawArc(double start, double sweep, Color color) {
+      canvas.drawArc(rect, start, sweep, false,
+        Paint()
+          ..color = color
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = strokeWidth
+          ..strokeCap = StrokeCap.round,
+      );
+    }
+    drawArc(-1.57, 1.57, const Color(0xFF4285F4));
+    drawArc(0.0,   1.57, const Color(0xFF34A853));
+    drawArc(1.57,  1.57, const Color(0xFFFBBC05));
+    drawArc(3.14,  1.57, const Color(0xFFEA4335));
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

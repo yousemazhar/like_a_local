@@ -512,4 +512,12 @@
   "@buttonNext": {},
   "buttonDone": "Done",
   "@buttonDone": {}
+  ,"authSignInWithGoogle": "Sign in with Google",
+  "@authSignInWithGoogle": {
+    "description": "Button label for signing in with Google"
+  },
+  "authSignUpWithGoogle": "Sign up with Google",
+  "@authSignUpWithGoogle": {
+    "description": "Button label for signing up with Google"
+  }
 }

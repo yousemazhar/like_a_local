@@ -768,4 +768,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get buttonDone => 'Fertig';
+
+  @override
+  String get authSignInWithGoogle => 'Mit Google anmelden';
+
+  @override
+  String get authSignUpWithGoogle => 'Mit Google registrieren';
 }

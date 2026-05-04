@@ -1537,6 +1537,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Done'**
   String get buttonDone;
+
+  /// Button label for signing in with Google
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Google'**
+  String get authSignInWithGoogle;
+
+  /// Button label for signing up with Google
+  ///
+  /// In en, this message translates to:
+  /// **'Sign up with Google'**
+  String get authSignUpWithGoogle;
 }
 
 class _AppLocalizationsDelegate

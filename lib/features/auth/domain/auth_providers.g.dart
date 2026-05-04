@@ -6,7 +6,24 @@ part of 'auth_providers.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$authRepositoryHash() => r'b88b37429bba502977749fea009b49432977f996';
+String _$googleSignInHash() => r'367cd1f96536fa0a7f72e2aaad86ec69d81fbc15';
+
+/// See also [googleSignIn].
+@ProviderFor(googleSignIn)
+final googleSignInProvider = Provider<GoogleSignIn>.internal(
+  googleSignIn,
+  name: r'googleSignInProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$googleSignInHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef GoogleSignInRef = ProviderRef<GoogleSignIn>;
+String _$authRepositoryHash() => r'4798573448e121f701a5f595c45206abb7837aae';
 
 /// See also [authRepository].
 @ProviderFor(authRepository)
