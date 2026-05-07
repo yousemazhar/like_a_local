@@ -155,35 +155,41 @@ class _CollectionsTab extends ConsumerWidget {
     );
   }
 
-  void _createCollection(BuildContext context, WidgetRef ref) {
+  Future<void> _createCollection(BuildContext context, WidgetRef ref) async {
     final t = AppLocalizations.of(context)!;
     final ctrl = TextEditingController();
-    showDialog<void>(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text(t.savedNewCollection),
-        content: TextField(
-          controller: ctrl,
-          autofocus: true,
-          decoration: InputDecoration(labelText: t.savedCollectionName),
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(t.buttonCancel)),
-          ElevatedButton(
-            onPressed: () async {
-              if (ctrl.text.trim().isEmpty) return;
-              Navigator.pop(context);
-              await ref
-                  .read(savedNotifierProvider.notifier)
-                  .createCollection(ctrl.text.trim());
-            },
-            child: Text(t.savedCreate),
+    try {
+      final name = await showDialog<String>(
+        context: context,
+        builder: (dialogCtx) => AlertDialog(
+          title: Text(t.savedNewCollection),
+          content: TextField(
+            controller: ctrl,
+            autofocus: true,
+            decoration: InputDecoration(labelText: t.savedCollectionName),
+            onSubmitted: (v) => Navigator.of(dialogCtx).pop(v.trim()),
           ),
-        ],
-      ),
-    );
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogCtx).pop(),
+              child: Text(t.buttonCancel),
+            ),
+            ElevatedButton(
+              onPressed: () =>
+                  Navigator.of(dialogCtx).pop(ctrl.text.trim()),
+              child: Text(t.savedCreate),
+            ),
+          ],
+        ),
+      );
+      if (name != null && name.isNotEmpty) {
+        await ref
+            .read(savedNotifierProvider.notifier)
+            .createCollection(name);
+      }
+    } finally {
+      ctrl.dispose();
+    }
   }
 }
 
