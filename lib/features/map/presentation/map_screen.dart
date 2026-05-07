@@ -104,6 +104,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               neighborhood:
                   p.neighborhood.isNotEmpty ? p.neighborhood : p.city,
               category: p.category,
+              address: p.address,
               lat: p.lat,
               lng: p.lng,
               rating: p.ratingAvg > 0 ? p.ratingAvg : null,
@@ -445,6 +446,24 @@ class _MapBottomSheet extends StatelessWidget {
             place.title,
             style: LALTypography.headlineSmall.copyWith(fontSize: 16),
           ),
+          if (place.address.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Icons.place_outlined,
+                    size: 14, color: LALColors.c500),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    place.address,
+                    style: LALTypography.bodySmall
+                        .copyWith(color: LALColors.c700),
+                  ),
+                ),
+              ],
+            ),
+          ],
           const SizedBox(height: 8),
           Row(
             children: [
@@ -501,6 +520,7 @@ class _DemoMapPlace {
     required this.category,
     required this.lat,
     required this.lng,
+    this.address = '',
     this.rating,
   });
 
@@ -508,6 +528,7 @@ class _DemoMapPlace {
   final String title;
   final String neighborhood;
   final String category;
+  final String address;
   final double lat;
   final double lng;
   final double? rating;

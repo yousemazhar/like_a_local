@@ -17,6 +17,7 @@ _$PlaceImpl _$$PlaceImplFromJson(Map<String, dynamic> json) => _$PlaceImpl(
   priceLevel: json['priceLevel'] as String?,
   city: json['city'] as String? ?? '',
   neighborhood: json['neighborhood'] as String? ?? '',
+  address: json['address'] as String? ?? '',
   lat: (json['lat'] as num?)?.toDouble() ?? 0.0,
   lng: (json['lng'] as num?)?.toDouble() ?? 0.0,
   tips:
@@ -48,6 +49,7 @@ Map<String, dynamic> _$$PlaceImplToJson(_$PlaceImpl instance) =>
       'priceLevel': instance.priceLevel,
       'city': instance.city,
       'neighborhood': instance.neighborhood,
+      'address': instance.address,
       'lat': instance.lat,
       'lng': instance.lng,
       'tips': instance.tips,

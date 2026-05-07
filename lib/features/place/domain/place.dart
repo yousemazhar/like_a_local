@@ -15,6 +15,7 @@ class Place with _$Place {
     String? priceLevel,
     @Default('') String city,
     @Default('') String neighborhood,
+    @Default('') String address,
     @Default(0.0) double lat,
     @Default(0.0) double lng,
     @Default([]) List<PlaceTip> tips,

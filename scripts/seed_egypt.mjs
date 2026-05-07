@@ -37,58 +37,236 @@ async function getAccessToken() {
   return json.access_token;
 }
 
+// 10 iconic, verified Egyptian places — coordinates and addresses cross-checked
+// against Google Maps / Wikipedia.
 const PLACES = [
-  ["Felfela", "Beloved downtown spot serving Egyptian classics — koshari, ful, ta'meya — under quirky village-style decor since 1959.", "Restaurant", ["Casual","Local","Family"], "$", "Cairo", "Downtown", 30.0489, 31.2374,
-    [["Order the mixed mezze plate to try a bit of everything.",0],["Lunch hours are quieter than evenings.",1],["Don't miss the fresh sugarcane juice.",2]],
-    ["https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=1200"], true],
-  ["Abou Tarek", "The koshari temple. A multi-floor institution that has been perfecting Egypt's national dish for decades.", "Restaurant", ["Local","Iconic","Quick"], "$", "Cairo", "Downtown", 30.0511, 31.2436,
-    [["Ask for the spicy chili sauce on the side.",0],["Top floor has the best views and quickest seating.",1]],
-    ["https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=1200"], true],
-  ["Khan el-Khalili", "14th-century bazaar maze packed with copper, perfume oils, lanterns, and centuries-old coffeehouses.", "Market", ["Cultural","Historic","Lively"], "$", "Cairo", "Old Cairo", 30.0476, 31.2624,
-    [["Haggle politely — start at half the asking price.",0],["Slip into El Fishawy cafe for mint tea between shops.",1],["Visit early morning to beat the crowds.",2]],
-    ["https://images.unsplash.com/photo-1572252009286-268acec5ca0a?w=1200"], true],
-  ["El Fishawy Cafe", "The oldest cafe in Cairo (since 1797). Naguib Mahfouz wrote here. Mirrored walls, brass tables, and mint tea.", "Cafe", ["Historic","Cozy","Romantic"], "$", "Cairo", "Old Cairo", 30.0479, 31.2620,
-    [["Order the karkade (hibiscus tea) — it's their specialty.",0],["Late evenings are most atmospheric with locals smoking shisha.",1]],
-    ["https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=1200"], false],
-  ["Pyramids of Giza", "The last surviving wonder of the ancient world. Visit at sunrise to see the Great Pyramid in golden light without the crowds.", "Landmark", ["Iconic","Historic","Awe"], "$$", "Giza", "Giza Plateau", 29.9792, 31.1342,
-    [["Enter via the back gate near Mena House for fewer touts.",0],["Camel rides are overpriced — agree on a flat fee in writing.",1],["Stay for the panoramic viewpoint south of the Sphinx.",2]],
-    ["https://images.unsplash.com/photo-1539650116574-75c0c6d73b6e?w=1200"], true],
-  ["The Grand Egyptian Museum", "World's largest archaeological museum dedicated to a single civilization, including the full Tutankhamun collection.", "Museum", ["Cultural","Educational","Awe"], "$$", "Giza", "Giza Plateau", 29.9933, 31.1196,
-    [["Allow at least four hours — the Tut wing alone is enormous.",0],["Buy tickets online to skip the queue.",1]],
-    ["https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=1200"], true],
-  ["Al-Azhar Park", "Restored hilltop park with Fatimid-style fountains and the best skyline view of Islamic Cairo at sunset.", "Park", ["Romantic","Relaxing","View"], "$", "Cairo", "Darb al-Ahmar", 30.0405, 31.2630,
-    [["Go an hour before sunset for golden hour over the Citadel.",0],["The lakeside restaurant is worth a sit-down dinner.",1]],
-    ["https://images.unsplash.com/photo-1580837119756-563d608dd119?w=1200"], false],
-  ["Sequoia", "Open-air Nile-side dining with Mediterranean small plates. Best on a breezy night with a view of the Zamalek waterfront.", "Restaurant", ["Romantic","Upscale","View"], "$$$", "Cairo", "Zamalek", 30.0805, 31.2210,
-    [["Reserve a riverside table at least a day ahead.",0],["Their seafood mezze platter is the move.",1]],
-    ["https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200"], false],
-  ["Cairo Jazz Club", "Long-running live music venue in Agouza featuring jazz, oriental fusion, and indie Egyptian acts.", "Nightlife", ["Lively","Music","Local"], "$$", "Cairo", "Agouza", 30.0566, 31.2122,
-    [["Check the gig calendar — Thursday nights are the strongest.",0],["Dress code is smart-casual at the door.",1]],
-    ["https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=1200"], false],
-  ["Library of Alexandria", "Striking modern revival of the ancient library, with cascading reading halls and a planetarium next door.", "Landmark", ["Cultural","Architectural","Educational"], "$", "Alexandria", "Corniche", 31.2089, 29.9092,
-    [["Combine ticket with the antiquities museum inside.",0],["Go on a weekday morning — calm and almost empty.",1]],
-    ["https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=1200"], true],
-  ["Mohamed Ahmed", "Alexandria's most famous ful & falafel spot. Tiny, crowded, and unbeatable for breakfast.", "Restaurant", ["Local","Casual","Iconic"], "$", "Alexandria", "Downtown", 31.1987, 29.8987,
-    [["Order ful with extra tahini and a side of pickles.",0],["Cash only.",1]],
-    ["https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=1200"], false],
-  ["Stanley Bridge", "Iconic Mediterranean bridge with whitewashed kiosks, perfect for a sunset corniche walk.", "Landmark", ["Romantic","View","Relaxing"], "$", "Alexandria", "Stanley", 31.2400, 29.9628,
-    [["Sunset around 6pm in summer is golden.",0],["Grab a fresh juice from one of the corniche kiosks.",1]],
-    ["https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200"], false],
-  ["Dahab Blue Hole", "World-famous freediving and snorkelling site — dramatic coral wall plunging into deep blue.", "Outdoor", ["Adventure","Nature","Peaceful"], "$$", "Dahab", "Blue Hole", 28.5728, 34.5378,
-    [["Snorkel only — leave the deep dives to certified pros.",0],["Beachside Bedouin cafes serve killer fresh seafood.",1]],
-    ["https://images.unsplash.com/photo-1519046904884-53103b34b206?w=1200"], true],
-  ["Karnak Temple", "Vast open-air temple complex of obelisks, hypostyle halls, and the awe-inspiring Avenue of Sphinxes.", "Landmark", ["Historic","Awe","Cultural"], "$$", "Luxor", "East Bank", 25.7188, 32.6573,
-    [["The sound & light show after dark is genuinely magical.",0],["Bring water — there's no shade in the inner courts.",1]],
-    ["https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=1200"], false],
-  ["Valley of the Kings", "Royal burial ground with painted tombs of pharaohs including Ramesses VI and Tutankhamun.", "Landmark", ["Historic","Awe","Educational"], "$$", "Luxor", "West Bank", 25.7402, 32.6014,
-    [["The Tutankhamun tomb is a separate ticket — worth it.",0],["Visit before 10am to avoid the heat.",1],["Photography inside tombs requires an extra permit.",2]],
-    ["https://images.unsplash.com/photo-1572252009286-268acec5ca0a?w=1200"], true],
-  ["Abu Simbel", "Ramesses II's colossal twin temples carved into a Nubian cliff — relocated stone-by-stone in the 1960s.", "Landmark", ["Iconic","Historic","Awe"], "$$$", "Aswan", "Abu Simbel", 22.3372, 31.6258,
-    [["Sunrise convoys leave Aswan around 4am — book a tour.",0],["Twice a year (Feb/Oct) the sun aligns to light the inner sanctum.",1]],
-    ["https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=1200"], false],
-  ["Nubian Village", "Colorful Aswan riverside village reachable by felucca, with henna artists and Nubian home restaurants.", "Cultural", ["Local","Cultural","Photogenic"], "$", "Aswan", "Gharb Soheil", 24.0758, 32.8843,
-    [["Take a felucca across at sunset for the best views.",0],["Lunch at a Nubian home is the highlight — book ahead.",1]],
-    ["https://images.unsplash.com/photo-1552733407-5d5c46c3bb3b?w=1200"], false],
+  {
+    id: "eg_pyramids_of_giza",
+    title: "Pyramids of Giza",
+    description:
+      "The last surviving Wonder of the Ancient World — three pyramids built ~2600–2500 BCE for pharaohs Khufu, Khafre, and Menkaure, plus the Great Sphinx.",
+    category: "Landmark",
+    moods: ["Iconic", "Historic", "Awe"],
+    priceLevel: "$$",
+    city: "Giza",
+    neighborhood: "Giza Plateau",
+    address: "Al Haram, Nazlet El-Semman, Giza Governorate",
+    lat: 29.9792,
+    lng: 31.1342,
+    tips: [
+      "Buy tickets at the main entrance on Al-Haram Street; arrive at 8 AM to beat heat and crowds.",
+      "A separate ticket lets you enter the Great Pyramid's interior — claustrophobic but unforgettable.",
+      "The panoramic viewpoint south of the plateau frames all three pyramids and the Sphinx.",
+    ],
+    mediaUrls: [
+      "https://images.unsplash.com/photo-1539650116574-75c0c6d73b6e?w=1200",
+    ],
+    featured: true,
+  },
+  {
+    id: "eg_egyptian_museum_tahrir",
+    title: "Egyptian Museum",
+    description:
+      "The original 1902 museum on Tahrir Square — home to over 120,000 antiquities, including treasures from Tanis and royal mummies.",
+    category: "Museum",
+    moods: ["Cultural", "Historic", "Educational"],
+    priceLevel: "$$",
+    city: "Cairo",
+    neighborhood: "Downtown",
+    address: "Meret Basha, Ismailia, Qasr El Nil, Cairo Governorate",
+    lat: 30.0478,
+    lng: 31.2336,
+    tips: [
+      "Many highlights have moved to GEM in Giza — but the royal mummy hall here is still unmissable.",
+      "Allow 2–3 hours; the building itself is part of the experience.",
+    ],
+    mediaUrls: [
+      "https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=1200",
+    ],
+    featured: true,
+  },
+  {
+    id: "eg_grand_egyptian_museum",
+    title: "Grand Egyptian Museum",
+    description:
+      "World's largest museum dedicated to a single civilization. Houses the complete Tutankhamun collection and the towering statue of Ramesses II.",
+    category: "Museum",
+    moods: ["Cultural", "Educational", "Awe"],
+    priceLevel: "$$",
+    city: "Giza",
+    neighborhood: "Giza Plateau",
+    address: "Alexandria Desert Rd, Kafr Nassar, Giza Governorate",
+    lat: 29.9933,
+    lng: 31.1196,
+    tips: [
+      "Book online — entry is timed and weekend slots sell out.",
+      "Plan a half-day; the Tut wing alone takes 1.5 hours.",
+      "Combo tickets with the Pyramids save time and money.",
+    ],
+    mediaUrls: [
+      "https://images.unsplash.com/photo-1572252009286-268acec5ca0a?w=1200",
+    ],
+    featured: true,
+  },
+  {
+    id: "eg_khan_el_khalili",
+    title: "Khan el-Khalili",
+    description:
+      "Vast 14th-century bazaar in Islamic Cairo, packed with copperware, perfume oils, lanterns, and centuries-old coffeehouses.",
+    category: "Market",
+    moods: ["Cultural", "Historic", "Lively"],
+    priceLevel: "$",
+    city: "Cairo",
+    neighborhood: "El-Gamaleya",
+    address: "El-Gamaleya, El Hussein Sq., Cairo Governorate",
+    lat: 30.0476,
+    lng: 31.2624,
+    tips: [
+      "Haggle politely — start at half the asking price and walk away if needed.",
+      "Slip into El Fishawy Café (open since 1797) for mint tea between shops.",
+      "Friday morning is quieter than evenings.",
+    ],
+    mediaUrls: [
+      "https://images.unsplash.com/photo-1572252009286-268acec5ca0a?w=1200",
+    ],
+    featured: true,
+  },
+  {
+    id: "eg_citadel_of_saladin",
+    title: "Citadel of Saladin",
+    description:
+      "Medieval Islamic fortification crowning Cairo's skyline, with the alabaster Mosque of Muhammad Ali at its heart.",
+    category: "Landmark",
+    moods: ["Historic", "Architectural", "View"],
+    priceLevel: "$$",
+    city: "Cairo",
+    neighborhood: "El Khalifa",
+    address: "Salah Salem St, El Abageyah, El Khalifa, Cairo Governorate",
+    lat: 30.0287,
+    lng: 31.2599,
+    tips: [
+      "Sunset views from the courtyard span all of Cairo to the Pyramids on a clear day.",
+      "The Police Museum inside is small but excellent.",
+      "Modest dress required for the mosque.",
+    ],
+    mediaUrls: [
+      "https://images.unsplash.com/photo-1580837119756-563d608dd119?w=1200",
+    ],
+    featured: false,
+  },
+  {
+    id: "eg_al_azhar_park",
+    title: "Al-Azhar Park",
+    description:
+      "Restored hilltop park with Fatimid-style fountains, gardens, and the best skyline view of historic Cairo at sunset.",
+    category: "Park",
+    moods: ["Romantic", "Relaxing", "View"],
+    priceLevel: "$",
+    city: "Cairo",
+    neighborhood: "Darb al-Ahmar",
+    address: "Salah Salem St, El-Darb El-Ahmar, Cairo Governorate",
+    lat: 30.0405,
+    lng: 31.2630,
+    tips: [
+      "Arrive an hour before sunset for golden hour over the Citadel and minarets.",
+      "Studio Misr inside has lakeside seating and Egyptian classics.",
+    ],
+    mediaUrls: [
+      "https://images.unsplash.com/photo-1580837119756-563d608dd119?w=1200",
+    ],
+    featured: false,
+  },
+  {
+    id: "eg_luxor_temple",
+    title: "Luxor Temple",
+    description:
+      "Magnificent New Kingdom temple in the heart of Luxor, dedicated to the Theban triad and connected to Karnak by the Avenue of Sphinxes.",
+    category: "Landmark",
+    moods: ["Historic", "Awe", "Cultural"],
+    priceLevel: "$$",
+    city: "Luxor",
+    neighborhood: "City Center",
+    address: "Corniche el-Nile, Luxor, Luxor Governorate",
+    lat: 25.6995,
+    lng: 32.6391,
+    tips: [
+      "Visit after dark — the temple is dramatically lit and far cooler.",
+      "Entry combos with Karnak save time and money.",
+    ],
+    mediaUrls: [
+      "https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=1200",
+    ],
+    featured: true,
+  },
+  {
+    id: "eg_karnak_temple",
+    title: "Karnak Temple",
+    description:
+      "Sprawling open-air temple complex of obelisks, hypostyle halls, and the awe-inspiring Avenue of Sphinxes — built and rebuilt over 2,000 years.",
+    category: "Landmark",
+    moods: ["Historic", "Awe", "Cultural"],
+    priceLevel: "$$",
+    city: "Luxor",
+    neighborhood: "El-Karnak",
+    address: "El-Karnak, Karnak, Luxor Governorate",
+    lat: 25.7188,
+    lng: 32.6573,
+    tips: [
+      "The sound & light show after dark is genuinely magical — buy tickets in advance.",
+      "Wear closed shoes; the inner courts are unshaded and the heat is brutal.",
+      "The Hypostyle Hall's 134 columns dwarf you — go slow.",
+    ],
+    mediaUrls: [
+      "https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=1200",
+    ],
+    featured: false,
+  },
+  {
+    id: "eg_valley_of_the_kings",
+    title: "Valley of the Kings",
+    description:
+      "Royal burial ground on Luxor's West Bank with painted tombs of pharaohs including Ramesses VI, Seti I, and Tutankhamun.",
+    category: "Landmark",
+    moods: ["Historic", "Awe", "Educational"],
+    priceLevel: "$$",
+    city: "Luxor",
+    neighborhood: "West Bank",
+    address: "New Valley Desert, West Bank, Luxor Governorate",
+    lat: 25.7402,
+    lng: 32.6014,
+    tips: [
+      "Standard ticket covers 3 of the open tombs; buy add-ons for Tut, Seti I and Ramesses VI.",
+      "Visit before 10 AM — the desert valley becomes an oven by noon.",
+      "Photography permits are sold separately at the gate.",
+    ],
+    mediaUrls: [
+      "https://images.unsplash.com/photo-1572252009286-268acec5ca0a?w=1200",
+    ],
+    featured: true,
+  },
+  {
+    id: "eg_bibliotheca_alexandrina",
+    title: "Bibliotheca Alexandrina",
+    description:
+      "Striking modern revival of the ancient Library of Alexandria, with cascading reading halls, four museums, and a planetarium.",
+    category: "Landmark",
+    moods: ["Cultural", "Architectural", "Educational"],
+    priceLevel: "$",
+    city: "Alexandria",
+    neighborhood: "El Shatby",
+    address: "Corniche, El Shatby, Alexandria Governorate",
+    lat: 31.2089,
+    lng: 29.9092,
+    tips: [
+      "Combine the entry ticket with the Antiquities Museum inside.",
+      "Weekday mornings are calm and almost empty.",
+      "The exterior wall — engraved with scripts from every culture — is worth a slow walk-around.",
+    ],
+    mediaUrls: [
+      "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=1200",
+    ],
+    featured: true,
+  },
 ];
 
 function geohash7(lat, lng) {
@@ -111,7 +289,6 @@ function geohash7(lat, lng) {
   return gh;
 }
 
-// Convert a JS value into a Firestore REST API "Value" map.
 function fsValue(v) {
   if (v === null || v === undefined) return { nullValue: null };
   if (typeof v === "boolean") return { booleanValue: v };
@@ -129,31 +306,38 @@ function fsValue(v) {
 }
 
 function buildDoc(p) {
-  const [title, description, category, moods, priceLevel, city, neighborhood, lat, lng, tipsRaw, mediaUrls, featured] = p;
-  const id = "eg_" + title.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
-  const tips = tipsRaw.map(([text, order]) => ({ text, order }));
+  const tips = p.tips.map((text, order) => ({ text, order }));
   const data = {
-    id, title, description, category, moods, priceLevel, city, neighborhood,
-    lat, lng,
-    location: { lat, lng },
-    geohash: geohash7(lat, lng),
-    tips, mediaUrls,
+    id: p.id,
+    title: p.title,
+    description: p.description,
+    category: p.category,
+    moods: p.moods,
+    priceLevel: p.priceLevel,
+    city: p.city,
+    neighborhood: p.neighborhood,
+    address: p.address,
+    lat: p.lat,
+    lng: p.lng,
+    location: { lat: p.lat, lng: p.lng },
+    geohash: geohash7(p.lat, p.lng),
+    tips,
+    mediaUrls: p.mediaUrls,
     ownerUid: OWNER_UID,
     ownerDisplayName: OWNER_NAME,
     ownerIsSuper: true,
-    ratingAvg: 4.6,
+    ratingAvg: 4.7,
     ratingCount: 0,
     saveCount: 0,
-    featured,
+    featured: p.featured,
     hidden: false,
   };
   const fields = {};
   for (const [k, v] of Object.entries(data)) fields[k] = fsValue(v);
-  // server timestamps via REST need a different approach (commit endpoint); set ISO strings instead.
   const now = new Date().toISOString();
   fields.createdAt = { timestampValue: now };
   fields.updatedAt = { timestampValue: now };
-  return { id, fields };
+  return { id: p.id, fields };
 }
 
 async function main() {

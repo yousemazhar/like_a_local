@@ -29,6 +29,7 @@ mixin _$Place {
   String? get priceLevel => throw _privateConstructorUsedError;
   String get city => throw _privateConstructorUsedError;
   String get neighborhood => throw _privateConstructorUsedError;
+  String get address => throw _privateConstructorUsedError;
   double get lat => throw _privateConstructorUsedError;
   double get lng => throw _privateConstructorUsedError;
   List<PlaceTip> get tips => throw _privateConstructorUsedError;
@@ -67,6 +68,7 @@ abstract class $PlaceCopyWith<$Res> {
     String? priceLevel,
     String city,
     String neighborhood,
+    String address,
     double lat,
     double lng,
     List<PlaceTip> tips,
@@ -106,6 +108,7 @@ class _$PlaceCopyWithImpl<$Res, $Val extends Place>
     Object? priceLevel = freezed,
     Object? city = null,
     Object? neighborhood = null,
+    Object? address = null,
     Object? lat = null,
     Object? lng = null,
     Object? tips = null,
@@ -153,6 +156,10 @@ class _$PlaceCopyWithImpl<$Res, $Val extends Place>
             neighborhood: null == neighborhood
                 ? _value.neighborhood
                 : neighborhood // ignore: cast_nullable_to_non_nullable
+                      as String,
+            address: null == address
+                ? _value.address
+                : address // ignore: cast_nullable_to_non_nullable
                       as String,
             lat: null == lat
                 ? _value.lat
@@ -229,6 +236,7 @@ abstract class _$$PlaceImplCopyWith<$Res> implements $PlaceCopyWith<$Res> {
     String? priceLevel,
     String city,
     String neighborhood,
+    String address,
     double lat,
     double lng,
     List<PlaceTip> tips,
@@ -267,6 +275,7 @@ class __$$PlaceImplCopyWithImpl<$Res>
     Object? priceLevel = freezed,
     Object? city = null,
     Object? neighborhood = null,
+    Object? address = null,
     Object? lat = null,
     Object? lng = null,
     Object? tips = null,
@@ -314,6 +323,10 @@ class __$$PlaceImplCopyWithImpl<$Res>
         neighborhood: null == neighborhood
             ? _value.neighborhood
             : neighborhood // ignore: cast_nullable_to_non_nullable
+                  as String,
+        address: null == address
+            ? _value.address
+            : address // ignore: cast_nullable_to_non_nullable
                   as String,
         lat: null == lat
             ? _value.lat
@@ -384,6 +397,7 @@ class _$PlaceImpl implements _Place {
     this.priceLevel,
     this.city = '',
     this.neighborhood = '',
+    this.address = '',
     this.lat = 0.0,
     this.lng = 0.0,
     final List<PlaceTip> tips = const [],
@@ -430,6 +444,9 @@ class _$PlaceImpl implements _Place {
   @override
   @JsonKey()
   final String neighborhood;
+  @override
+  @JsonKey()
+  final String address;
   @override
   @JsonKey()
   final double lat;
@@ -484,7 +501,7 @@ class _$PlaceImpl implements _Place {
 
   @override
   String toString() {
-    return 'Place(id: $id, title: $title, description: $description, category: $category, moods: $moods, priceLevel: $priceLevel, city: $city, neighborhood: $neighborhood, lat: $lat, lng: $lng, tips: $tips, mediaUrls: $mediaUrls, ownerUid: $ownerUid, ownerDisplayName: $ownerDisplayName, ownerIsSuper: $ownerIsSuper, ratingAvg: $ratingAvg, ratingCount: $ratingCount, saveCount: $saveCount, featured: $featured, hidden: $hidden, createdAt: $createdAt)';
+    return 'Place(id: $id, title: $title, description: $description, category: $category, moods: $moods, priceLevel: $priceLevel, city: $city, neighborhood: $neighborhood, address: $address, lat: $lat, lng: $lng, tips: $tips, mediaUrls: $mediaUrls, ownerUid: $ownerUid, ownerDisplayName: $ownerDisplayName, ownerIsSuper: $ownerIsSuper, ratingAvg: $ratingAvg, ratingCount: $ratingCount, saveCount: $saveCount, featured: $featured, hidden: $hidden, createdAt: $createdAt)';
   }
 
   @override
@@ -504,6 +521,7 @@ class _$PlaceImpl implements _Place {
             (identical(other.city, city) || other.city == city) &&
             (identical(other.neighborhood, neighborhood) ||
                 other.neighborhood == neighborhood) &&
+            (identical(other.address, address) || other.address == address) &&
             (identical(other.lat, lat) || other.lat == lat) &&
             (identical(other.lng, lng) || other.lng == lng) &&
             const DeepCollectionEquality().equals(other._tips, _tips) &&
@@ -542,6 +560,7 @@ class _$PlaceImpl implements _Place {
     priceLevel,
     city,
     neighborhood,
+    address,
     lat,
     lng,
     const DeepCollectionEquality().hash(_tips),
@@ -581,6 +600,7 @@ abstract class _Place implements Place {
     final String? priceLevel,
     final String city,
     final String neighborhood,
+    final String address,
     final double lat,
     final double lng,
     final List<PlaceTip> tips,
@@ -614,6 +634,8 @@ abstract class _Place implements Place {
   String get city;
   @override
   String get neighborhood;
+  @override
+  String get address;
   @override
   double get lat;
   @override
