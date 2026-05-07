@@ -8,6 +8,8 @@ import Stripe from "stripe";
 initializeApp();
 
 export { rankPlacesForUser } from "./ai/rank";
+export { seedEgyptPlaces } from "./seed/egypt";
+export { onChatMessageCreate } from "./chat/onMessage";
 
 const STRIPE_SECRET_KEY = defineSecret("STRIPE_SECRET_KEY");
 const STRIPE_WEBHOOK_SECRET = defineSecret("STRIPE_WEBHOOK_SECRET");
