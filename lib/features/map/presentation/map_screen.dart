@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -9,21 +10,23 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
+import '../../place/domain/place.dart';
+import '../../place/domain/place_providers.dart';
 
-class MapScreen extends StatefulWidget {
+class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
 
   @override
-  State<MapScreen> createState() => _MapScreenState();
+  ConsumerState<MapScreen> createState() => _MapScreenState();
 }
 
-class _MapScreenState extends State<MapScreen> {
+class _MapScreenState extends ConsumerState<MapScreen> {
   static const CameraPosition _fallbackCamera = CameraPosition(
     target: LatLng(30.0444, 31.2357),
-    zoom: 12,
+    zoom: 6,
   );
 
-  static const List<_DemoMapPlace> _cairoPlaces = [
+  static const List<_DemoMapPlace> _fallbackPlaces = [
     _DemoMapPlace(
       id: 'khan-el-khalili',
       title: 'Khan El Khalili',
@@ -83,13 +86,51 @@ class _MapScreenState extends State<MapScreen> {
   final Completer<GoogleMapController> _mapController = Completer();
   bool _isLocatingUser = false;
   bool _hasLocationPermission = false;
-  late _DemoMapPlace _selectedPlace;
+  _DemoMapPlace? _selectedPlace;
+  bool _didFitInitialBounds = false;
 
   @override
   void initState() {
     super.initState();
-    _selectedPlace = _cairoPlaces.first;
     unawaited(_initializeMap());
+  }
+
+  List<_DemoMapPlace> _placesFromFirestore(List<Place> places) {
+    return places
+        .where((p) => p.lat != 0.0 && p.lng != 0.0)
+        .map((p) => _DemoMapPlace(
+              id: p.id,
+              title: p.title,
+              neighborhood:
+                  p.neighborhood.isNotEmpty ? p.neighborhood : p.city,
+              category: p.category,
+              lat: p.lat,
+              lng: p.lng,
+              rating: p.ratingAvg > 0 ? p.ratingAvg : null,
+            ))
+        .toList(growable: false);
+  }
+
+  Future<void> _fitBoundsToPlaces(List<_DemoMapPlace> places) async {
+    if (places.length < 2) return;
+    double minLat = places.first.lat, maxLat = places.first.lat;
+    double minLng = places.first.lng, maxLng = places.first.lng;
+    for (final p in places) {
+      if (p.lat < minLat) minLat = p.lat;
+      if (p.lat > maxLat) maxLat = p.lat;
+      if (p.lng < minLng) minLng = p.lng;
+      if (p.lng > maxLng) maxLng = p.lng;
+    }
+    final controller = await _mapController.future;
+    await controller.animateCamera(
+      CameraUpdate.newLatLngBounds(
+        LatLngBounds(
+          southwest: LatLng(minLat - 0.05, minLng - 0.05),
+          northeast: LatLng(maxLat + 0.05, maxLng + 0.05),
+        ),
+        48,
+      ),
+    );
   }
 
   Future<void> _initializeMap() async {
@@ -182,9 +223,9 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  Set<Marker> _buildMarkers() {
-    return _cairoPlaces.map((place) {
-      final isSelected = place.id == _selectedPlace.id;
+  Set<Marker> _buildMarkers(List<_DemoMapPlace> places) {
+    return places.map((place) {
+      final isSelected = place.id == _selectedPlace?.id;
       return Marker(
         markerId: MarkerId(place.id),
         position: LatLng(place.lat, place.lng),
@@ -219,6 +260,21 @@ class _MapScreenState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
+    final feedAsync = ref.watch(discoverFeedProvider);
+    final places = feedAsync.maybeWhen(
+      data: (list) {
+        final mapped = _placesFromFirestore(list);
+        return mapped.isNotEmpty ? mapped : _fallbackPlaces;
+      },
+      orElse: () => _fallbackPlaces,
+    );
+    _selectedPlace ??= places.first;
+    if (!_didFitInitialBounds && places.length > 1) {
+      _didFitInitialBounds = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        unawaited(_fitBoundsToPlaces(places));
+      });
+    }
     return Scaffold(
       backgroundColor: LALColors.bg,
       body: Stack(
@@ -226,7 +282,7 @@ class _MapScreenState extends State<MapScreen> {
           Positioned.fill(
             child: GoogleMap(
               initialCameraPosition: _fallbackCamera,
-              markers: _buildMarkers(),
+              markers: _buildMarkers(places),
               myLocationEnabled: _hasLocationPermission,
               myLocationButtonEnabled: false,
               zoomControlsEnabled: false,
@@ -330,9 +386,9 @@ class _MapScreenState extends State<MapScreen> {
             left: 0,
             right: 0,
             child: _MapBottomSheet(
-              place: _selectedPlace,
-              placeCount: _cairoPlaces.length,
-              onDirectionsTap: () => _openDirections(_selectedPlace),
+              place: _selectedPlace!,
+              placeCount: places.length,
+              onDirectionsTap: () => _openDirections(_selectedPlace!),
             ),
           ),
         ],
