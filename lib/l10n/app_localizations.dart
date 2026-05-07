@@ -638,6 +638,66 @@ abstract class AppLocalizations {
   /// **'Chat'**
   String get placeChat;
 
+  /// No description provided for @placeNoReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'No reviews yet'**
+  String get placeNoReviews;
+
+  /// No description provided for @placeNoReviewsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Be the first to share your experience.'**
+  String get placeNoReviewsBody;
+
+  /// No description provided for @placeWriteReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a review'**
+  String get placeWriteReview;
+
+  /// No description provided for @placeEditReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit your review'**
+  String get placeEditReview;
+
+  /// No description provided for @placeDeleteReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete review'**
+  String get placeDeleteReview;
+
+  /// No description provided for @reviewComposerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share your experience'**
+  String get reviewComposerTitle;
+
+  /// No description provided for @reviewComposerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Help travelers find great spots.'**
+  String get reviewComposerBody;
+
+  /// No description provided for @reviewComposerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What did you love? Any tips?'**
+  String get reviewComposerHint;
+
+  /// No description provided for @reviewComposerSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Post review'**
+  String get reviewComposerSubmit;
+
+  /// No description provided for @reviewComposerUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Update review'**
+  String get reviewComposerUpdate;
+
   /// No description provided for @mapTitle.
   ///
   /// In en, this message translates to:
@@ -1183,6 +1243,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Notifications'**
   String get notificationsTitle;
+
+  /// No description provided for @notificationsMarkAllRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all read'**
+  String get notificationsMarkAllRead;
 
   /// No description provided for @notificationsToday.
   ///

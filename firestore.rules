@@ -10,8 +10,7 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == uid;
     }
 
-    // Fields that only the server (Cloud Functions / Admin SDK) may write.
-    // Client-initiated writes cannot add, change, or remove these keys.
+    // Server-only fields on the user doc.
     function noServerFieldChanges() {
       let serverKeys = ['premium', 'premiumUpdatedAt',
                         'stripeCustomerId', 'lastPaymentIntentId',
@@ -30,7 +29,78 @@ service cloud.firestore {
       allow delete: if false;
     }
 
-    // Deny everything else by default. Add rules here as features land.
+    // Places: any signed-in user reads; only the owner writes their own.
+    match /places/{placeId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+        && request.resource.data.ownerUid == request.auth.uid;
+      allow update, delete: if isSignedIn()
+        && resource.data.ownerUid == request.auth.uid;
+
+      match /media/{mediaId} {
+        allow read: if isSignedIn();
+        allow write: if isSignedIn()
+          && get(/databases/$(database)/documents/places/$(placeId))
+               .data.ownerUid == request.auth.uid;
+      }
+
+      match /reviews/{reviewId} {
+        allow read: if isSignedIn();
+        allow create: if isSignedIn()
+          && request.resource.data.authorUid == request.auth.uid;
+        allow update, delete: if isSignedIn()
+          && resource.data.authorUid == request.auth.uid;
+      }
+    }
+
+    // Saves: owner-only (per-user collection).
+    match /saves/{uid}/{document=**} {
+      allow read, write: if isOwner(uid);
+    }
+
+    // Chats: only members can read/write the thread + its messages.
+    match /chats/{threadId} {
+      allow read: if isSignedIn()
+        && request.auth.uid in resource.data.members;
+      allow create: if isSignedIn()
+        && request.auth.uid in request.resource.data.members;
+      allow update: if isSignedIn()
+        && request.auth.uid in resource.data.members;
+      allow delete: if false;
+
+      match /messages/{messageId} {
+        allow read: if isSignedIn()
+          && request.auth.uid in
+             get(/databases/$(database)/documents/chats/$(threadId)).data.members;
+        allow create: if isSignedIn()
+          && request.resource.data.senderUid == request.auth.uid
+          && request.auth.uid in
+             get(/databases/$(database)/documents/chats/$(threadId)).data.members;
+        allow update, delete: if false;
+      }
+    }
+
+    // Notifications: owner reads, server (Admin SDK) writes; owner can flip read flag.
+    match /notifications/{uid}/items/{itemId} {
+      allow read: if isOwner(uid);
+      allow update: if isOwner(uid)
+        && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['read']);
+      allow create, delete: if false;
+    }
+
+    // Rankings: owner-read, server-write only.
+    match /rankings/{uid} {
+      allow read: if isOwner(uid);
+      allow write: if false;
+    }
+
+    // Reminders: owner-only.
+    match /reminders/{uid}/{document=**} {
+      allow read, write: if isOwner(uid);
+    }
+
+    // Default deny.
     match /{document=**} {
       allow read, write: if false;
     }

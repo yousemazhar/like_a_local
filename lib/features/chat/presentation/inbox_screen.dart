@@ -1,17 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/widgets/empty_view.dart';
+import '../../../core/widgets/skeleton.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
+import '../../auth/domain/auth_providers.dart';
+import '../domain/chat.dart';
+import '../domain/chat_providers.dart';
 
-class InboxScreen extends StatelessWidget {
+class InboxScreen extends ConsumerWidget {
   const InboxScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context)!;
+    final threadsAsync = ref.watch(myThreadsProvider);
+    final user = ref.watch(authStateProvider).valueOrNull;
+
     return Scaffold(
       backgroundColor: LALColors.bg,
       body: SafeArea(
@@ -24,7 +32,36 @@ class InboxScreen extends StatelessWidget {
                   style: Theme.of(context).textTheme.headlineLarge),
             ),
             const Divider(height: 1),
-            Expanded(child: _ThreadList()),
+            Expanded(
+              child: threadsAsync.when(
+                loading: () => SkeletonList(
+                  itemCount: 4,
+                  itemBuilder: (_, __) => const Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    child: SkeletonBox(width: double.infinity, height: 64),
+                  ),
+                ),
+                error: (e, _) => Center(child: Text('$e')),
+                data: (threads) => threads.isEmpty
+                    ? EmptyView(
+                        icon: Icons.chat_bubble_outline_rounded,
+                        title: t.inboxEmpty,
+                        body: t.inboxEmptyBody,
+                      )
+                    : ListView.separated(
+                        itemCount: threads.length,
+                        separatorBuilder: (_, __) => const Divider(
+                            height: 1, indent: 76, endIndent: 0),
+                        itemBuilder: (_, i) => _ThreadTile(
+                          thread: threads[i],
+                          currentUid: user?.uid ?? '',
+                          onTap: () =>
+                              context.push('/chat/${threads[i].id}'),
+                        ),
+                      ),
+              ),
+            ),
           ],
         ),
       ),
@@ -32,126 +69,82 @@ class InboxScreen extends StatelessWidget {
   }
 }
 
-class _ThreadList extends StatelessWidget {
-  // TODO: Replace with Firestore stream of chat threads
-  static const _threads = [
-    (
-      name: 'João Silva',
-      lastMessage: 'The pasteis are amazing, trust me!',
-      time: '2m ago',
-      unread: 2,
-      isSuper: true,
-      isOnline: true,
-    ),
-    (
-      name: 'Ana Costa',
-      lastMessage: 'Sure, happy to help with recommendations.',
-      time: '1h ago',
-      unread: 0,
-      isSuper: false,
-      isOnline: false,
-    ),
-  ];
+class _ThreadTile extends StatelessWidget {
+  const _ThreadTile({
+    required this.thread,
+    required this.currentUid,
+    required this.onTap,
+  });
+
+  final ChatThread thread;
+  final String currentUid;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
-    if (_threads.isEmpty) {
-      return EmptyView(
-        icon: Icons.chat_bubble_outline_rounded,
-        title: t.inboxEmpty,
-        body: t.inboxEmptyBody,
-      );
-    }
+    final otherUid = thread.members.firstWhere(
+      (m) => m != currentUid,
+      orElse: () => thread.members.isEmpty ? '' : thread.members.first,
+    );
+    final meta = thread.memberMeta[otherUid];
+    final name =
+        meta?.displayName.isNotEmpty == true ? meta!.displayName : 'Local';
+    final unread = thread.unread[currentUid] ?? 0;
 
-    return ListView.separated(
-      itemCount: _threads.length,
-      separatorBuilder: (_, __) =>
-          const Divider(height: 1, indent: 76, endIndent: 0),
-      itemBuilder: (_, i) {
-        final thread = _threads[i];
-        return ListTile(
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-          leading: Stack(
-            children: [
-              CircleAvatar(
-                radius: 24,
-                backgroundColor: LALColors.c100,
-                child: Text(
-                  thread.name[0],
-                  style: LALTypography.headlineSmall
-                      .copyWith(color: LALColors.c600),
-                ),
+    return ListTile(
+      onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      leading: CircleAvatar(
+        radius: 24,
+        backgroundColor: LALColors.c100,
+        child: Text(
+          name.isNotEmpty ? name[0].toUpperCase() : '?',
+          style: LALTypography.headlineSmall.copyWith(color: LALColors.c600),
+        ),
+      ),
+      title: Row(
+        children: [
+          Expanded(child: Text(name, style: LALTypography.labelLarge)),
+          if (meta?.isSuper ?? false)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: LALColors.accent,
+                borderRadius: LALRadii.pillBorder,
               ),
-              if (thread.isOnline)
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: LALColors.success,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: LALColors.surface, width: 2),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          title: Row(
-            children: [
-              Text(thread.name, style: LALTypography.labelLarge),
-              const SizedBox(width: 6),
-              if (thread.isSuper)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: LALColors.accent,
-                    borderRadius: LALRadii.pillBorder,
-                  ),
-                  child: Text(
-                    t.chatLocalBadge,
-                    style: LALTypography.labelSmall
-                        .copyWith(color: Colors.white, fontSize: 9),
-                  ),
-                ),
-              const Spacer(),
-              Text(thread.time, style: LALTypography.bodySmall),
-            ],
-          ),
-          subtitle: Text(
-            thread.lastMessage,
-            style: LALTypography.bodySmall.copyWith(
-              color: thread.unread > 0 ? LALColors.c900 : LALColors.c500,
-              fontWeight:
-                  thread.unread > 0 ? FontWeight.w600 : FontWeight.normal,
+              child: Text(
+                t.chatLocalBadge,
+                style: LALTypography.labelSmall
+                    .copyWith(color: Colors.white, fontSize: 9),
+              ),
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          trailing: thread.unread > 0
-              ? Container(
-                  width: 20,
-                  height: 20,
-                  decoration: const BoxDecoration(
-                    color: LALColors.accent,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: Text(
-                      '${thread.unread}',
-                      style: LALTypography.labelSmall
-                          .copyWith(color: Colors.white, fontSize: 10),
-                    ),
-                  ),
-                )
-              : null,
-          onTap: () => context.push('/chat/thread-$i'),
-        );
-      },
+        ],
+      ),
+      subtitle: Text(
+        thread.lastMessage,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: LALTypography.bodySmall.copyWith(
+          color: unread > 0 ? LALColors.c900 : LALColors.c500,
+          fontWeight: unread > 0 ? FontWeight.w600 : FontWeight.normal,
+        ),
+      ),
+      trailing: unread > 0
+          ? Container(
+              width: 20,
+              height: 20,
+              decoration: const BoxDecoration(
+                color: LALColors.accent,
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Text('$unread',
+                    style: LALTypography.labelSmall
+                        .copyWith(color: Colors.white, fontSize: 10)),
+              ),
+            )
+          : null,
     );
   }
 }

@@ -287,6 +287,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get placeChat => 'Chat';
 
   @override
+  String get placeNoReviews => 'No reviews yet';
+
+  @override
+  String get placeNoReviewsBody => 'Be the first to share your experience.';
+
+  @override
+  String get placeWriteReview => 'Write a review';
+
+  @override
+  String get placeEditReview => 'Edit your review';
+
+  @override
+  String get placeDeleteReview => 'Delete review';
+
+  @override
+  String get reviewComposerTitle => 'Share your experience';
+
+  @override
+  String get reviewComposerBody => 'Help travelers find great spots.';
+
+  @override
+  String get reviewComposerHint => 'What did you love? Any tips?';
+
+  @override
+  String get reviewComposerSubmit => 'Post review';
+
+  @override
+  String get reviewComposerUpdate => 'Update review';
+
+  @override
   String get mapTitle => 'Map';
 
   @override
@@ -569,6 +599,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationsTitle => 'Notifications';
+
+  @override
+  String get notificationsMarkAllRead => 'Mark all read';
 
   @override
   String get notificationsToday => 'Today';

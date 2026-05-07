@@ -6,6 +6,11 @@ import '../../../core/widgets/skeleton.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
+import '../../auth/domain/auth_providers.dart';
+import '../../chat/domain/chat_providers.dart';
+import '../../reviews/domain/review.dart';
+import '../../reviews/domain/review_providers.dart';
+import '../../reviews/presentation/review_composer_sheet.dart';
 import '../../saved/domain/saved_providers.dart';
 import '../domain/place.dart';
 import '../domain/place_providers.dart';
@@ -252,7 +257,10 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
                         ownerDisplayName: place.ownerDisplayName,
                         ownerIsSuper: place.ownerIsSuper,
                         ownerUid: place.ownerUid,
+                        placeId: place.id,
                       ),
+                      const SizedBox(height: 24),
+                      _ReviewsSection(placeId: place.id),
                       const SizedBox(height: 100),
                     ],
                   ),
@@ -336,19 +344,21 @@ class _TipsCard extends StatelessWidget {
   }
 }
 
-class _ContributorCard extends StatelessWidget {
+class _ContributorCard extends ConsumerWidget {
   const _ContributorCard({
     required this.ownerDisplayName,
     required this.ownerIsSuper,
     required this.ownerUid,
+    required this.placeId,
   });
 
   final String ownerDisplayName;
   final bool ownerIsSuper;
   final String ownerUid;
+  final String placeId;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: LALSpacing.xl),
@@ -404,7 +414,21 @@ class _ContributorCard extends StatelessWidget {
             ),
           ),
           ElevatedButton(
-            onPressed: () => context.push('/chat/$ownerUid'),
+            onPressed: ownerUid.isEmpty
+                ? null
+                : () async {
+                    final threadId = await ref
+                        .read(chatNotifierProvider.notifier)
+                        .openWithUser(
+                          otherUid: ownerUid,
+                          otherDisplayName: ownerDisplayName,
+                          otherIsSuper: ownerIsSuper,
+                          placeContext: placeId,
+                        );
+                    if (threadId != null && context.mounted) {
+                      context.push('/chat/$threadId');
+                    }
+                  },
             style: ElevatedButton.styleFrom(
               padding:
                   const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -466,6 +490,173 @@ class _PlaceBottomBar extends StatelessWidget {
                   : null,
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ReviewsSection extends ConsumerWidget {
+  const _ReviewsSection({required this.placeId});
+
+  final String placeId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = AppLocalizations.of(context)!;
+    final reviewsAsync = ref.watch(placeReviewsProvider(placeId));
+    final myReview = ref.watch(myPlaceReviewProvider(placeId)).valueOrNull;
+    final user = ref.watch(authStateProvider).valueOrNull;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: LALSpacing.xl),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(t.placeReviews,
+                  style: Theme.of(context).textTheme.headlineSmall),
+              const Spacer(),
+              if (user != null)
+                TextButton.icon(
+                  onPressed: () => ReviewComposerSheet.show(
+                    context,
+                    placeId: placeId,
+                    existing: myReview,
+                  ),
+                  icon: Icon(
+                    myReview == null ? Icons.add : Icons.edit_outlined,
+                    size: 16,
+                  ),
+                  label: Text(myReview == null
+                      ? t.placeWriteReview
+                      : t.placeEditReview),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          reviewsAsync.when(
+            loading: () =>
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: SkeletonBox(width: double.infinity, height: 80),
+                ),
+            error: (_, __) => Text(t.placeNoReviews,
+                style: LALTypography.bodySmall),
+            data: (reviews) => reviews.isEmpty
+                ? Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: const BoxDecoration(
+                      color: LALColors.surface,
+                      borderRadius: LALRadii.lgBorder,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(t.placeNoReviews,
+                            style: LALTypography.labelLarge),
+                        const SizedBox(height: 4),
+                        Text(t.placeNoReviewsBody,
+                            style: LALTypography.bodySmall),
+                      ],
+                    ),
+                  )
+                : Column(
+                    children: [
+                      for (final r in reviews) ...[
+                        _ReviewTile(
+                          review: r,
+                          isMine: user?.uid == r.authorUid,
+                          onDelete: () => ref
+                              .read(reviewNotifierProvider.notifier)
+                              .delete(placeId, r.id),
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+                    ],
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ReviewTile extends StatelessWidget {
+  const _ReviewTile({
+    required this.review,
+    required this.isMine,
+    required this.onDelete,
+  });
+
+  final Review review;
+  final bool isMine;
+  final VoidCallback onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: const BoxDecoration(
+        color: LALColors.surface,
+        borderRadius: LALRadii.lgBorder,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 16,
+                backgroundColor: LALColors.c100,
+                child: Text(
+                  review.authorDisplayName.isNotEmpty
+                      ? review.authorDisplayName[0].toUpperCase()
+                      : '?',
+                  style: LALTypography.labelMedium
+                      .copyWith(color: LALColors.c600),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      review.authorDisplayName.isNotEmpty
+                          ? review.authorDisplayName
+                          : t.placeAnonymous,
+                      style: LALTypography.labelMedium,
+                    ),
+                    Row(
+                      children: [
+                        for (var i = 1; i <= 5; i++)
+                          Icon(
+                            i <= review.rating
+                                ? Icons.star_rounded
+                                : Icons.star_outline_rounded,
+                            color: LALColors.accent,
+                            size: 14,
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              if (isMine)
+                IconButton(
+                  icon: const Icon(Icons.delete_outline, size: 18),
+                  onPressed: onDelete,
+                  tooltip: t.placeDeleteReview,
+                ),
+            ],
+          ),
+          if (review.text.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(review.text, style: LALTypography.bodyMedium),
+          ],
         ],
       ),
     );

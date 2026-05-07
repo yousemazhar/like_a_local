@@ -1,44 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/widgets/empty_view.dart';
+import '../../../core/widgets/skeleton.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
+import '../domain/app_notification.dart';
+import '../domain/notification_providers.dart';
 
-class NotificationsScreen extends StatelessWidget {
+class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
 
-  static const _todayNotifications = [
-    (
-      icon: Icons.chat_bubble_outline_rounded,
-      title: 'João replied to your message',
-      body: '"The bacalhau à brás — it\'s off-menu but…"',
-      time: '2m ago',
-      read: false,
-    ),
-    (
-      icon: Icons.location_on_outlined,
-      title: 'You\'re near Tasca do Chico',
-      body: 'You set a reminder for this place.',
-      time: '1h ago',
-      read: true,
-    ),
-  ];
-
-  static const _earlierNotifications = [
-    (
-      icon: Icons.workspace_premium_rounded,
-      title: 'You unlocked Curator!',
-      body: 'You\'ve shared 5 places. Super Local status coming soon.',
-      time: 'Yesterday',
-      read: true,
-    ),
-  ];
+  IconData _iconForType(String type) {
+    switch (type) {
+      case 'chat':
+        return Icons.chat_bubble_outline_rounded;
+      case 'pin_near':
+        return Icons.location_on_outlined;
+      case 'badge':
+        return Icons.workspace_premium_rounded;
+      default:
+        return Icons.notifications_none_rounded;
+    }
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context)!;
+    final notifAsync = ref.watch(myNotificationsProvider);
+
     return Scaffold(
       backgroundColor: LALColors.bg,
       appBar: AppBar(
@@ -47,28 +39,71 @@ class NotificationsScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
           onPressed: () => context.pop(),
         ),
+        actions: [
+          TextButton(
+            onPressed: () => ref
+                .read(notificationActionsProvider.notifier)
+                .markAllRead(),
+            child: Text(t.notificationsMarkAllRead),
+          ),
+        ],
       ),
-      body: _todayNotifications.isEmpty && _earlierNotifications.isEmpty
-          ? EmptyView(
+      body: notifAsync.when(
+        loading: () => SkeletonList(
+          itemCount: 4,
+          itemBuilder: (_, __) => const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            child: SkeletonBox(width: double.infinity, height: 64),
+          ),
+        ),
+        error: (e, _) => Center(child: Text('$e')),
+        data: (items) {
+          if (items.isEmpty) {
+            return EmptyView(
               icon: Icons.notifications_none_rounded,
               title: t.notificationsEmpty,
               body: t.notificationsEmptyBody,
-            )
-          : ListView(
-              children: [
-                if (_todayNotifications.isNotEmpty) ...[
-                  _GroupHeader(t.notificationsToday),
-                  for (final n in _todayNotifications)
-                    _NotificationTile(notification: n),
-                ],
-                if (_earlierNotifications.isNotEmpty) ...[
-                  _GroupHeader(t.notificationsEarlier),
-                  for (final n in _earlierNotifications)
-                    _NotificationTile(notification: n),
-                ],
-                const SizedBox(height: 24),
+            );
+          }
+          final today = <AppNotification>[];
+          final earlier = <AppNotification>[];
+          final cutoff = DateTime.now().subtract(const Duration(hours: 24));
+          for (final n in items) {
+            if ((n.createdAt ?? DateTime.now()).isAfter(cutoff)) {
+              today.add(n);
+            } else {
+              earlier.add(n);
+            }
+          }
+          return ListView(
+            children: [
+              if (today.isNotEmpty) ...[
+                _GroupHeader(t.notificationsToday),
+                for (final n in today)
+                  _NotificationTile(
+                    notification: n,
+                    icon: _iconForType(n.type),
+                    onTap: () => ref
+                        .read(notificationActionsProvider.notifier)
+                        .markRead(n.id),
+                  ),
               ],
-            ),
+              if (earlier.isNotEmpty) ...[
+                _GroupHeader(t.notificationsEarlier),
+                for (final n in earlier)
+                  _NotificationTile(
+                    notification: n,
+                    icon: _iconForType(n.type),
+                    onTap: () => ref
+                        .read(notificationActionsProvider.notifier)
+                        .markRead(n.id),
+                  ),
+              ],
+              const SizedBox(height: 24),
+            ],
+          );
+        },
+      ),
     );
   }
 }
@@ -91,50 +126,70 @@ class _GroupHeader extends StatelessWidget {
 }
 
 class _NotificationTile extends StatelessWidget {
-  const _NotificationTile({required this.notification});
+  const _NotificationTile({
+    required this.notification,
+    required this.icon,
+    required this.onTap,
+  });
 
-  final ({
-    IconData icon,
-    String title,
-    String body,
-    String time,
-    bool read,
-  }) notification;
+  final AppNotification notification;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  String _relativeTime(DateTime? time) {
+    if (time == null) return '';
+    final delta = DateTime.now().difference(time);
+    if (delta.inMinutes < 1) return 'now';
+    if (delta.inHours < 1) return '${delta.inMinutes}m';
+    if (delta.inDays < 1) return '${delta.inHours}h';
+    return '${delta.inDays}d';
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: notification.read ? null : LALColors.accentSoft.withValues(alpha: 0.3),
-      child: ListTile(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-        leading: Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: notification.read ? LALColors.surfaceAlt : LALColors.accentSoft,
-            shape: BoxShape.circle,
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        color: notification.read
+            ? null
+            : LALColors.accentSoft.withValues(alpha: 0.3),
+        child: ListTile(
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          leading: Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: notification.read
+                  ? LALColors.surfaceAlt
+                  : LALColors.accentSoft,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              color: notification.read ? LALColors.c500 : LALColors.accent,
+              size: 20,
+            ),
           ),
-          child: Icon(
-            notification.icon,
-            color: notification.read ? LALColors.c500 : LALColors.accent,
-            size: 20,
+          title: Text(
+            notification.title,
+            style: LALTypography.labelLarge.copyWith(
+              fontWeight: notification.read ? FontWeight.w500 : FontWeight.w700,
+            ),
           ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 2),
+              Text(notification.body,
+                  style: LALTypography.bodySmall, maxLines: 2),
+              const SizedBox(height: 4),
+              Text(_relativeTime(notification.createdAt),
+                  style: LALTypography.bodySmall),
+            ],
+          ),
+          isThreeLine: true,
         ),
-        title: Text(notification.title,
-            style: LALTypography.labelLarge
-                .copyWith(fontWeight: notification.read ? FontWeight.w500 : FontWeight.w700)),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 2),
-            Text(notification.body,
-                style: LALTypography.bodySmall, maxLines: 2),
-            const SizedBox(height: 4),
-            Text(notification.time, style: LALTypography.bodySmall),
-          ],
-        ),
-        isThreeLine: true,
       ),
     );
   }

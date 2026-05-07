@@ -1,30 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
+import '../../auth/domain/auth_providers.dart';
+import '../domain/chat.dart';
+import '../domain/chat_providers.dart';
 
-class ChatThreadScreen extends StatefulWidget {
+class ChatThreadScreen extends ConsumerStatefulWidget {
   const ChatThreadScreen({super.key, required this.threadId});
 
   final String threadId;
 
   @override
-  State<ChatThreadScreen> createState() => _ChatThreadScreenState();
+  ConsumerState<ChatThreadScreen> createState() => _ChatThreadScreenState();
 }
 
-class _ChatThreadScreenState extends State<ChatThreadScreen> {
+class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
   final _controller = TextEditingController();
-
-  // Placeholder messages
-  static const _messages = [
-    (text: 'Hey! I saw you saved my place — the tasca in Alfama.', isMe: false),
-    (text: 'Yes! Going there on Friday. Any tips?', isMe: true),
-    (text: 'Ask for the bacalhau à brás — it\'s not on the menu but they always have it.', isMe: false),
-    (text: 'Cash only too. ATM is 50m around the corner.', isMe: false),
-    (text: 'Amazing, thank you so much! 🙏', isMe: true),
-  ];
+  bool _markedRead = false;
 
   @override
   void dispose() {
@@ -32,9 +28,46 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
     super.dispose();
   }
 
+  void _maybeMarkRead() {
+    if (_markedRead) return;
+    _markedRead = true;
+    Future.microtask(() => ref
+        .read(chatNotifierProvider.notifier)
+        .markRead(widget.threadId));
+  }
+
+  Future<void> _send(String recipientUid) async {
+    final text = _controller.text.trim();
+    if (text.isEmpty) return;
+    _controller.clear();
+    await ref.read(chatNotifierProvider.notifier).send(
+          threadId: widget.threadId,
+          recipientUid: recipientUid,
+          text: text,
+        );
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
+    final threadAsync = ref.watch(chatThreadProvider(widget.threadId));
+    final messagesAsync = ref.watch(chatMessagesProvider(widget.threadId));
+    final user = ref.watch(authStateProvider).valueOrNull;
+
+    final thread = threadAsync.valueOrNull;
+    final otherUid = thread?.members.firstWhere(
+          (m) => m != user?.uid,
+          orElse: () =>
+              thread.members.isEmpty ? '' : thread.members.first,
+        ) ??
+        '';
+    final otherMeta = thread?.memberMeta[otherUid];
+    final otherName = otherMeta?.displayName.isNotEmpty == true
+        ? otherMeta!.displayName
+        : 'Local';
+
+    if (messagesAsync.hasValue) _maybeMarkRead();
+
     return Scaffold(
       backgroundColor: LALColors.bg,
       appBar: AppBar(
@@ -45,19 +78,24 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
         titleSpacing: 0,
         title: Row(
           children: [
-            const CircleAvatar(
+            CircleAvatar(
               radius: 18,
               backgroundColor: LALColors.c100,
-              child: Icon(Icons.person, color: LALColors.c400, size: 20),
+              child: Text(
+                otherName.isNotEmpty ? otherName[0].toUpperCase() : '?',
+                style: LALTypography.labelMedium
+                    .copyWith(color: LALColors.c600),
+              ),
             ),
             const SizedBox(width: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('João Silva', style: LALTypography.labelLarge),
-                Text(t.chatSuperLocal,
-                    style: LALTypography.bodySmall
-                        .copyWith(color: LALColors.accent, fontSize: 11)),
+                Text(otherName, style: LALTypography.labelLarge),
+                if (otherMeta?.isSuper ?? false)
+                  Text(t.chatSuperLocal,
+                      style: LALTypography.bodySmall
+                          .copyWith(color: LALColors.accent, fontSize: 11)),
               ],
             ),
           ],
@@ -66,16 +104,24 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
       body: Column(
         children: [
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: _messages.length,
-              itemBuilder: (_, i) => _ChatBubble(
-                text: _messages[i].text,
-                isMe: _messages[i].isMe,
+            child: messagesAsync.when(
+              loading: () =>
+                  const Center(child: CircularProgressIndicator()),
+              error: (e, _) => Center(child: Text('$e')),
+              data: (messages) => ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: messages.length,
+                itemBuilder: (_, i) => _ChatBubble(
+                  message: messages[i],
+                  isMe: messages[i].senderUid == user?.uid,
+                ),
               ),
             ),
           ),
-          _Composer(controller: _controller, onSend: () {}),
+          _Composer(
+            controller: _controller,
+            onSend: () => _send(otherUid),
+          ),
         ],
       ),
     );
@@ -83,9 +129,9 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
 }
 
 class _ChatBubble extends StatelessWidget {
-  const _ChatBubble({required this.text, required this.isMe});
+  const _ChatBubble({required this.message, required this.isMe});
 
-  final String text;
+  final ChatMessage message;
   final bool isMe;
 
   @override
@@ -107,7 +153,7 @@ class _ChatBubble extends StatelessWidget {
           ),
         ),
         child: Text(
-          text,
+          message.text,
           style: LALTypography.bodyMedium.copyWith(
             color: isMe ? Colors.white : LALColors.c900,
           ),
