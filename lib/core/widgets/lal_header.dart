@@ -20,11 +20,14 @@ class LALHeader extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: preferredSize.height,
+    return Material(
       color: LALColors.surface,
-      padding: const EdgeInsets.symmetric(horizontal: LALSpacing.xl),
-      child: Row(
+      child: SafeArea(
+        bottom: false,
+        child: Container(
+          height: preferredSize.height,
+          padding: const EdgeInsets.symmetric(horizontal: LALSpacing.xl),
+          child: Row(
         children: [
           const _LALLogo(),
           const SizedBox(width: 10),
@@ -72,6 +75,8 @@ class LALHeader extends StatelessWidget implements PreferredSizeWidget {
             ),
           ),
         ],
+      ),
+        ),
       ),
     );
   }

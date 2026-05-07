@@ -178,10 +178,8 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
                           borderRadius: LALRadii.pillBorder,
                         ),
                         child: Text('1 / ${place.mediaUrls.length}',
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500)),
+                            style: LALTypography.labelSmall
+                                .copyWith(color: LALColors.surface)),
                       ),
                     ),
                 ],
@@ -435,7 +433,7 @@ class _ContributorCard extends ConsumerWidget {
               minimumSize: Size.zero,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
-            child: Text(t.placeChat, style: const TextStyle(fontSize: 13)),
+            child: Text(t.placeChat, style: LALTypography.labelMedium),
           ),
         ],
       ),

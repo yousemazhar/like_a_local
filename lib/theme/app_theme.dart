@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'tokens.dart';
 import 'typography.dart';
 
@@ -27,6 +29,11 @@ class AppTheme {
           scrolledUnderElevation: 0,
           titleTextStyle: LALTypography.headlineSmall,
           centerTitle: false,
+          systemOverlayStyle: const SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: Brightness.dark,
+            statusBarBrightness: Brightness.light,
+          ),
         ),
         textTheme: TextTheme(
           displayLarge: LALTypography.displayLarge,

@@ -44,7 +44,13 @@ Each feature under `lib/features/<name>/` has three layers:
 Shared/reusable widgets live in `lib/core/widgets/`. Never import a feature's internals from another feature — go through providers.
 
 ### Design system (matches design tokens exactly)
-Colors from `lib/theme/tokens.dart` — Blue Gray palette (`c50`–`c900`), background `#F6F7F8`, accent terracotta `#C97B5C`. Fraunces serif for display/titles, Inter/system for body. Radii 12–22px for cards, 999 for pills. Terracotta is reserved for: CTAs, selected map pins, super-local badge, premium moments.
+All visuals flow through two files: **`lib/theme/tokens.dart`** (raw values — `LALColors`, `LALSpacing`, `LALRadii`) and **`lib/theme/app_theme.dart`** (the `ThemeData` that wires those tokens into Material widgets — AppBar, buttons, inputs, chips, cards, bottom sheets, status-bar overlay).
+
+Rules: never hardcode `Color(0xFF…)` outside `tokens.dart` (the documented exception is third-party brand color, e.g. Google sign-in arcs). Never construct a `TextStyle(...)` from scratch in feature code — use `LALTypography.*` or `Theme.of(context).textTheme.*`. Buttons, chips, inputs, app bars must inherit from the theme — only override via `style:` for one-off contextual tweaks.
+
+Palette: Blue Gray (`c50`–`c900`), background `#F6F7F8`, accent terracotta `#C97B5C`. Fraunces serif for display/titles, Inter/system for body. Radii 12–22px for cards, 999 for pills. Terracotta is reserved for: CTAs, selected map pins, super-local badge, premium moments.
+
+Status bar: handled globally by `AppBarTheme.systemOverlayStyle` plus a `SystemChrome.setSystemUIOverlayStyle` call in `main.dart`. Screens that build a custom header instead of an `AppBar` (e.g. `LALHeader`) wrap the header in `SafeArea(bottom: false)` so it never collides with the status bar.
 
 ### Firebase services in use
 | Service | Purpose |
