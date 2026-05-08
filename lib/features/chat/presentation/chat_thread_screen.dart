@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/widgets/error_view.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
@@ -107,7 +108,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
             child: messagesAsync.when(
               loading: () =>
                   const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text('$e')),
+              error: (e, _) => ErrorView(message: '$e'),
               data: (messages) => ListView.builder(
                 padding: const EdgeInsets.all(16),
                 itemCount: messages.length,

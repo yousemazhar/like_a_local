@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/widgets/empty_view.dart';
+import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/skeleton.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
@@ -42,7 +43,7 @@ class InboxScreen extends ConsumerWidget {
                     child: SkeletonBox(width: double.infinity, height: 64),
                   ),
                 ),
-                error: (e, _) => Center(child: Text('$e')),
+                error: (e, _) => ErrorView(message: '$e'),
                 data: (threads) => threads.isEmpty
                     ? EmptyView(
                         icon: Icons.chat_bubble_outline_rounded,

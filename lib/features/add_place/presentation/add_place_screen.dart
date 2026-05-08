@@ -13,7 +13,6 @@ import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
 import '../../auth/domain/auth_providers.dart';
-import '../../place/domain/place.dart';
 
 class _Draft {
   final List<XFile> photos = [];
@@ -154,40 +153,49 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
     setState(() => _publishing = true);
     try {
       final pos = await _currentPosition();
-      // Reserve a place id by creating a doc shell, then upload media to that id.
       final placeId = FirebaseFirestore.instance.collection('places').doc().id;
       final urls = await _uploadPhotos(placeId);
-      final tips = <PlaceTip>[];
+      final tips = <Map<String, dynamic>>[];
       for (var i = 0; i < _draft.tipCtrls.length; i++) {
         final txt = _draft.tipCtrls[i].text.trim();
-        if (txt.isNotEmpty) tips.add(PlaceTip(text: txt, order: i));
+        if (txt.isNotEmpty) tips.add({'text': txt, 'order': i});
       }
-      final place = Place(
-        id: placeId,
-        title: _draft.titleCtrl.text.trim(),
-        description: _draft.descriptionCtrl.text.trim(),
-        category: _draft.category,
-        neighborhood: _draft.neighborhoodCtrl.text.trim(),
-        lat: pos.lat ?? 0,
-        lng: pos.lng ?? 0,
-        tips: tips,
-        mediaUrls: urls,
-        ownerUid: user.uid,
-        ownerDisplayName: user.displayName ?? user.email.split('@').first,
-      );
-      // Use an explicit doc write so the id stays stable.
+      final dishes = <Map<String, dynamic>>[];
+      for (final c in _draft.dishCtrls) {
+        final name = c.text.trim();
+        if (name.isNotEmpty) dishes.add({'name': name});
+      }
+      // Build the doc map by hand so nested freezed objects don't end up
+      // serialized as instances (json_serializable does not cascade toJson
+      // unless explicitToJson is set on the class).
       await FirebaseFirestore.instance
           .collection('places')
           .doc(placeId)
           .set({
-        ...place.toJson(),
         'id': placeId,
-        'createdAt': FieldValue.serverTimestamp(),
-        'updatedAt': FieldValue.serverTimestamp(),
-        'saveCount': 0,
+        'title': _draft.titleCtrl.text.trim(),
+        'description': _draft.descriptionCtrl.text.trim(),
+        'category': _draft.category,
+        'moods': const <String>[],
+        'city': '',
+        'neighborhood': _draft.neighborhoodCtrl.text.trim(),
+        'address': '',
+        'lat': pos.lat ?? 0,
+        'lng': pos.lng ?? 0,
+        'tips': tips,
+        'dishes': dishes,
+        'mediaUrls': urls,
+        'ownerUid': user.uid,
+        'ownerDisplayName':
+            user.displayName ?? user.email.split('@').first,
+        'ownerIsSuper': false,
         'ratingAvg': 0.0,
         'ratingCount': 0,
+        'saveCount': 0,
+        'featured': false,
         'hidden': false,
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
       });
       // Touch counter on user
       await FirebaseFirestore.instance

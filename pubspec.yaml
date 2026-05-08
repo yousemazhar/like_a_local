@@ -52,7 +52,7 @@ dependencies:
   flutter_image_compress: ^2.3.0
 
   # Notifications
-#  flutter_local_notifications: ^18.0.1
+  flutter_local_notifications: ^18.0.1
 
   # Payments
   purchases_flutter: ^8.0.0
