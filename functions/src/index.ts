@@ -10,6 +10,7 @@ initializeApp();
 export { rankPlacesForUser } from "./ai/rank";
 export { seedEgyptPlaces } from "./seed/egypt";
 export { onChatMessageCreate } from "./chat/onMessage";
+export { sendTestNotification } from "./notifications/test";
 
 const STRIPE_SECRET_KEY = defineSecret("STRIPE_SECRET_KEY");
 const STRIPE_WEBHOOK_SECRET = defineSecret("STRIPE_WEBHOOK_SECRET");

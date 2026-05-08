@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -75,6 +76,11 @@ class ProfileScreen extends ConsumerWidget {
                       icon: const Icon(Icons.credit_card),
                       label: Text(t.profileTestPay),
                     ),
+                  ),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: _TestPushButton(),
                   ),
                 ],
                 const SizedBox(height: 24),
@@ -230,6 +236,59 @@ class _TrustStrip extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _TestPushButton extends StatefulWidget {
+  @override
+  State<_TestPushButton> createState() => _TestPushButtonState();
+}
+
+class _TestPushButtonState extends State<_TestPushButton> {
+  bool _busy = false;
+
+  Future<void> _send() async {
+    setState(() => _busy = true);
+    try {
+      final res = await FirebaseFunctions.instanceFor(region: 'us-central1')
+          .httpsCallable('sendTestNotification')
+          .call();
+      final data = res.data as Map?;
+      final tokens = data?['tokens'] ?? 0;
+      final delivered = data?['delivered'] ?? 0;
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            tokens == 0
+                ? 'Inbox written. No FCM tokens registered yet — open the app once on a real device to register.'
+                : 'Push sent · $delivered / $tokens token(s) delivered.',
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Test push failed: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton.icon(
+      onPressed: _busy ? null : _send,
+      icon: _busy
+          ? const SizedBox(
+              width: 14,
+              height: 14,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : const Icon(Icons.notifications_active_outlined),
+      label: const Text('Test push notification'),
     );
   }
 }

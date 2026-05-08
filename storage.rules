@@ -1,0 +1,33 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Place media: any signed-in user can read; only signed-in users can
+    // upload to a `places/{placeId}/...` path. We don't enforce ownership
+    // at the rules layer because the Firestore doc may not exist at
+    // upload time (we reserve the id, upload media, then write the doc).
+    match /places/{placeId}/{file=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+        && request.resource.size < 15 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    // User avatars: owner-only write, public read for signed-in users.
+    match /users/{uid}/{file=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == uid
+        && request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    // Drafts: owner-only.
+    match /drafts/{uid}/{file=**} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Default deny.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -149,7 +152,17 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
                   child: IconButton(
                     icon: const Icon(Icons.share_outlined,
                         size: 16, color: LALColors.c900),
-                    onPressed: () {},
+                    onPressed: () async {
+                      final link = 'likealocal://place/${place.id}';
+                      await Clipboard.setData(ClipboardData(text: link));
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          duration: Duration(seconds: 2),
+                          content: Text('Link copied to clipboard'),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),
@@ -466,7 +479,29 @@ class _PlaceBottomBar extends StatelessWidget {
         children: [
           Expanded(
             child: OutlinedButton.icon(
-              onPressed: () {},
+              onPressed: () async {
+                final uid = FirebaseAuth.instance.currentUser?.uid;
+                if (uid == null) return;
+                await FirebaseFirestore.instance
+                    .collection('reminders')
+                    .doc(uid)
+                    .collection('items')
+                    .doc(place.id)
+                    .set({
+                  'placeId': place.id,
+                  'type': 'location',
+                  'radiusMeters': 200,
+                  'enabled': true,
+                  'createdAt': FieldValue.serverTimestamp(),
+                });
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    duration: const Duration(seconds: 2),
+                    content: Text("We'll remind you near ${place.title}"),
+                  ),
+                );
+              },
               icon: const Icon(Icons.notifications_outlined, size: 16),
               label: Text(t.placeRemindMe),
             ),

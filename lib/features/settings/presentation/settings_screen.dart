@@ -29,6 +29,15 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  void _comingSoon(String label) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 2),
+        content: Text('$label · coming soon'),
+      ),
+    );
+  }
+
   Future<void> _patch(Map<String, dynamic> patch) async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
@@ -85,7 +94,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             icon: Icons.schedule_outlined,
             title: t.settingsChatSchedule,
             subtitle: t.settingsChatScheduleSubtitle,
-            onTap: () {},
+            onTap: () => _comingSoon(t.settingsChatSchedule),
           ),
 
           // Privacy
@@ -101,7 +110,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             icon: Icons.visibility_outlined,
             title: t.settingsWhoCanFindMe,
             subtitle: t.settingsEveryone,
-            onTap: () {},
+            onTap: () => _comingSoon(t.settingsWhoCanFindMe),
           ),
 
           // Personalization
@@ -125,7 +134,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             icon: Icons.tune_outlined,
             title: t.settingsPreferences,
             subtitle: t.settingsPreferencesSubtitle,
-            onTap: () {},
+            onTap: () => context.push('/onboarding'),
           ),
 
           // Account

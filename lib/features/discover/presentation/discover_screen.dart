@@ -6,6 +6,7 @@ import '../../../core/widgets/lal_chip.dart';
 import '../../../core/widgets/lal_header.dart';
 import '../../../core/widgets/offline_banner.dart';
 import '../../../core/widgets/place_card.dart';
+import '../../../core/widgets/savable_place_card.dart';
 import '../../../core/widgets/section_title.dart';
 import '../../../core/widgets/skeleton.dart';
 import '../../../features/place/domain/place.dart';
@@ -158,7 +159,8 @@ class _FeaturedSection extends StatelessWidget {
                         horizontal: LALSpacing.xl),
                     itemCount: places.length,
                     separatorBuilder: (_, __) => const SizedBox(width: 12),
-                    itemBuilder: (_, i) => PlaceCard(
+                    itemBuilder: (_, i) => SavablePlaceCard(
+                      placeId: places[i].id,
                       imageUrl: places[i].mediaUrls.isNotEmpty
                           ? places[i].mediaUrls.first
                           : '',
@@ -265,7 +267,8 @@ class _TrendingSection extends StatelessWidget {
                         horizontal: LALSpacing.xl),
                     itemCount: places.length,
                     separatorBuilder: (_, __) => const SizedBox(width: 12),
-                    itemBuilder: (_, i) => PlaceCard(
+                    itemBuilder: (_, i) => SavablePlaceCard(
+                      placeId: places[i].id,
                       imageUrl: places[i].mediaUrls.isNotEmpty
                           ? places[i].mediaUrls.first
                           : '',

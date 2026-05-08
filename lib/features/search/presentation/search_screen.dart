@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/widgets/lal_chip.dart';
 import '../../../core/widgets/place_card.dart';
+import '../../../core/widgets/savable_place_card.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
@@ -250,7 +251,8 @@ class _SearchResults extends ConsumerWidget {
           itemCount: results.length,
           itemBuilder: (_, i) {
             final p = results[i];
-            return PlaceCard(
+            return SavablePlaceCard(
+              placeId: p.id,
               imageUrl: p.mediaUrls.isNotEmpty ? p.mediaUrls.first : '',
               title: p.title,
               neighborhood:
