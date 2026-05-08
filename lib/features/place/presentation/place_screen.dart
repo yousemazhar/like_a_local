@@ -124,6 +124,8 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
     final place = widget.place;
     final savedAsync = ref.watch(isPlacePinnedProvider(place.id));
     final isSaved = savedAsync.valueOrNull ?? false;
+    final currentUid = ref.watch(authStateProvider).valueOrNull?.uid;
+    final isOwner = currentUid != null && currentUid == place.ownerUid;
 
     return Scaffold(
       backgroundColor: LALColors.bg,
@@ -145,6 +147,19 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
               ),
             ),
             actions: [
+              if (isOwner)
+                Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: CircleAvatar(
+                    backgroundColor: Colors.white.withValues(alpha: 0.9),
+                    child: IconButton(
+                      icon: const Icon(Icons.edit_outlined,
+                          size: 16, color: LALColors.c900),
+                      onPressed: () =>
+                          context.push('/edit-place/${place.id}'),
+                    ),
+                  ),
+                ),
               Padding(
                 padding: const EdgeInsets.all(8),
                 child: CircleAvatar(

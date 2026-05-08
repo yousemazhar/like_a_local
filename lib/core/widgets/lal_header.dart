@@ -60,14 +60,27 @@ class LALHeader extends StatelessWidget implements PreferredSizeWidget {
                 ),
                 if (unreadCount > 0)
                   Positioned(
-                    top: -2,
-                    right: -2,
+                    top: -4,
+                    right: -6,
                     child: Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(
+                      constraints:
+                          const BoxConstraints(minWidth: 16, minHeight: 16),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                      decoration: BoxDecoration(
                         color: LALColors.accent,
-                        shape: BoxShape.circle,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: LALColors.surface, width: 1.5),
+                      ),
+                      child: Text(
+                        unreadCount > 99 ? '99+' : '$unreadCount',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          height: 1.1,
+                        ),
                       ),
                     ),
                   ),

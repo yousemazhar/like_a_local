@@ -9,6 +9,7 @@ import '../../../core/widgets/place_card.dart';
 import '../../../core/widgets/savable_place_card.dart';
 import '../../../core/widgets/section_title.dart';
 import '../../../core/widgets/skeleton.dart';
+import '../../../features/notifications/domain/notification_providers.dart';
 import '../../../features/place/domain/place.dart';
 import '../../../features/place/domain/place_providers.dart';
 import '../../../l10n/app_localizations.dart';
@@ -53,6 +54,10 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
   Widget build(BuildContext context) {
     final featuredAsync = ref.watch(featuredPlacesProvider);
     final trendingAsync = ref.watch(trendingPlacesProvider);
+    final unreadCount = ref.watch(myNotificationsProvider).maybeWhen(
+          data: (items) => items.where((n) => !n.read).length,
+          orElse: () => 0,
+        );
 
     return Scaffold(
       backgroundColor: LALColors.bg,
@@ -65,6 +70,7 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                 SliverToBoxAdapter(
                   child: LALHeader(
                     location: 'Lisbon',
+                    unreadCount: unreadCount,
                     onNotificationsTap: () => context.push('/notifications'),
                   ),
                 ),

@@ -1,7 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -81,6 +84,11 @@ class ProfileScreen extends ConsumerWidget {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: _TestPushButton(),
+                  ),
+                  const SizedBox(height: 8),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    child: _ShowFcmTokensButton(),
                   ),
                 ],
                 const SizedBox(height: 24),
@@ -289,6 +297,92 @@ class _TestPushButtonState extends State<_TestPushButton> {
             )
           : const Icon(Icons.notifications_active_outlined),
       label: const Text('Test push notification'),
+    );
+  }
+}
+
+class _ShowFcmTokensButton extends StatelessWidget {
+  const _ShowFcmTokensButton();
+
+  Future<List<String>> _loadTokens() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return const [];
+    final snap =
+        await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    final raw = snap.data()?['fcmTokens'];
+    if (raw is List) {
+      return raw.whereType<String>().toList();
+    }
+    return const [];
+  }
+
+  Future<void> _show(BuildContext context) async {
+    final tokens = await _loadTokens();
+    if (!context.mounted) return;
+    if (tokens.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+              'No FCM tokens registered yet. Open the app on a real device first.'),
+        ),
+      );
+      return;
+    }
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('FCM tokens (${tokens.length})'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.separated(
+            shrinkWrap: true,
+            itemCount: tokens.length,
+            separatorBuilder: (_, __) => const Divider(height: 16),
+            itemBuilder: (_, i) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Token ${i + 1}',
+                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                const SizedBox(height: 4),
+                SelectableText(
+                  tokens[i],
+                  style: const TextStyle(fontSize: 11, fontFamily: 'monospace'),
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              await Clipboard.setData(
+                ClipboardData(text: tokens.join('\n')),
+              );
+              if (!ctx.mounted) return;
+              Navigator.of(ctx).pop();
+              ScaffoldMessenger.of(ctx).showSnackBar(
+                SnackBar(
+                  content: Text('Copied ${tokens.length} token(s) to clipboard'),
+                ),
+              );
+            },
+            child: const Text('Copy all'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton.icon(
+      onPressed: () => _show(context),
+      icon: const Icon(Icons.vpn_key_outlined),
+      label: const Text('Show FCM registration tokens'),
     );
   }
 }

@@ -84,6 +84,13 @@ GoRouter appRouter(AppRouterRef ref) {
         ),
       ),
       GoRoute(
+        path: '/edit-place/:id',
+        pageBuilder: (_, state) => MaterialPage(
+          fullscreenDialog: true,
+          child: AddPlaceScreen(placeId: state.pathParameters['id']),
+        ),
+      ),
+      GoRoute(
         path: '/ai',
         pageBuilder: (_, __) => const MaterialPage(
           fullscreenDialog: true,
