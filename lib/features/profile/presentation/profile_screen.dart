@@ -1,17 +1,41 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
+import '../../auth/domain/app_user.dart';
+import '../../auth/domain/auth_providers.dart';
+import '../../place/domain/place.dart';
+import '../../place/domain/place_providers.dart';
+import '../../saved/domain/saved_providers.dart';
 
-class ProfileScreen extends StatelessWidget {
+part 'profile_screen.g.dart';
+
+@riverpod
+Stream<List<Place>> myOwnedPlaces(MyOwnedPlacesRef ref) {
+  final user = ref.watch(authStateProvider).valueOrNull;
+  if (user == null) return const Stream.empty();
+  return ref.watch(placeRepositoryProvider).byOwner(user.uid);
+}
+
+class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context)!;
+    final userAsync = ref.watch(currentUserDocProvider);
+    final pinsAsync = ref.watch(savedPinsProvider);
+    final placesAsync = ref.watch(myOwnedPlacesProvider);
+    final user = userAsync.valueOrNull;
+    final pinCount = pinsAsync.valueOrNull?.length ?? 0;
+    final places = placesAsync.valueOrNull ?? const <Place>[];
+
     return Scaffold(
       backgroundColor: LALColors.bg,
       body: CustomScrollView(
@@ -24,7 +48,8 @@ class ProfileScreen extends StatelessWidget {
             actions: [
               IconButton(
                 onPressed: () => context.push('/settings'),
-                icon: const Icon(Icons.settings_outlined, color: LALColors.c900),
+                icon:
+                    const Icon(Icons.settings_outlined, color: LALColors.c900),
               ),
             ],
           ),
@@ -32,9 +57,13 @@ class ProfileScreen extends StatelessWidget {
             child: Column(
               children: [
                 const SizedBox(height: 24),
-                _AvatarSection(),
+                _AvatarSection(user: user),
                 const SizedBox(height: 20),
-                _StatsRow(),
+                _StatsRow(
+                  placesCount: places.length,
+                  pinCount: pinCount,
+                  helpfulCount: _readCounter(user, 'helpfulCount'),
+                ),
                 const SizedBox(height: 16),
                 _TrustStrip(),
                 if (kDebugMode) ...[
@@ -49,7 +78,7 @@ class ProfileScreen extends StatelessWidget {
                   ),
                 ],
                 const SizedBox(height: 24),
-                _PlacesGrid(),
+                _PlacesGrid(places: places, loading: placesAsync.isLoading),
                 const SizedBox(height: 40),
               ],
             ),
@@ -58,58 +87,88 @@ class ProfileScreen extends StatelessWidget {
       ),
     );
   }
+
+  int _readCounter(AppUser? user, String key) {
+    // counters are written by Cloud Functions, not yet on AppUser model;
+    // surface 0 by default until that field flows through.
+    return 0;
+  }
 }
 
 class _AvatarSection extends StatelessWidget {
+  const _AvatarSection({required this.user});
+  final AppUser? user;
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
+    final photo = user?.photoUrl;
+    final name = user?.displayName?.trim().isNotEmpty == true
+        ? user!.displayName!
+        : (user?.email.split('@').first ?? t.profileYourName);
     return Column(
       children: [
         Stack(
           children: [
-            const CircleAvatar(
+            CircleAvatar(
               radius: 48,
               backgroundColor: LALColors.c100,
-              child: Icon(Icons.person, color: LALColors.c400, size: 48),
+              backgroundImage: (photo != null && photo.isNotEmpty)
+                  ? CachedNetworkImageProvider(photo)
+                  : null,
+              child: (photo == null || photo.isEmpty)
+                  ? const Icon(Icons.person,
+                      color: LALColors.c400, size: 48)
+                  : null,
             ),
-            Positioned(
-              top: -4,
-              right: -4,
-              child: Container(
-                width: 28,
-                height: 28,
-                decoration: const BoxDecoration(
-                  color: LALColors.accent,
-                  shape: BoxShape.circle,
+            if (user?.role == 'super')
+              Positioned(
+                top: -4,
+                right: -4,
+                child: Container(
+                  width: 28,
+                  height: 28,
+                  decoration: const BoxDecoration(
+                    color: LALColors.accent,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.workspace_premium_rounded,
+                      color: Colors.white, size: 16),
                 ),
-                child: const Icon(Icons.workspace_premium_rounded,
-                    color: Colors.white, size: 16),
               ),
-            ),
           ],
         ),
         const SizedBox(height: 12),
-        Text(t.profileYourName, style: LALTypography.headlineMedium),
+        Text(name, style: LALTypography.headlineMedium),
         const SizedBox(height: 4),
-        Text(t.profileLocation, style: LALTypography.bodySmall),
+        Text(user?.email ?? t.profileLocation, style: LALTypography.bodySmall),
       ],
     );
   }
 }
 
 class _StatsRow extends StatelessWidget {
+  const _StatsRow({
+    required this.placesCount,
+    required this.pinCount,
+    required this.helpfulCount,
+  });
+
+  final int placesCount;
+  final int pinCount;
+  final int helpfulCount;
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        _StatItem(value: '0', label: t.profileStatPlaces),
+        _StatItem(value: '$placesCount', label: t.profileStatPlaces),
         const _Divider(),
-        _StatItem(value: '0', label: t.profileStatSaved),
+        _StatItem(value: '$pinCount', label: t.profileStatSaved),
         const _Divider(),
-        _StatItem(value: '0', label: t.profileStatHelpful),
+        _StatItem(value: '$helpfulCount', label: t.profileStatHelpful),
       ],
     );
   }
@@ -176,6 +235,10 @@ class _TrustStrip extends StatelessWidget {
 }
 
 class _PlacesGrid extends StatelessWidget {
+  const _PlacesGrid({required this.places, required this.loading});
+  final List<Place> places;
+  final bool loading;
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
@@ -187,20 +250,88 @@ class _PlacesGrid extends StatelessWidget {
           child: Text(t.profileMyPlaces, style: LALTypography.labelLarge),
         ),
         const SizedBox(height: 12),
-        Center(
-          child: Padding(
-            padding: const EdgeInsets.all(40),
-            child: Column(
-              children: [
-                const Icon(Icons.add_location_alt_outlined,
-                    color: LALColors.c300, size: 40),
-                const SizedBox(height: 12),
-                Text(t.profileNoPlaces,
-                    style: LALTypography.bodyMedium),
-              ],
+        if (loading)
+          const Padding(
+            padding: EdgeInsets.all(40),
+            child: Center(child: CircularProgressIndicator()),
+          )
+        else if (places.isEmpty)
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(40),
+              child: Column(
+                children: [
+                  const Icon(Icons.add_location_alt_outlined,
+                      color: LALColors.c300, size: 40),
+                  const SizedBox(height: 12),
+                  Text(t.profileNoPlaces,
+                      style: LALTypography.bodyMedium),
+                ],
+              ),
+            ),
+          )
+        else
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 0.85,
+              ),
+              itemCount: places.length,
+              itemBuilder: (context, i) {
+                final p = places[i];
+                return GestureDetector(
+                  onTap: () => context.push('/place/${p.id}'),
+                  child: ClipRRect(
+                    borderRadius: LALRadii.lgBorder,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        if (p.mediaUrls.isNotEmpty)
+                          CachedNetworkImage(
+                            imageUrl: p.mediaUrls.first,
+                            fit: BoxFit.cover,
+                            placeholder: (_, __) =>
+                                Container(color: LALColors.c100),
+                            errorWidget: (_, __, ___) =>
+                                Container(color: LALColors.c100),
+                          )
+                        else
+                          Container(color: LALColors.c100),
+                        Positioned(
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          child: Container(
+                            padding: const EdgeInsets.fromLTRB(10, 28, 10, 8),
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [Colors.transparent, Colors.black54],
+                              ),
+                            ),
+                            child: Text(
+                              p.title,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: LALTypography.labelLarge
+                                  .copyWith(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
           ),
-        ),
       ],
     );
   }

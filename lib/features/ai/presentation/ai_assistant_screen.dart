@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
+import '../../place/domain/place.dart';
+import '../../place/domain/place_providers.dart';
 
-class AiAssistantScreen extends StatefulWidget {
+class AiAssistantScreen extends ConsumerStatefulWidget {
   const AiAssistantScreen({super.key});
 
   @override
-  State<AiAssistantScreen> createState() => _AiAssistantScreenState();
+  ConsumerState<AiAssistantScreen> createState() => _AiAssistantScreenState();
 }
 
-class _AiAssistantScreenState extends State<AiAssistantScreen> {
+class _AiAssistantScreenState extends ConsumerState<AiAssistantScreen> {
   final _controller = TextEditingController();
   final _scrollController = ScrollController();
 
@@ -184,14 +187,65 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
       _messages.add((text: trimmed, isMe: true));
       _typing = true;
     });
-    // TODO: Call Cloud Function `aiChat` callable
-    await Future.delayed(const Duration(seconds: 1, milliseconds: 500));
+    final reply = await _composeReply(trimmed, t);
     if (mounted) {
       setState(() {
         _typing = false;
-        _messages.add((text: t.aiFallbackReply, isMe: false));
+        _messages.add((text: reply, isMe: false));
       });
     }
+  }
+
+  Future<String> _composeReply(String query, AppLocalizations t) async {
+    try {
+      final repo = ref.read(placeRepositoryProvider);
+      final all = await repo.discoverFeed(limit: 60).first;
+      final lower = query.toLowerCase();
+      bool matches(Place p) =>
+          p.title.toLowerCase().contains(lower) ||
+          p.neighborhood.toLowerCase().contains(lower) ||
+          p.city.toLowerCase().contains(lower) ||
+          p.category.toLowerCase().contains(lower) ||
+          p.moods.any((m) => m.toLowerCase().contains(lower));
+      var hits = all.where(matches).toList(growable: false);
+      if (hits.isEmpty) {
+        // fall back to top-rated picks if nothing matched the keywords.
+        final sorted = [...all]
+          ..sort((a, b) => b.ratingAvg.compareTo(a.ratingAvg));
+        hits = sorted.take(3).toList();
+      } else if (hits.length > 5) {
+        hits = hits.take(5).toList();
+      }
+      if (hits.isEmpty) return t.aiFallbackReply;
+      final lines = hits.map((p) {
+        final loc = [p.neighborhood, p.city]
+            .where((s) => s.isNotEmpty)
+            .join(', ');
+        final rating = p.ratingCount > 0
+            ? ' · ★ ${p.ratingAvg.toStringAsFixed(1)}'
+            : '';
+        return '• ${p.title}${loc.isNotEmpty ? ' — $loc' : ''}$rating';
+      }).join('\n');
+      return '${_lead(query)}\n$lines';
+    } catch (_) {
+      return t.aiFallbackReply;
+    }
+  }
+
+  String _lead(String query) {
+    final lower = query.toLowerCase();
+    if (lower.contains('coffee') || lower.contains('cafe')) {
+      return 'Here are some cafés locals love:';
+    }
+    if (lower.contains('eat') ||
+        lower.contains('food') ||
+        lower.contains('restaurant')) {
+      return 'A few favourite places to eat:';
+    }
+    if (lower.contains('view') || lower.contains('sunset')) {
+      return 'Try these viewpoints:';
+    }
+    return 'You might like these:';
   }
 }
 

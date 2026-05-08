@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +10,17 @@ import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
 
+final _userSettingsStreamProvider =
+    StreamProvider.autoDispose<Map<String, dynamic>>((ref) {
+  final uid = FirebaseAuth.instance.currentUser?.uid;
+  if (uid == null) return Stream.value(const {});
+  return FirebaseFirestore.instance
+      .collection('users')
+      .doc(uid)
+      .snapshots()
+      .map((s) => s.data() ?? const {});
+});
+
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
@@ -16,16 +29,30 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-  bool _chatEnabled = true;
-  bool _awayMode = false;
-  bool _showLocation = true;
-  bool _aiRecommendations = true;
+  Future<void> _patch(Map<String, dynamic> patch) async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+    await ref.read(authRepositoryProvider).updateUserSettings(uid, patch);
+  }
 
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
     final locale = ref.watch(localeProvider);
     final languageCode = locale.languageCode;
+    final settingsAsync = ref.watch(_userSettingsStreamProvider);
+    final data = settingsAsync.valueOrNull ?? const <String, dynamic>{};
+    final chatSettings =
+        (data['chatSettings'] as Map?)?.cast<String, dynamic>() ?? const {};
+    final privacy =
+        (data['privacy'] as Map?)?.cast<String, dynamic>() ?? const {};
+    final prefs =
+        (data['preferences'] as Map?)?.cast<String, dynamic>() ?? const {};
+    final chatEnabled = (chatSettings['enabled'] as bool?) ?? true;
+    final awayMode = (chatSettings['awayMode'] as bool?) ?? false;
+    final showLocation = (privacy['shareLocation'] as bool?) ?? true;
+    final aiRecommendations =
+        (prefs['aiRecommendations'] as bool?) ?? true;
 
     return Scaffold(
       backgroundColor: LALColors.bg,
@@ -44,15 +71,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             icon: Icons.chat_bubble_outline,
             title: t.settingsEnableChat,
             subtitle: t.settingsEnableChatSubtitle,
-            value: _chatEnabled,
-            onChanged: (v) => setState(() => _chatEnabled = v),
+            value: chatEnabled,
+            onChanged: (v) => _patch({'chatSettings.enabled': v}),
           ),
           _ToggleTile(
             icon: Icons.do_not_disturb_alt_outlined,
             title: t.settingsAwayMode,
             subtitle: t.settingsAwayModeSubtitle,
-            value: _awayMode,
-            onChanged: (v) => setState(() => _awayMode = v),
+            value: awayMode,
+            onChanged: (v) => _patch({'chatSettings.awayMode': v}),
           ),
           _ActionTile(
             icon: Icons.schedule_outlined,
@@ -67,8 +94,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             icon: Icons.location_on_outlined,
             title: t.settingsShareLocation,
             subtitle: t.settingsShareLocationSubtitle,
-            value: _showLocation,
-            onChanged: (v) => setState(() => _showLocation = v),
+            value: showLocation,
+            onChanged: (v) => _patch({'privacy.shareLocation': v}),
           ),
           _ActionTile(
             icon: Icons.visibility_outlined,
@@ -83,8 +110,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             icon: Icons.auto_awesome_outlined,
             title: t.settingsAiRecommendations,
             subtitle: t.settingsAiRecommendationsSubtitle,
-            value: _aiRecommendations,
-            onChanged: (v) => setState(() => _aiRecommendations = v),
+            value: aiRecommendations,
+            onChanged: (v) => _patch({'preferences.aiRecommendations': v}),
           ),
           _ActionTile(
             icon: Icons.language_outlined,

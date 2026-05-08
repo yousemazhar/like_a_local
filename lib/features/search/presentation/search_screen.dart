@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/widgets/lal_chip.dart';
@@ -6,8 +9,10 @@ import '../../../core/widgets/place_card.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
+import '../../place/domain/place.dart';
+import '../../place/domain/place_providers.dart';
 
-const _recentSearches = ['Alfama restaurants', 'Viewpoints', 'Sunday market'];
+const _recentSearches = ['Restaurants', 'Cafes', 'Viewpoints'];
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -20,9 +25,19 @@ class _SearchScreenState extends State<SearchScreen> {
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
   String _query = '';
+  Timer? _debounce;
+
+  void _onChanged(String v) {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 280), () {
+      if (!mounted) return;
+      setState(() => _query = v.trim());
+    });
+  }
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _controller.dispose();
     _focusNode.dispose();
     super.dispose();
@@ -39,8 +54,9 @@ class _SearchScreenState extends State<SearchScreen> {
             _SearchBar(
               controller: _controller,
               focusNode: _focusNode,
-              onChanged: (v) => setState(() => _query = v),
+              onChanged: _onChanged,
               onClear: () {
+                _debounce?.cancel();
                 _controller.clear();
                 setState(() => _query = '');
               },
@@ -175,54 +191,88 @@ class _EmptySearch extends StatelessWidget {
   }
 }
 
-class _SearchResults extends StatelessWidget {
+class _SearchResults extends ConsumerWidget {
   const _SearchResults({required this.query});
 
   final String query;
 
-  @override
-  Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context)!;
-    // TODO: Replace with Firestore search results
-    final results = [
-      (title: 'Tasca do Chico', neighborhood: 'Alfama', rating: 4.8,
-       imageUrl: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=300&q=80'),
-      (title: 'Time Out Market', neighborhood: 'Cais do Sodré', rating: 4.6,
-       imageUrl: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=300&q=80'),
-    ];
+  bool _matches(Place p, String q) {
+    final lower = q.toLowerCase();
+    return p.title.toLowerCase().contains(lower) ||
+        p.neighborhood.toLowerCase().contains(lower) ||
+        p.city.toLowerCase().contains(lower) ||
+        p.category.toLowerCase().contains(lower) ||
+        p.moods.any((m) => m.toLowerCase().contains(lower));
+  }
 
-    if (results.isEmpty) {
-      return Center(
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = AppLocalizations.of(context)!;
+    if (query.length < 2) {
+      return _emptyHint(t);
+    }
+    // Pull a broad feed and filter client-side so neighborhood/category/mood
+    // matches work without per-field Firestore indexes.
+    final feed = ref.watch(discoverFeedProvider);
+    return feed.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(
         child: Padding(
-          padding: const EdgeInsets.all(40),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.search_off, color: LALColors.c300, size: 48),
-              const SizedBox(height: 16),
-              Text(t.searchNoResults, style: LALTypography.labelLarge),
-              const SizedBox(height: 8),
-              Text(
-                t.searchNoResultsBody,
-                style: LALTypography.bodySmall,
-                textAlign: TextAlign.center,
+          padding: const EdgeInsets.all(24),
+          child: Text('$e', style: LALTypography.bodySmall),
+        ),
+      ),
+      data: (places) {
+        final results =
+            places.where((p) => _matches(p, query)).toList(growable: false);
+        if (results.isEmpty) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(40),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.search_off, color: LALColors.c300, size: 48),
+                  const SizedBox(height: 16),
+                  Text(t.searchNoResults, style: LALTypography.labelLarge),
+                  const SizedBox(height: 8),
+                  Text(
+                    t.searchNoResultsBody,
+                    style: LALTypography.bodySmall,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
-            ],
+            ),
+          );
+        }
+        return ListView.builder(
+          itemCount: results.length,
+          itemBuilder: (_, i) {
+            final p = results[i];
+            return PlaceCard(
+              imageUrl: p.mediaUrls.isNotEmpty ? p.mediaUrls.first : '',
+              title: p.title,
+              neighborhood:
+                  p.neighborhood.isNotEmpty ? p.neighborhood : p.city,
+              rating: p.ratingCount > 0 ? p.ratingAvg : null,
+              variant: PlaceCardVariant.searchResult,
+              onTap: () => context.push('/place/${p.id}'),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _emptyHint(AppLocalizations t) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Text(
+            t.searchHint,
+            style: LALTypography.bodySmall,
+            textAlign: TextAlign.center,
           ),
         ),
       );
-    }
-
-    return ListView.builder(
-      itemCount: results.length,
-      itemBuilder: (_, i) => PlaceCard(
-        imageUrl: results[i].imageUrl,
-        title: results[i].title,
-        neighborhood: results[i].neighborhood,
-        rating: results[i].rating,
-        variant: PlaceCardVariant.searchResult,
-        onTap: () => context.push('/place/search-$i'),
-      ),
-    );
-  }
 }

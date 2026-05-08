@@ -160,6 +160,11 @@ class AuthRepository {
         'preferences': prefs.toJson(),
       });
 
+  Future<void> updateUserSettings(
+    String uid,
+    Map<String, dynamic> patch,
+  ) => _db.collection('users').doc(uid).set(patch, SetOptions(merge: true));
+
   Future<AppUser> _enrichUser(User user) async {
     try {
       final doc = await _db.collection('users').doc(user.uid).get();
