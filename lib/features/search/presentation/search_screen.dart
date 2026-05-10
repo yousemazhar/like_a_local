@@ -11,23 +11,27 @@ import '../../../core/widgets/savable_place_card.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
+import '../../auth/domain/auth_providers.dart';
 import '../../place/domain/place.dart';
 import '../../place/domain/place_providers.dart';
+import 'filter_sheet.dart';
 
 const _recentSearches = ['Restaurants', 'Cafes', 'Viewpoints'];
 
-class SearchScreen extends StatefulWidget {
+class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
 
   @override
-  State<SearchScreen> createState() => _SearchScreenState();
+  ConsumerState<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> {
+class _SearchScreenState extends ConsumerState<SearchScreen> {
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
   String _query = '';
   Timer? _debounce;
+  PlaceFilters _filters = const PlaceFilters();
+  bool _filtersInitialized = false;
 
   void _onChanged(String v) {
     _debounce?.cancel();
@@ -35,6 +39,23 @@ class _SearchScreenState extends State<SearchScreen> {
       if (!mounted) return;
       setState(() => _query = v.trim());
     });
+  }
+
+  void _seedFiltersFromPrefs() {
+    if (_filtersInitialized) return;
+    final user = ref.read(currentUserDocProvider).valueOrNull;
+    if (user == null) return;
+    final p = user.preferences;
+    if (p.placeTypes.isEmpty && p.moods.isEmpty && p.budget == null) {
+      _filtersInitialized = true;
+      return;
+    }
+    _filters = PlaceFilters(
+      categories: p.placeTypes.toSet(),
+      moods: p.moods.toSet(),
+      budget: p.budget,
+    );
+    _filtersInitialized = true;
   }
 
   @override
@@ -45,8 +66,16 @@ class _SearchScreenState extends State<SearchScreen> {
     super.dispose();
   }
 
+  Future<void> _openFilters() async {
+    final result = await FilterSheet.show(context, initial: _filters);
+    if (result != null && mounted) {
+      setState(() => _filters = result);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    _seedFiltersFromPrefs();
     return Scaffold(
       backgroundColor: LALColors.bg,
       body: SafeArea(
@@ -62,14 +91,16 @@ class _SearchScreenState extends State<SearchScreen> {
                 _controller.clear();
                 setState(() => _query = '');
               },
+              filterCount: _filters.activeCount,
+              onTapFilters: _openFilters,
             ),
             Expanded(
-              child: _query.isEmpty
+              child: (_query.isEmpty && _filters.isEmpty)
                   ? _EmptySearch(onRecentTap: (s) {
                       _controller.text = s;
                       setState(() => _query = s);
                     })
-                  : _SearchResults(query: _query),
+                  : _SearchResults(query: _query, filters: _filters),
             ),
           ],
         ),
@@ -84,12 +115,16 @@ class _SearchBar extends StatelessWidget {
     required this.focusNode,
     required this.onChanged,
     required this.onClear,
+    required this.filterCount,
+    required this.onTapFilters,
   });
 
   final TextEditingController controller;
   final FocusNode focusNode;
   final ValueChanged<String> onChanged;
   final VoidCallback onClear;
+  final int filterCount;
+  final VoidCallback onTapFilters;
 
   @override
   Widget build(BuildContext context) {
@@ -97,38 +132,92 @@ class _SearchBar extends StatelessWidget {
     return Container(
       color: LALColors.surface,
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-      child: TextField(
-        controller: controller,
-        focusNode: focusNode,
-        autofocus: false,
-        onChanged: onChanged,
-        decoration: InputDecoration(
-          hintText: t.searchHint,
-          prefixIcon:
-              const Icon(Icons.search, color: LALColors.c400, size: 20),
-          suffixIcon: controller.text.isNotEmpty
-              ? IconButton(
-                  onPressed: onClear,
-                  icon: const Icon(Icons.clear, color: LALColors.c400, size: 18),
-                )
-              : null,
-          filled: true,
-          fillColor: LALColors.surfaceAlt,
-          border: OutlineInputBorder(
-            borderRadius: LALRadii.pillBorder,
-            borderSide: BorderSide.none,
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: controller,
+              focusNode: focusNode,
+              autofocus: false,
+              onChanged: onChanged,
+              decoration: InputDecoration(
+                hintText: t.searchHint,
+                prefixIcon:
+                    const Icon(Icons.search, color: LALColors.c400, size: 20),
+                suffixIcon: controller.text.isNotEmpty
+                    ? IconButton(
+                        onPressed: onClear,
+                        icon: const Icon(Icons.clear,
+                            color: LALColors.c400, size: 18),
+                      )
+                    : null,
+                filled: true,
+                fillColor: LALColors.surfaceAlt,
+                border: OutlineInputBorder(
+                  borderRadius: LALRadii.pillBorder,
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: LALRadii.pillBorder,
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: LALRadii.pillBorder,
+                  borderSide:
+                      const BorderSide(color: LALColors.c900, width: 1.5),
+                ),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              ),
+            ),
           ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: LALRadii.pillBorder,
-            borderSide: BorderSide.none,
+          const SizedBox(width: 10),
+          GestureDetector(
+            onTap: onTapFilters,
+            child: Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color:
+                    filterCount > 0 ? LALColors.c900 : LALColors.surfaceAlt,
+                shape: BoxShape.circle,
+              ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Icon(
+                    Icons.tune_rounded,
+                    color: filterCount > 0 ? Colors.white : LALColors.c700,
+                    size: 20,
+                  ),
+                  if (filterCount > 0)
+                    Positioned(
+                      top: 6,
+                      right: 6,
+                      child: Container(
+                        width: 16,
+                        height: 16,
+                        decoration: const BoxDecoration(
+                          color: LALColors.accent,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(
+                            '$filterCount',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
           ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: LALRadii.pillBorder,
-            borderSide: const BorderSide(color: LALColors.c900, width: 1.5),
-          ),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        ),
+        ],
       ),
     );
   }
@@ -162,7 +251,8 @@ class _EmptySearch extends StatelessWidget {
           ),
           for (final s in _recentSearches)
             ListTile(
-              leading: const Icon(Icons.history, color: LALColors.c400, size: 20),
+              leading: const Icon(Icons.history,
+                  color: LALColors.c400, size: 20),
               title: Text(s, style: LALTypography.bodyMedium),
               onTap: () => onRecentTap(s),
               contentPadding:
@@ -194,11 +284,13 @@ class _EmptySearch extends StatelessWidget {
 }
 
 class _SearchResults extends ConsumerWidget {
-  const _SearchResults({required this.query});
+  const _SearchResults({required this.query, required this.filters});
 
   final String query;
+  final PlaceFilters filters;
 
-  bool _matches(Place p, String q) {
+  bool _matchesQuery(Place p, String q) {
+    if (q.isEmpty) return true;
     final lower = q.toLowerCase();
     return p.title.toLowerCase().contains(lower) ||
         p.neighborhood.toLowerCase().contains(lower) ||
@@ -207,12 +299,27 @@ class _SearchResults extends ConsumerWidget {
         p.moods.any((m) => m.toLowerCase().contains(lower));
   }
 
+  bool _matchesFilters(Place p) {
+    if (filters.categories.isNotEmpty) {
+      final match = filters.categories.any((c) =>
+          p.category.toLowerCase() == c.toLowerCase() ||
+          p.category.toLowerCase().contains(c.toLowerCase()));
+      if (!match) return false;
+    }
+    if (filters.moods.isNotEmpty) {
+      final lower = filters.moods.map((m) => m.toLowerCase()).toSet();
+      final placeMoods = p.moods.map((m) => m.toLowerCase()).toSet();
+      if (placeMoods.intersection(lower).isEmpty) return false;
+    }
+    if (filters.budget != null) {
+      if ((p.priceLevel ?? '') != filters.budget) return false;
+    }
+    return true;
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context)!;
-    if (query.length < 2) {
-      return _emptyHint(t);
-    }
     // Pull a broad feed and filter client-side so neighborhood/category/mood
     // matches work without per-field Firestore indexes.
     final feed = ref.watch(discoverFeedProvider);
@@ -220,8 +327,9 @@ class _SearchResults extends ConsumerWidget {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => ErrorView(message: '$e'),
       data: (places) {
-        final results =
-            places.where((p) => _matches(p, query)).toList(growable: false);
+        final results = places
+            .where((p) => _matchesQuery(p, query) && _matchesFilters(p))
+            .toList(growable: false);
         if (results.isEmpty) {
           return Center(
             child: Padding(
@@ -229,7 +337,8 @@ class _SearchResults extends ConsumerWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.search_off, color: LALColors.c300, size: 48),
+                  const Icon(Icons.search_off,
+                      color: LALColors.c300, size: 48),
                   const SizedBox(height: 16),
                   Text(t.searchNoResults, style: LALTypography.labelLarge),
                   const SizedBox(height: 8),
@@ -262,15 +371,4 @@ class _SearchResults extends ConsumerWidget {
       },
     );
   }
-
-  Widget _emptyHint(AppLocalizations t) => Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Text(
-            t.searchHint,
-            style: LALTypography.bodySmall,
-            textAlign: TextAlign.center,
-          ),
-        ),
-      );
 }

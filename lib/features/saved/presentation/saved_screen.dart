@@ -7,6 +7,9 @@ import '../../../core/widgets/skeleton.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
+import '../../auth/domain/auth_providers.dart';
+import '../../reminders/domain/reminder.dart';
+import '../../reminders/domain/reminder_providers.dart';
 import '../domain/saved_pin.dart';
 import '../domain/saved_providers.dart';
 
@@ -351,16 +354,120 @@ class _PinListItem extends StatelessWidget {
   }
 }
 
-class _RemindersTab extends StatelessWidget {
+class _RemindersTab extends ConsumerWidget {
   const _RemindersTab();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context)!;
-    return EmptyView(
-      icon: Icons.notifications_none_rounded,
-      title: t.savedNoReminders,
-      body: t.savedNoRemindersBody,
+    final remindersAsync = ref.watch(remindersStreamProvider);
+
+    return remindersAsync.when(
+      loading: () => const Padding(
+        padding: EdgeInsets.all(20),
+        child: SkeletonList(itemCount: 3),
+      ),
+      error: (_, __) => EmptyView(
+        icon: Icons.notifications_none_rounded,
+        title: t.savedNoReminders,
+        body: t.savedNoRemindersBody,
+      ),
+      data: (reminders) => reminders.isEmpty
+          ? EmptyView(
+              icon: Icons.notifications_none_rounded,
+              title: t.savedNoReminders,
+              body: t.savedNoRemindersBody,
+            )
+          : ListView.separated(
+              padding: const EdgeInsets.all(20),
+              itemCount: reminders.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              itemBuilder: (_, i) => _ReminderListItem(reminder: reminders[i]),
+            ),
+    );
+  }
+}
+
+class _ReminderListItem extends ConsumerWidget {
+  const _ReminderListItem({required this.reminder});
+
+  final Reminder reminder;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return GestureDetector(
+      onTap: () => context.push('/place/${reminder.placeId}'),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: const BoxDecoration(
+          color: LALColors.surface,
+          borderRadius: LALRadii.lgBorder,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: reminder.enabled
+                    ? LALColors.accentSoft
+                    : LALColors.surfaceAlt,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                reminder.enabled
+                    ? Icons.notifications_active
+                    : Icons.notifications_off_outlined,
+                color: reminder.enabled
+                    ? LALColors.accent
+                    : LALColors.c400,
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    reminder.placeTitle ?? reminder.placeId,
+                    style: LALTypography.labelMedium,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Within ${reminder.radiusMeters}m',
+                    style: LALTypography.bodySmall,
+                  ),
+                ],
+              ),
+            ),
+            Switch.adaptive(
+              value: reminder.enabled,
+              activeTrackColor: LALColors.accent,
+              onChanged: (v) async {
+                final uid = ref.read(authStateProvider).valueOrNull?.uid;
+                if (uid == null) return;
+                await ref
+                    .read(reminderRepositoryProvider)
+                    .setEnabled(uid, reminder.placeId, v);
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete_outline,
+                  color: LALColors.c400, size: 20),
+              onPressed: () async {
+                final uid = ref.read(authStateProvider).valueOrNull?.uid;
+                if (uid == null) return;
+                await ref
+                    .read(reminderRepositoryProvider)
+                    .remove(uid, reminder.placeId);
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

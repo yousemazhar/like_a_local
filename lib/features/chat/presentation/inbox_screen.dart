@@ -49,6 +49,8 @@ class InboxScreen extends ConsumerWidget {
                         icon: Icons.chat_bubble_outline_rounded,
                         title: t.inboxEmpty,
                         body: t.inboxEmptyBody,
+                        action: 'Discover locals',
+                        onActionTap: () => context.go('/discover'),
                       )
                     : ListView.separated(
                         itemCount: threads.length,

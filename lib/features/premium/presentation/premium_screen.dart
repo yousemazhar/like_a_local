@@ -1,23 +1,64 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
+import '../../auth/domain/auth_providers.dart';
+import '../../payments/data/payment_repository.dart';
 
-class PremiumScreen extends StatefulWidget {
+class PremiumScreen extends ConsumerStatefulWidget {
   const PremiumScreen({super.key});
 
   @override
-  State<PremiumScreen> createState() => _PremiumScreenState();
+  ConsumerState<PremiumScreen> createState() => _PremiumScreenState();
 }
 
-class _PremiumScreenState extends State<PremiumScreen> {
+class _PremiumScreenState extends ConsumerState<PremiumScreen> {
   bool _yearlySelected = true;
+  bool _busy = false;
+
+  Future<void> _purchase() async {
+    setState(() => _busy = true);
+    try {
+      await ref.read(paymentRepositoryProvider).runTestCheckout();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          duration: Duration(seconds: 3),
+          content: Text(
+            'Payment submitted — your premium status will activate shortly.',
+          ),
+        ),
+      );
+    } on StripeException catch (e) {
+      if (!mounted) return;
+      final code = e.error.code.toString();
+      // User cancelled — silent.
+      if (code.toLowerCase().contains('cancel')) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content:
+              Text('Payment failed: ${e.error.localizedMessage ?? e.error.code}'),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Payment error: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
+    final premium =
+        ref.watch(currentUserDocProvider).valueOrNull?.premium ?? false;
 
     final features = [
       (icon: Icons.bookmark_border, text: t.premiumFeatureUnlimitedSaves),
@@ -53,11 +94,16 @@ class _PremiumScreenState extends State<PremiumScreen> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.workspace_premium_rounded,
-                        color: LALColors.accent, size: 14),
+                    Icon(
+                      premium
+                          ? Icons.check_circle_rounded
+                          : Icons.workspace_premium_rounded,
+                      color: LALColors.accent,
+                      size: 14,
+                    ),
                     const SizedBox(width: 6),
                     Text(
-                      t.premiumBadge,
+                      premium ? 'PREMIUM · ACTIVE' : t.premiumBadge,
                       style: LALTypography.labelSmall
                           .copyWith(color: LALColors.accent, letterSpacing: 1.5),
                     ),
@@ -86,72 +132,127 @@ class _PremiumScreenState extends State<PremiumScreen> {
               // Feature list
               for (final f in features) _FeatureRow(feature: f),
               const SizedBox(height: 32),
-              // Plan cards
-              Row(
-                children: [
-                  Expanded(
-                    child: _PlanCard(
-                      title: t.premiumMonthly,
-                      price: t.premiumPriceMonthly,
-                      period: t.premiumPeriod,
-                      isSelected: !_yearlySelected,
-                      onTap: () => setState(() => _yearlySelected = false),
+              if (!premium) ...[
+                // Plan cards
+                Row(
+                  children: [
+                    Expanded(
+                      child: _PlanCard(
+                        title: t.premiumMonthly,
+                        price: t.premiumPriceMonthly,
+                        period: t.premiumPeriod,
+                        isSelected: !_yearlySelected,
+                        onTap: () => setState(() => _yearlySelected = false),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _PlanCard(
-                      title: t.premiumYearly,
-                      price: t.premiumPriceYearly,
-                      period: t.premiumPeriod,
-                      badge: t.premiumYearlyBadge,
-                      isSelected: _yearlySelected,
-                      onTap: () => setState(() => _yearlySelected = true),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _PlanCard(
+                        title: t.premiumYearly,
+                        price: t.premiumPriceYearly,
+                        period: t.premiumPeriod,
+                        badge: t.premiumYearlyBadge,
+                        isSelected: _yearlySelected,
+                        onTap: () => setState(() => _yearlySelected = true),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              // CTA
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _purchase,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: LALColors.accent,
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size(double.infinity, 56),
-                  ),
-                  child: Text(t.premiumCta,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 12),
-              Center(
-                child: TextButton(
-                  onPressed: () {},
+                const SizedBox(height: 24),
+                // CTA
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _busy ? null : _purchase,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: LALColors.accent,
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(double.infinity, 56),
+                    ),
+                    child: _busy
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(t.premiumCta,
+                            style: const TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w700)),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Center(
+                  child: TextButton(
+                    onPressed: _busy ? null : _purchase,
+                    child: Text(
+                      t.premiumRestorePurchases,
+                      style: LALTypography.bodySmall
+                          .copyWith(color: LALColors.c400),
+                    ),
+                  ),
+                ),
+                Center(
                   child: Text(
-                    t.premiumRestorePurchases,
-                    style: LALTypography.bodySmall.copyWith(color: LALColors.c400),
+                    _yearlySelected
+                        ? t.premiumCancelAnnually
+                        : t.premiumCancelMonthly,
+                    style: LALTypography.bodySmall
+                        .copyWith(color: LALColors.c600),
+                    textAlign: TextAlign.center,
                   ),
                 ),
-              ),
-              Center(
-                child: Text(
-                  _yearlySelected ? t.premiumCancelAnnually : t.premiumCancelMonthly,
-                  style: LALTypography.bodySmall.copyWith(color: LALColors.c600),
-                  textAlign: TextAlign.center,
+              ] else ...[
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: LALColors.accent.withValues(alpha: 0.15),
+                    borderRadius: LALRadii.lgBorder,
+                    border: Border.all(color: LALColors.accent),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.workspace_premium_rounded,
+                          color: LALColors.accent, size: 28),
+                      const SizedBox(height: 8),
+                      Text(
+                        "You're all set",
+                        style: LALTypography.headlineSmall
+                            .copyWith(color: Colors.white),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'All premium features are unlocked. Thanks for supporting locals.',
+                        style: LALTypography.bodySmall
+                            .copyWith(color: LALColors.c300),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => context.pop(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: LALColors.accent,
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(double.infinity, 56),
+                    ),
+                    child: const Text('Done',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w700)),
+                  ),
+                ),
+              ],
             ],
           ),
         ),
       ),
     );
-  }
-
-  void _purchase() {
-    // TODO: Purchases.purchasePackage(package)
   }
 }
 

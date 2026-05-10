@@ -45,6 +45,10 @@ Stream<AppUser?> currentUserDoc(CurrentUserDocRef ref) {
       emailVerified:
           FirebaseAuth.instance.currentUser?.emailVerified ?? false,
       premium: data['premium'] as bool? ?? false,
+      preferences: data['preferences'] != null
+          ? UserPreferences.fromJson(
+              Map<String, dynamic>.from(data['preferences'] as Map))
+          : const UserPreferences(),
     );
   });
 }

@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,6 +10,7 @@ import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
 import '../../auth/domain/auth_providers.dart';
 import '../../chat/domain/chat_providers.dart';
+import '../../reminders/domain/reminder_providers.dart';
 import '../../reviews/domain/review.dart';
 import '../../reviews/domain/review_providers.dart';
 import '../../reviews/presentation/review_composer_sheet.dart';
@@ -124,8 +124,12 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
     final place = widget.place;
     final savedAsync = ref.watch(isPlacePinnedProvider(place.id));
     final isSaved = savedAsync.valueOrNull ?? false;
+    final reminderAsync = ref.watch(isReminderSetProvider(place.id));
+    final isReminded = reminderAsync.valueOrNull ?? false;
     final currentUid = ref.watch(authStateProvider).valueOrNull?.uid;
     final isOwner = currentUid != null && currentUid == place.ownerUid;
+    final isPremium =
+        ref.watch(currentUserDocProvider).valueOrNull?.premium ?? false;
 
     return Scaffold(
       backgroundColor: LALColors.bg,
@@ -299,8 +303,43 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
       bottomNavigationBar: _PlaceBottomBar(
         place: place,
         isSaved: isSaved,
+        isReminded: isReminded,
+        isPremium: isPremium,
         onToggleSave: () =>
             ref.read(savedNotifierProvider.notifier).togglePin(place.id),
+        onToggleReminder: () async {
+          final uid = FirebaseAuth.instance.currentUser?.uid;
+          if (uid == null) return;
+          if (!isPremium) {
+            if (!context.mounted) return;
+            context.push('/premium');
+            return;
+          }
+          final repo = ref.read(reminderRepositoryProvider);
+          if (isReminded) {
+            await repo.remove(uid, place.id);
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                duration: const Duration(seconds: 2),
+                content: Text('Reminder removed for ${place.title}'),
+              ),
+            );
+          } else {
+            await repo.set(
+              uid: uid,
+              placeId: place.id,
+              placeTitle: place.title,
+            );
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                duration: const Duration(seconds: 2),
+                content: Text("We'll remind you near ${place.title}"),
+              ),
+            );
+          }
+        },
       ),
     );
   }
@@ -473,12 +512,18 @@ class _PlaceBottomBar extends StatelessWidget {
   const _PlaceBottomBar({
     required this.place,
     required this.isSaved,
+    required this.isReminded,
+    required this.isPremium,
     required this.onToggleSave,
+    required this.onToggleReminder,
   });
 
   final Place place;
   final bool isSaved;
+  final bool isReminded;
+  final bool isPremium;
   final VoidCallback onToggleSave;
+  final VoidCallback onToggleReminder;
 
   @override
   Widget build(BuildContext context) {
@@ -494,31 +539,19 @@ class _PlaceBottomBar extends StatelessWidget {
         children: [
           Expanded(
             child: OutlinedButton.icon(
-              onPressed: () async {
-                final uid = FirebaseAuth.instance.currentUser?.uid;
-                if (uid == null) return;
-                await FirebaseFirestore.instance
-                    .collection('reminders')
-                    .doc(uid)
-                    .collection('items')
-                    .doc(place.id)
-                    .set({
-                  'placeId': place.id,
-                  'type': 'location',
-                  'radiusMeters': 200,
-                  'enabled': true,
-                  'createdAt': FieldValue.serverTimestamp(),
-                });
-                if (!context.mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    duration: const Duration(seconds: 2),
-                    content: Text("We'll remind you near ${place.title}"),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.notifications_outlined, size: 16),
-              label: Text(t.placeRemindMe),
+              onPressed: onToggleReminder,
+              icon: Icon(
+                isReminded
+                    ? Icons.notifications_active
+                    : (isPremium
+                        ? Icons.notifications_outlined
+                        : Icons.lock_outline),
+                size: 16,
+                color: isReminded ? LALColors.accent : null,
+              ),
+              label: Text(
+                isReminded ? 'Reminder set' : t.placeRemindMe,
+              ),
             ),
           ),
           const SizedBox(width: 12),

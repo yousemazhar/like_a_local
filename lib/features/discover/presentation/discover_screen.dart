@@ -50,10 +50,31 @@ class DiscoverScreen extends ConsumerStatefulWidget {
 class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
   int _selectedCategory = 0;
 
+  static const _categoryKeys = <String?>[
+    null, // All
+    'Restaurant',
+    'Café',
+    'Bar',
+    'Viewpoint',
+    'Market',
+    'Museum',
+    'Park',
+  ];
+
+  AsyncValue<List<Place>> _filtered(AsyncValue<List<Place>> source) {
+    final key = _categoryKeys[_selectedCategory];
+    if (key == null) return source;
+    return source.whenData((places) => places
+        .where((p) =>
+            p.category.toLowerCase() == key.toLowerCase() ||
+            p.category.toLowerCase().contains(key.toLowerCase()))
+        .toList(growable: false));
+  }
+
   @override
   Widget build(BuildContext context) {
-    final featuredAsync = ref.watch(featuredPlacesProvider);
-    final trendingAsync = ref.watch(trendingPlacesProvider);
+    final featuredAsync = _filtered(ref.watch(featuredPlacesProvider));
+    final trendingAsync = _filtered(ref.watch(trendingPlacesProvider));
     final unreadCount = ref.watch(myNotificationsProvider).maybeWhen(
           data: (items) => items.where((n) => !n.read).length,
           orElse: () => 0,
