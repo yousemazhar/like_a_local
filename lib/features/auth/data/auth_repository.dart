@@ -163,7 +163,7 @@ class AuthRepository {
   Future<void> updateUserSettings(
     String uid,
     Map<String, dynamic> patch,
-  ) => _db.collection('users').doc(uid).set(patch, SetOptions(merge: true));
+  ) => _db.collection('users').doc(uid).update(patch);
 
   Future<AppUser> _enrichUser(User user) async {
     try {

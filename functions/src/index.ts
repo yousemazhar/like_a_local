@@ -23,8 +23,13 @@ function stripeClient(key: string): Stripe {
  * Creates a Stripe PaymentIntent + Ephemeral Key + Customer for the signed-in
  * user, so the client can present the Stripe PaymentSheet.
  *
- * Amount is hard-coded to 100 cents (€1.00) — this is a test harness.
+ * Accepts `{ plan: 'monthly' | 'yearly' }` to charge €4.99 or €35.88.
  */
+const PLAN_AMOUNTS_EUR_CENTS: Record<string, number> = {
+  monthly: 499,
+  yearly: 3588,
+};
+
 export const createPaymentIntent = onCall(
   { secrets: [STRIPE_SECRET_KEY], region: "us-central1", enforceAppCheck: false },
   async (request) => {
@@ -32,6 +37,9 @@ export const createPaymentIntent = onCall(
     if (!uid) {
       throw new HttpsError("unauthenticated", "Sign in required.");
     }
+
+    const plan = (request.data?.plan as string | undefined) ?? "monthly";
+    const amount = PLAN_AMOUNTS_EUR_CENTS[plan] ?? PLAN_AMOUNTS_EUR_CENTS.monthly;
 
     const stripe = stripeClient(STRIPE_SECRET_KEY.value());
     const db = getFirestore();
@@ -55,11 +63,11 @@ export const createPaymentIntent = onCall(
     );
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: 100,
+      amount,
       currency: "eur",
       customer: customerId,
       automatic_payment_methods: { enabled: true },
-      metadata: { uid },
+      metadata: { uid, plan },
     });
 
     return {
@@ -105,6 +113,7 @@ export const stripeWebhook = onRequest(
         await getFirestore().collection("users").doc(uid).set(
           {
             premium: true,
+            premiumPlan: intent.metadata?.plan ?? "monthly",
             premiumUpdatedAt: new Date(),
             lastPaymentIntentId: intent.id,
           },

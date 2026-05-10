@@ -23,7 +23,9 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
   Future<void> _purchase() async {
     setState(() => _busy = true);
     try {
-      await ref.read(paymentRepositoryProvider).runTestCheckout();
+      await ref
+          .read(paymentRepositoryProvider)
+          .runTestCheckout(plan: _yearlySelected ? 'yearly' : 'monthly');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

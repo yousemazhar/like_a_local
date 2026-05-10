@@ -19,10 +19,11 @@ class PaymentRepository {
   /// 2. Client presents the Stripe PaymentSheet.
   /// 3. On success, Stripe → webhook → Firestore flips users/{uid}.premium.
   ///
+  /// [plan] selects pricing ('monthly' = €4.99, 'yearly' = €35.88).
   /// Throws [StripeException] if the user cancels or the card is declined.
-  Future<void> runTestCheckout() async {
+  Future<void> runTestCheckout({String plan = 'monthly'}) async {
     final callable = _functions.httpsCallable('createPaymentIntent');
-    final result = await callable.call<Map<Object?, Object?>>();
+    final result = await callable.call<Map<Object?, Object?>>({'plan': plan});
     final data = Map<String, dynamic>.from(result.data);
 
     await Stripe.instance.initPaymentSheet(

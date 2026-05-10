@@ -88,21 +88,14 @@ class ChatRepository {
       'createdAt': FieldValue.serverTimestamp(),
       'readBy': [senderUid],
     });
-    batch.set(
-      _chats.doc(threadId),
-      {
-        'lastMessage': text,
-        'lastAt': FieldValue.serverTimestamp(),
-        'unread.$recipientUid': FieldValue.increment(1),
-      },
-      SetOptions(merge: true),
-    );
+    batch.update(_chats.doc(threadId), {
+      'lastMessage': text,
+      'lastAt': FieldValue.serverTimestamp(),
+      'unread.$recipientUid': FieldValue.increment(1),
+    });
     await batch.commit();
   }
 
   Future<void> markRead(String threadId, String uid) =>
-      _chats.doc(threadId).set(
-        {'unread.$uid': 0},
-        SetOptions(merge: true),
-      );
+      _chats.doc(threadId).update({'unread.$uid': 0});
 }

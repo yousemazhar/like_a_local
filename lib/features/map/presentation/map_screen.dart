@@ -12,6 +12,7 @@ import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
 import '../../place/domain/place.dart';
 import '../../place/domain/place_providers.dart';
+import '../../saved/domain/saved_providers.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
@@ -390,6 +391,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               place: _selectedPlace!,
               placeCount: places.length,
               onDirectionsTap: () => _openDirections(_selectedPlace!),
+              onViewDetails: () =>
+                  context.push('/place/${_selectedPlace!.id}'),
             ),
           ),
         ],
@@ -398,20 +401,24 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   }
 }
 
-class _MapBottomSheet extends StatelessWidget {
+class _MapBottomSheet extends ConsumerWidget {
   const _MapBottomSheet({
     required this.place,
     required this.placeCount,
     required this.onDirectionsTap,
+    required this.onViewDetails,
   });
 
   final _DemoMapPlace place;
   final int placeCount;
   final VoidCallback onDirectionsTap;
+  final VoidCallback onViewDetails;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context)!;
+    final isSaved =
+        ref.watch(isPlacePinnedProvider(place.id)).valueOrNull ?? false;
     return Container(
       decoration: const BoxDecoration(
         color: LALColors.surface,
@@ -496,12 +503,35 @@ class _MapBottomSheet extends StatelessWidget {
                   label: Text(t.mapDirections),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: onViewDetails,
+                  icon: const Icon(Icons.info_outline, size: 16),
+                  label: const Text('Details'),
+                ),
+              ),
+              const SizedBox(width: 8),
               Expanded(
                 child: ElevatedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.bookmark_border, size: 16),
-                  label: Text(t.placeSave),
+                  onPressed: () async {
+                    await ref
+                        .read(savedNotifierProvider.notifier)
+                        .togglePin(place.id);
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        duration: const Duration(seconds: 1),
+                        content:
+                            Text(isSaved ? 'Removed from saved' : 'Saved'),
+                      ),
+                    );
+                  },
+                  icon: Icon(
+                    isSaved ? Icons.bookmark : Icons.bookmark_border,
+                    size: 16,
+                  ),
+                  label: Text(isSaved ? 'Saved' : t.placeSave),
                 ),
               ),
             ],
