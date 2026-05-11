@@ -40,12 +40,25 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
   Future<void> _send(String recipientUid) async {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
+    if (recipientUid.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Chat not ready yet — try again.')),
+      );
+      return;
+    }
     _controller.clear();
-    await ref.read(chatNotifierProvider.notifier).send(
-          threadId: widget.threadId,
-          recipientUid: recipientUid,
-          text: text,
-        );
+    try {
+      await ref.read(chatNotifierProvider.notifier).send(
+            threadId: widget.threadId,
+            recipientUid: recipientUid,
+            text: text,
+          );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not send: $e')),
+      );
+    }
   }
 
   @override

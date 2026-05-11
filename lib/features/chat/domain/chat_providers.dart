@@ -59,7 +59,7 @@ class ChatNotifier extends _$ChatNotifier {
     required String text,
   }) async {
     final user = ref.read(authStateProvider).valueOrNull;
-    if (user == null || text.trim().isEmpty) return;
+    if (user == null || text.trim().isEmpty || recipientUid.isEmpty) return;
     await ref.read(chatRepositoryProvider).sendMessage(
           threadId: threadId,
           senderUid: user.uid,
