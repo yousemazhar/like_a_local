@@ -480,50 +480,39 @@ class _ContributorCard extends ConsumerWidget {
               ],
             ),
           ),
-          ElevatedButton(
-            onPressed: () async {
-              final currentUid =
-                  ref.read(authStateProvider).valueOrNull?.uid;
-              if (currentUid == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Sign in to chat.')),
-                );
-                return;
-              }
-              if (ownerUid.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('This place has no owner to chat with.')),
-                );
-                return;
-              }
-              if (ownerUid == currentUid) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("That's you — you can't chat with yourself.")),
-                );
-                return;
-              }
-              final threadId = await ref
-                  .read(chatNotifierProvider.notifier)
-                  .openWithUser(
-                    otherUid: ownerUid,
-                    otherDisplayName: ownerDisplayName.isNotEmpty
-                        ? ownerDisplayName
-                        : t.placeAnonymous,
-                    otherIsSuper: ownerIsSuper,
-                    placeContext: placeId,
-                  );
-              if (threadId != null && context.mounted) {
-                context.push('/chat/$threadId');
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            child: Text(t.placeChat, style: LALTypography.labelMedium),
-          ),
+          Builder(builder: (context) {
+            final currentUid =
+                ref.watch(authStateProvider).valueOrNull?.uid;
+            final canChat = currentUid != null &&
+                ownerUid.isNotEmpty &&
+                ownerUid != currentUid;
+            return ElevatedButton(
+              onPressed: !canChat
+                  ? null
+                  : () async {
+                      final threadId = await ref
+                          .read(chatNotifierProvider.notifier)
+                          .openWithUser(
+                            otherUid: ownerUid,
+                            otherDisplayName: ownerDisplayName.isNotEmpty
+                                ? ownerDisplayName
+                                : t.placeAnonymous,
+                            otherIsSuper: ownerIsSuper,
+                            placeContext: placeId,
+                          );
+                      if (threadId != null && context.mounted) {
+                        context.push('/chat/$threadId');
+                      }
+                    },
+              style: ElevatedButton.styleFrom(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: Text(t.placeChat, style: LALTypography.labelMedium),
+            );
+          }),
         ],
       ),
     );

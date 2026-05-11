@@ -8,6 +8,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
 import '../../auth/domain/auth_providers.dart';
+import '../../place/domain/place_providers.dart';
 import '../../reminders/domain/reminder.dart';
 import '../../reminders/domain/reminder_providers.dart';
 import '../domain/saved_pin.dart';
@@ -300,13 +301,15 @@ class _AllPlacesTab extends ConsumerWidget {
   }
 }
 
-class _PinListItem extends StatelessWidget {
+class _PinListItem extends ConsumerWidget {
   const _PinListItem({required this.pin});
 
   final SavedPin pin;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final placeAsync = ref.watch(placeDetailProvider(pin.placeId));
+    final title = placeAsync.valueOrNull?.title ?? '...';
     return GestureDetector(
       onTap: () => context.push('/place/${pin.placeId}'),
       child: Container(
@@ -332,7 +335,7 @@ class _PinListItem extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(pin.placeId,
+                  Text(title,
                       style: LALTypography.labelMedium,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis),
@@ -395,6 +398,12 @@ class _ReminderListItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final fallbackTitle = reminder.placeTitle ??
+        ref
+            .watch(placeDetailProvider(reminder.placeId))
+            .valueOrNull
+            ?.title ??
+        '...';
     return GestureDetector(
       onTap: () => context.push('/place/${reminder.placeId}'),
       child: Container(
@@ -430,7 +439,7 @@ class _ReminderListItem extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    reminder.placeTitle ?? reminder.placeId,
+                    fallbackTitle,
                     style: LALTypography.labelMedium,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
