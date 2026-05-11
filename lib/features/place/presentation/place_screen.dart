@@ -478,30 +478,32 @@ class _ContributorCard extends ConsumerWidget {
               ],
             ),
           ),
-          ElevatedButton(
-            onPressed: ownerUid.isEmpty
-                ? null
-                : () async {
-                    final threadId = await ref
-                        .read(chatNotifierProvider.notifier)
-                        .openWithUser(
-                          otherUid: ownerUid,
-                          otherDisplayName: ownerDisplayName,
-                          otherIsSuper: ownerIsSuper,
-                          placeContext: placeId,
-                        );
-                    if (threadId != null && context.mounted) {
-                      context.push('/chat/$threadId');
-                    }
-                  },
-            style: ElevatedButton.styleFrom(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          if (ownerUid.isNotEmpty &&
+              ownerUid != ref.watch(authStateProvider).valueOrNull?.uid)
+            ElevatedButton(
+              onPressed: () async {
+                final threadId = await ref
+                    .read(chatNotifierProvider.notifier)
+                    .openWithUser(
+                      otherUid: ownerUid,
+                      otherDisplayName: ownerDisplayName.isNotEmpty
+                          ? ownerDisplayName
+                          : t.placeAnonymous,
+                      otherIsSuper: ownerIsSuper,
+                      placeContext: placeId,
+                    );
+                if (threadId != null && context.mounted) {
+                  context.push('/chat/$threadId');
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: Text(t.placeChat, style: LALTypography.labelMedium),
             ),
-            child: Text(t.placeChat, style: LALTypography.labelMedium),
-          ),
         ],
       ),
     );
