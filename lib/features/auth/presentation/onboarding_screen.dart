@@ -19,11 +19,26 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final Set<String> _placeTypesSel = {};
   final Set<String> _moodsSel = {};
   bool _loading = false;
+  bool _seeded = false;
+
+  void _seedFromPrefs() {
+    if (_seeded) return;
+    final user = ref.read(currentUserDocProvider).valueOrNull;
+    if (user == null) return;
+    _placeTypesSel
+      ..clear()
+      ..addAll(user.preferences.placeTypes);
+    _moodsSel
+      ..clear()
+      ..addAll(user.preferences.moods);
+    _seeded = true;
+  }
 
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
     final user = ref.watch(authStateProvider).valueOrNull;
+    _seedFromPrefs();
 
     final placeTypes = <({String key, String label, IconData icon})>[
       (key: 'Restaurants', label: t.placeTypeRestaurants, icon: Icons.restaurant_outlined),
@@ -152,18 +167,33 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
     setState(() => _loading = true);
     try {
+      // Preserve fields onboarding doesn't edit (budget, pace).
+      final existing = ref.read(currentUserDocProvider).valueOrNull?.preferences;
       final prefs = UserPreferences(
         placeTypes: _placeTypesSel.toList(),
         moods: _moodsSel.toList(),
+        budget: existing?.budget,
+        pace: existing?.pace,
       );
       await ref
           .read(authRepositoryProvider)
           .updatePreferences(user.uid, prefs);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          duration: Duration(seconds: 2),
+          content: Text('Preferences saved'),
+        ),
+      );
     } catch (_) {
     } finally {
       if (mounted) {
         setState(() => _loading = false);
-        context.go('/discover');
+        if (context.canPop()) {
+          context.pop();
+        } else {
+          context.go('/discover');
+        }
       }
     }
   }

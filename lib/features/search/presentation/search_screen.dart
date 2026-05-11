@@ -11,7 +11,6 @@ import '../../../core/widgets/savable_place_card.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
-import '../../auth/domain/auth_providers.dart';
 import '../../place/domain/place.dart';
 import '../../place/domain/place_providers.dart';
 import 'filter_sheet.dart';
@@ -31,7 +30,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   String _query = '';
   Timer? _debounce;
   PlaceFilters _filters = const PlaceFilters();
-  bool _filtersInitialized = false;
 
   void _onChanged(String v) {
     _debounce?.cancel();
@@ -39,23 +37,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       if (!mounted) return;
       setState(() => _query = v.trim());
     });
-  }
-
-  void _seedFiltersFromPrefs() {
-    if (_filtersInitialized) return;
-    final user = ref.read(currentUserDocProvider).valueOrNull;
-    if (user == null) return;
-    final p = user.preferences;
-    if (p.placeTypes.isEmpty && p.moods.isEmpty && p.budget == null) {
-      _filtersInitialized = true;
-      return;
-    }
-    _filters = PlaceFilters(
-      categories: p.placeTypes.toSet(),
-      moods: p.moods.toSet(),
-      budget: p.budget,
-    );
-    _filtersInitialized = true;
   }
 
   @override
@@ -75,7 +56,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    _seedFiltersFromPrefs();
     return Scaffold(
       backgroundColor: LALColors.bg,
       body: SafeArea(

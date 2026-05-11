@@ -4,8 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
-import '../../auth/domain/app_user.dart';
-import '../../auth/domain/auth_providers.dart';
 
 class PlaceFilters {
   const PlaceFilters({
@@ -63,7 +61,6 @@ class _FilterSheetState extends ConsumerState<FilterSheet> {
   late Set<String> _categories;
   late Set<String> _moods;
   String? _budget;
-  bool _saving = false;
 
   @override
   void initState() {
@@ -200,28 +197,12 @@ class _FilterSheetState extends ConsumerState<FilterSheet> {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: _saving ? null : () => _savePrefs(),
-                      child: _saving
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Text('Save preferences'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _apply,
-                      child: const Text('Apply'),
-                    ),
-                  ),
-                ],
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _apply,
+                  child: const Text('Apply'),
+                ),
               ),
             ),
           ],
@@ -237,35 +218,6 @@ class _FilterSheetState extends ConsumerState<FilterSheet> {
       );
 
   void _apply() => Navigator.of(context).pop(_current());
-
-  Future<void> _savePrefs() async {
-    final user = ref.read(authStateProvider).valueOrNull;
-    if (user == null) return;
-    setState(() => _saving = true);
-    try {
-      final prefs = UserPreferences(
-        placeTypes: _categories.toList(),
-        moods: _moods.toList(),
-        budget: _budget,
-      );
-      await ref.read(authRepositoryProvider).updatePreferences(user.uid, prefs);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          duration: Duration(seconds: 2),
-          content: Text('Preferences saved'),
-        ),
-      );
-      Navigator.of(context).pop(_current());
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not save: $e')),
-      );
-    } finally {
-      if (mounted) setState(() => _saving = false);
-    }
-  }
 }
 
 class _ChipBtn extends StatelessWidget {
