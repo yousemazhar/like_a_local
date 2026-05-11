@@ -46,24 +46,26 @@ class _PlaceScaffoldLoading extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: LALColors.bg,
-      body: Column(
-        children: [
-          const SkeletonBox(width: double.infinity, height: 420),
-          const SizedBox(height: 24),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: LALSpacing.xl),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                SkeletonBox(width: 80, height: 24),
-                SizedBox(height: 10),
-                SkeletonBox(width: 220, height: 32),
-                SizedBox(height: 8),
-                SkeletonBox(width: 140, height: 16),
-              ],
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SkeletonBox(width: double.infinity, height: 420),
+            const SizedBox(height: 24),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: LALSpacing.xl),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  SkeletonBox(width: 80, height: 24),
+                  SizedBox(height: 10),
+                  SkeletonBox(width: 220, height: 32),
+                  SizedBox(height: 8),
+                  SkeletonBox(width: 140, height: 16),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -478,32 +480,50 @@ class _ContributorCard extends ConsumerWidget {
               ],
             ),
           ),
-          if (ownerUid.isNotEmpty &&
-              ownerUid != ref.watch(authStateProvider).valueOrNull?.uid)
-            ElevatedButton(
-              onPressed: () async {
-                final threadId = await ref
-                    .read(chatNotifierProvider.notifier)
-                    .openWithUser(
-                      otherUid: ownerUid,
-                      otherDisplayName: ownerDisplayName.isNotEmpty
-                          ? ownerDisplayName
-                          : t.placeAnonymous,
-                      otherIsSuper: ownerIsSuper,
-                      placeContext: placeId,
-                    );
-                if (threadId != null && context.mounted) {
-                  context.push('/chat/$threadId');
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              child: Text(t.placeChat, style: LALTypography.labelMedium),
+          ElevatedButton(
+            onPressed: () async {
+              final currentUid =
+                  ref.read(authStateProvider).valueOrNull?.uid;
+              if (currentUid == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Sign in to chat.')),
+                );
+                return;
+              }
+              if (ownerUid.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('This place has no owner to chat with.')),
+                );
+                return;
+              }
+              if (ownerUid == currentUid) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("That's you — you can't chat with yourself.")),
+                );
+                return;
+              }
+              final threadId = await ref
+                  .read(chatNotifierProvider.notifier)
+                  .openWithUser(
+                    otherUid: ownerUid,
+                    otherDisplayName: ownerDisplayName.isNotEmpty
+                        ? ownerDisplayName
+                        : t.placeAnonymous,
+                    otherIsSuper: ownerIsSuper,
+                    placeContext: placeId,
+                  );
+              if (threadId != null && context.mounted) {
+                context.push('/chat/$threadId');
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
+            child: Text(t.placeChat, style: LALTypography.labelMedium),
+          ),
         ],
       ),
     );

@@ -21,12 +21,12 @@ class EmptyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(40),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(40),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
             if (icon != null) ...[
               Container(
                 width: 72,
@@ -50,15 +50,14 @@ class EmptyView extends StatelessWidget {
               style: LALTypography.bodyMedium,
               textAlign: TextAlign.center,
             ),
-            if (action != null && onActionTap != null) ...[
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: onActionTap,
-                child: Text(action!),
-              ),
-            ],
+          if (action != null && onActionTap != null) ...[
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: onActionTap,
+              child: Text(action!),
+            ),
           ],
-        ),
+        ],
       ),
     );
   }
