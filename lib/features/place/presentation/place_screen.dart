@@ -483,9 +483,25 @@ class _ContributorCard extends ConsumerWidget {
           Builder(builder: (context) {
             final currentUid =
                 ref.watch(authStateProvider).valueOrNull?.uid;
-            final canChat = currentUid != null &&
-                ownerUid.isNotEmpty &&
-                ownerUid != currentUid;
+            final isOwnPlace =
+                currentUid != null && ownerUid == currentUid;
+            if (isOwnPlace) {
+              return Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: LALColors.surfaceAlt,
+                  borderRadius: LALRadii.pillBorder,
+                ),
+                child: Text(
+                  'This is your place',
+                  style: LALTypography.labelSmall
+                      .copyWith(color: LALColors.c600),
+                ),
+              );
+            }
+            final canChat =
+                currentUid != null && ownerUid.isNotEmpty;
             return ElevatedButton(
               onPressed: !canChat
                   ? null
@@ -505,12 +521,21 @@ class _ContributorCard extends ConsumerWidget {
                       }
                     },
               style: ElevatedButton.styleFrom(
+                backgroundColor: LALColors.accent,
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: LALColors.c200,
+                disabledForegroundColor: LALColors.c500,
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                elevation: 0,
               ),
-              child: Text(t.placeChat, style: LALTypography.labelMedium),
+              child: Text(
+                t.placeChat,
+                style: LALTypography.labelMedium
+                    .copyWith(color: Colors.white, fontWeight: FontWeight.w600),
+              ),
             );
           }),
         ],
