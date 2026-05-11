@@ -246,8 +246,6 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
           'dishes': dishes,
           'mediaUrls': allUrls,
           'ownerUid': user.uid,
-          'ownerDisplayName':
-              user.displayName ?? user.email.split('@').first,
           'ownerIsSuper': false,
           'ratingAvg': 0.0,
           'ratingCount': 0,

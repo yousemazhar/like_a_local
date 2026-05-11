@@ -21,7 +21,6 @@ class Place with _$Place {
     @Default([]) List<PlaceTip> tips,
     @Default([]) List<String> mediaUrls,
     @Default('') String ownerUid,
-    @Default('') String ownerDisplayName,
     @Default(false) bool ownerIsSuper,
     @Default(0.0) double ratingAvg,
     @Default(0) int ratingCount,

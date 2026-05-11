@@ -52,3 +52,26 @@ Stream<AppUser?> currentUserDoc(CurrentUserDocRef ref) {
     );
   });
 }
+
+/// Public-ish profile lookup for any uid. Used to render owner/author
+/// names instead of denormalizing them onto every document.
+@riverpod
+Stream<AppUser?> userById(UserByIdRef ref, String uid) {
+  if (uid.isEmpty) return Stream.value(null);
+  return FirebaseFirestore.instance
+      .collection('users')
+      .doc(uid)
+      .snapshots()
+      .map((snap) {
+    final data = snap.data();
+    if (data == null) return null;
+    return AppUser(
+      uid: uid,
+      email: (data['email'] as String?) ?? '',
+      displayName: data['displayName'] as String?,
+      photoUrl: data['photoUrl'] as String?,
+      locale: data['locale'] as String? ?? 'en',
+      role: data['role'] as String? ?? 'user',
+    );
+  });
+}

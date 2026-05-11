@@ -408,7 +408,6 @@ export const seedEgyptPlaces = onCall(
     }
 
     const db = getFirestore();
-    const ownerName = "LikeALocal Curator";
 
     let inserted = 0;
     let skipped = 0;
@@ -443,7 +442,6 @@ export const seedEgyptPlaces = onCall(
         tips: p.tips,
         mediaUrls: p.mediaUrls,
         ownerUid: uid,
-        ownerDisplayName: ownerName,
         ownerIsSuper: true,
         ratingAvg: 4.6,
         ratingCount: 0,

@@ -301,7 +301,7 @@ class _ChatMessagesProviderElement
   String get threadId => (origin as ChatMessagesProvider).threadId;
 }
 
-String _$chatNotifierHash() => r'a8fd7712fc092e1f027c40548cc10f580da732e8';
+String _$chatNotifierHash() => r'9a4ee100c2d05d5f0e835992ab02595366c7fee2';
 
 /// See also [ChatNotifier].
 @ProviderFor(ChatNotifier)

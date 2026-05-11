@@ -286,7 +286,6 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
                         const SizedBox(height: 20),
                       ],
                       _ContributorCard(
-                        ownerDisplayName: place.ownerDisplayName,
                         ownerIsSuper: place.ownerIsSuper,
                         ownerUid: place.ownerUid,
                         placeId: place.id,
@@ -413,13 +412,11 @@ class _TipsCard extends StatelessWidget {
 
 class _ContributorCard extends ConsumerWidget {
   const _ContributorCard({
-    required this.ownerDisplayName,
     required this.ownerIsSuper,
     required this.ownerUid,
     required this.placeId,
   });
 
-  final String ownerDisplayName;
   final bool ownerIsSuper;
   final String ownerUid;
   final String placeId;
@@ -427,6 +424,10 @@ class _ContributorCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context)!;
+    final ownerDisplayName = ownerUid.isEmpty
+        ? ''
+        : ref.watch(userByIdProvider(ownerUid)).valueOrNull?.displayName ??
+            '';
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: LALSpacing.xl),
       padding: const EdgeInsets.all(16),

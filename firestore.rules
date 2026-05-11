@@ -20,7 +20,10 @@ service cloud.firestore {
     }
 
     match /users/{uid} {
-      allow read: if isOwner(uid);
+      // Any signed-in user can read a profile (displayName, photoUrl,
+      // role). Sensitive write-only fields are protected separately by
+      // noServerFieldChanges() below.
+      allow read: if isSignedIn();
       allow create: if isOwner(uid)
         && !request.resource.data.keys().hasAny(
              ['premium', 'premiumUpdatedAt', 'stripeCustomerId',
