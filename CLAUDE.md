@@ -88,3 +88,28 @@ The implementation follows a phased plan:
 - **Phase 1** (MVP): Auth → Places model → Feed → Place Details → Add Place → Search → Map → Saved → Error states → Offline → i18n
 - **Phase 2** (social): Reviews → Chat → Push notifications → Reminders → AI feed ranking
 - **Phase 3** (monetization): Paywall → AI chat assistant → Super-local scoring → Premium offline
+
+## Quality Gates
+
+**Never declare a feature done until all of the following pass:**
+1. `flutter analyze` exits with zero errors and zero warnings
+2. `flutter test` passes (or new tests are added for the feature)
+3. All user-facing strings have EN + DE ARB keys
+4. No synchronous I/O or CPU work on the UI isolate
+5. `dart run build_runner build --delete-conflicting-outputs` is up to date if annotated classes changed
+
+## Firebase Deployment Rules
+
+- After modifying **Cloud Functions** → run `firebase deploy --only functions` before testing
+- After modifying **Firestore rules** → run `firebase deploy --only firestore:rules` and verify with a test read
+- Adding **Google Sign-In** on a new device → remind user to register the SHA-1 debug/release fingerprint in Firebase console
+- **App Check** is enabled — new dev environments need a debug token registered; missing tokens cause silent 403s
+- **Cloud Run** endpoints require correct IAM permissions; verify before debugging client-side 4xx/5xx errors
+
+## Common Pitfalls (Do Not Repeat)
+
+- UI freeze from sync I/O → always use `async`/`await` or isolates for file/hash/image work
+- `DEVELOPER_ERROR` on Google Sign-In → SHA-1 not registered in Firebase console
+- Firestore permission denied → rules not redeployed after change
+- Chat button stays in broken state across sessions → check Firestore rule + document existence + UI state all together
+- Push notifications not received → FCM token not refreshed / Cloud Function not redeployed
