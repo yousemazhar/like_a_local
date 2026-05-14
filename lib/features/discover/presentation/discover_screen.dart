@@ -130,41 +130,15 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
   }
 
   Future<void> _editCustomRadius() async {
-    final t = AppLocalizations.of(context)!;
-    final controller = TextEditingController(
-      text: _customRadiusKm.toStringAsFixed(0),
-    );
     final value = await showDialog<double>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(t.discoverCustomDistance),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          decoration: InputDecoration(
-            labelText: t.discoverDistanceKm,
-            suffixText: 'km',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(t.buttonCancel),
-          ),
-          FilledButton(
-            onPressed: () {
-              final parsed = double.tryParse(controller.text.trim());
-              Navigator.of(context).pop(parsed);
-            },
-            child: Text(t.buttonSave),
-          ),
-        ],
-      ),
+      builder: (_) => _CustomRadiusDialog(initialRadiusKm: _customRadiusKm),
     );
-    controller.dispose();
 
     if (value == null || value <= 0 || !mounted) return;
+    await Future<void>.delayed(Duration.zero);
+    if (!mounted) return;
+
     setState(() {
       _customRadiusKm = value;
       _selectedDistanceFilter = 3;
@@ -263,6 +237,63 @@ class _SearchPill extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _CustomRadiusDialog extends StatefulWidget {
+  const _CustomRadiusDialog({required this.initialRadiusKm});
+
+  final double initialRadiusKm;
+
+  @override
+  State<_CustomRadiusDialog> createState() => _CustomRadiusDialogState();
+}
+
+class _CustomRadiusDialogState extends State<_CustomRadiusDialog> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(
+      text: widget.initialRadiusKm.toStringAsFixed(0),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    return AlertDialog(
+      title: Text(t.discoverCustomDistance),
+      content: TextField(
+        controller: _controller,
+        autofocus: true,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        decoration: InputDecoration(
+          labelText: t.discoverDistanceKm,
+          suffixText: 'km',
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(t.buttonCancel),
+        ),
+        FilledButton(
+          onPressed: () {
+            final parsed = double.tryParse(_controller.text.trim());
+            Navigator.of(context).pop(parsed);
+          },
+          child: Text(t.buttonSave),
+        ),
+      ],
     );
   }
 }
