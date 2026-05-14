@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -12,6 +13,7 @@ import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
 import '../../auth/domain/auth_providers.dart';
 import '../../place/domain/place_providers.dart';
+import '../../reminders/data/reminder_location_service.dart';
 import '../../reminders/domain/reminder.dart';
 import '../../reminders/domain/reminder_providers.dart';
 import '../domain/saved_pin.dart';
@@ -450,18 +452,56 @@ class _RemindersTab extends ConsumerWidget {
         title: t.savedNoReminders,
         body: t.savedNoRemindersBody,
       ),
-      data: (reminders) => reminders.isEmpty
-          ? EmptyView(
-              icon: Icons.notifications_none_rounded,
-              title: t.savedNoReminders,
-              body: t.savedNoRemindersBody,
-            )
-          : ListView.separated(
-              padding: const EdgeInsets.all(20),
-              itemCount: reminders.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (_, i) => _ReminderListItem(reminder: reminders[i]),
-            ),
+      data: (reminders) {
+        final uid = ref.read(authStateProvider).valueOrNull?.uid;
+        return Column(
+          children: [
+            if (kDebugMode && reminders.isNotEmpty && uid != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () async {
+                      await ReminderLocationService.instance
+                          .debugTriggerAll(uid);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            duration: Duration(seconds: 2),
+                            content: Text(
+                              '[DEBUG] Triggered all reminder notifications',
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.bug_report_outlined, size: 16),
+                    label: const Text('Trigger nearby reminders (debug)'),
+                  ),
+                ),
+              ),
+            if (reminders.isEmpty)
+              Expanded(
+                child: EmptyView(
+                  icon: Icons.notifications_none_rounded,
+                  title: t.savedNoReminders,
+                  body: t.savedNoRemindersBody,
+                ),
+              )
+            else
+              Expanded(
+                child: ListView.separated(
+                  padding: const EdgeInsets.all(20),
+                  itemCount: reminders.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (_, i) =>
+                      _ReminderListItem(reminder: reminders[i]),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }

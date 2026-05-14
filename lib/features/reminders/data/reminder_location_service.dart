@@ -71,6 +71,18 @@ class ReminderLocationService {
     _lastFired.clear();
   }
 
+  /// Fires notifications for every enabled reminder immediately, ignoring
+  /// distance and cooldown. Only intended for debug/testing.
+  Future<void> debugTriggerAll(String uid) async {
+    if (_reminders.isEmpty) {
+      debugPrint('ReminderLocationService.debugTriggerAll: no reminders loaded');
+      return;
+    }
+    for (final r in _reminders) {
+      await _fire(uid, r.placeId, r.placeTitle ?? 'Saved place');
+    }
+  }
+
   // ─── private ─────────────────────────────────────────────────────────────
 
   Future<bool> _ensureBackgroundPermission() async {
