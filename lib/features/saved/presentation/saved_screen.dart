@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/errors/offline_exception.dart';
@@ -27,19 +28,29 @@ class SavedScreen extends ConsumerStatefulWidget {
 }
 
 class _SavedScreenState extends ConsumerState<SavedScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late final TabController _tabs;
 
   @override
   void initState() {
     super.initState();
     _tabs = TabController(length: 3, vsync: this);
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _tabs.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Re-check permission in case user changed it in system settings.
+      ref.invalidate(locationPermissionProvider);
+    }
   }
 
   @override
@@ -441,6 +452,7 @@ class _RemindersTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context)!;
     final remindersAsync = ref.watch(remindersStreamProvider);
+    final permissionAsync = ref.watch(locationPermissionProvider);
 
     return remindersAsync.when(
       loading: () => const Padding(
@@ -454,8 +466,13 @@ class _RemindersTab extends ConsumerWidget {
       ),
       data: (reminders) {
         final uid = ref.read(authStateProvider).valueOrNull?.uid;
+        final permission = permissionAsync.valueOrNull;
+        final needsAlways = reminders.isNotEmpty &&
+            permission != null &&
+            permission != LocationPermission.always;
         return Column(
           children: [
+            if (needsAlways) _LocationPermissionBanner(ref: ref),
             if (kDebugMode && reminders.isNotEmpty && uid != null)
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
@@ -600,6 +617,55 @@ class _ReminderListItem extends ConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _LocationPermissionBanner extends StatelessWidget {
+  const _LocationPermissionBanner({required this.ref});
+
+  final WidgetRef ref;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.orange.withValues(alpha: 0.12),
+        borderRadius: LALRadii.lgBorder,
+        border: Border.all(color: Colors.orange.withValues(alpha: 0.4)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.location_off_outlined, color: Colors.orange, size: 22),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Background location is off. Reminders won\'t trigger when the app is closed.',
+              style: LALTypography.bodySmall.copyWith(color: Colors.orange[800]),
+            ),
+          ),
+          const SizedBox(width: 8),
+          TextButton(
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            onPressed: () async {
+              await Geolocator.openAppSettings();
+              ref.invalidate(locationPermissionProvider);
+            },
+            child: Text(
+              'Fix',
+              style: LALTypography.labelMedium.copyWith(
+                color: Colors.orange[800],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
