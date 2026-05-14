@@ -7,6 +7,8 @@ import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/errors/offline_exception.dart';
+import '../../../core/widgets/offline_action_snack_bar.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
@@ -99,17 +101,18 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   List<_DemoMapPlace> _placesFromFirestore(List<Place> places) {
     return places
         .where((p) => p.lat != 0.0 && p.lng != 0.0)
-        .map((p) => _DemoMapPlace(
-              id: p.id,
-              title: p.title,
-              neighborhood:
-                  p.neighborhood.isNotEmpty ? p.neighborhood : p.city,
-              category: p.category,
-              address: p.address,
-              lat: p.lat,
-              lng: p.lng,
-              rating: p.ratingAvg > 0 ? p.ratingAvg : null,
-            ))
+        .map(
+          (p) => _DemoMapPlace(
+            id: p.id,
+            title: p.title,
+            neighborhood: p.neighborhood.isNotEmpty ? p.neighborhood : p.city,
+            category: p.category,
+            address: p.address,
+            lat: p.lat,
+            lng: p.lng,
+            rating: p.ratingAvg > 0 ? p.ratingAvg : null,
+          ),
+        )
         .toList(growable: false);
   }
 
@@ -157,7 +160,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       permission = await Geolocator.requestPermission();
     }
 
-    final granted = permission == LocationPermission.always ||
+    final granted =
+        permission == LocationPermission.always ||
         permission == LocationPermission.whileInUse;
 
     if (mounted) {
@@ -205,9 +209,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   Future<void> _openDirections(_DemoMapPlace place) async {
@@ -251,10 +255,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final controller = await _mapController.future;
     await controller.animateCamera(
       CameraUpdate.newCameraPosition(
-        CameraPosition(
-          target: LatLng(place.lat, place.lng),
-          zoom: 14.5,
-        ),
+        CameraPosition(target: LatLng(place.lat, place.lng), zoom: 14.5),
       ),
     );
   }
@@ -310,8 +311,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     CircleAvatar(
                       backgroundColor: Colors.white,
                       child: IconButton(
-                        icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                            size: 16, color: LALColors.c900),
+                        icon: const Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          size: 16,
+                          color: LALColors.c900,
+                        ),
                         onPressed: () => context.pop(),
                       ),
                     ),
@@ -319,7 +323,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     Expanded(
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 12),
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: LALRadii.pillBorder,
@@ -333,12 +339,18 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.search,
-                                color: LALColors.c400, size: 18),
+                            const Icon(
+                              Icons.search,
+                              color: LALColors.c400,
+                              size: 18,
+                            ),
                             const SizedBox(width: 8),
-                            Text(t.mapSearchOnMap,
-                                style: LALTypography.bodyMedium
-                                    .copyWith(color: LALColors.c400)),
+                            Text(
+                              t.mapSearchOnMap,
+                              style: LALTypography.bodyMedium.copyWith(
+                                color: LALColors.c400,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -361,10 +373,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 }
                 await _moveCameraToCurrentLocation();
               },
-              backgroundColor:
-                  _hasLocationPermission ? LALColors.accent : LALColors.surface,
-              foregroundColor:
-                  _hasLocationPermission ? Colors.white : LALColors.c900,
+              backgroundColor: _hasLocationPermission
+                  ? LALColors.accent
+                  : LALColors.surface,
+              foregroundColor: _hasLocationPermission
+                  ? Colors.white
+                  : LALColors.c900,
               elevation: 2,
               icon: Icon(
                 _isLocatingUser
@@ -391,8 +405,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               place: _selectedPlace!,
               placeCount: places.length,
               onDirectionsTap: () => _openDirections(_selectedPlace!),
-              onViewDetails: () =>
-                  context.push('/place/${_selectedPlace!.id}'),
+              onViewDetails: () => context.push('/place/${_selectedPlace!.id}'),
             ),
           ),
         ],
@@ -428,7 +441,11 @@ class _MapBottomSheet extends ConsumerWidget {
         ],
       ),
       padding: EdgeInsets.fromLTRB(
-          20, 20, 20, 20 + MediaQuery.of(context).padding.bottom),
+        20,
+        20,
+        20,
+        20 + MediaQuery.of(context).padding.bottom,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -458,14 +475,18 @@ class _MapBottomSheet extends ConsumerWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.place_outlined,
-                    size: 14, color: LALColors.c500),
+                const Icon(
+                  Icons.place_outlined,
+                  size: 14,
+                  color: LALColors.c500,
+                ),
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
                     place.address,
-                    style: LALTypography.bodySmall
-                        .copyWith(color: LALColors.c700),
+                    style: LALTypography.bodySmall.copyWith(
+                      color: LALColors.c700,
+                    ),
                   ),
                 ),
               ],
@@ -474,10 +495,7 @@ class _MapBottomSheet extends ConsumerWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              Text(
-                t.mapPickCount(placeCount),
-                style: LALTypography.bodySmall,
-              ),
+              Text(t.mapPickCount(placeCount), style: LALTypography.bodySmall),
               if (place.rating != null) ...[
                 const SizedBox(width: 10),
                 const Icon(
@@ -515,15 +533,20 @@ class _MapBottomSheet extends ConsumerWidget {
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: () async {
-                    await ref
-                        .read(savedNotifierProvider.notifier)
-                        .togglePin(place.id);
+                    try {
+                      await ref
+                          .read(savedNotifierProvider.notifier)
+                          .togglePin(place.id);
+                    } on OfflineException {
+                      if (!context.mounted) return;
+                      showOfflineActionSnackBar(context);
+                      return;
+                    }
                     if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         duration: const Duration(seconds: 1),
-                        content:
-                            Text(isSaved ? 'Removed from saved' : 'Saved'),
+                        content: Text(isSaved ? 'Removed from saved' : 'Saved'),
                       ),
                     );
                   },

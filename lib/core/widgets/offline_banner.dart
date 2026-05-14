@@ -20,16 +20,16 @@ class OfflineBanner extends ConsumerWidget {
       child: Container(
         key: const ValueKey('offline'),
         width: double.infinity,
-        color: LALColors.c800,
+        // color: LALColors.c800,
         padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.wifi_off_rounded, size: 14, color: Colors.white70),
+            const Icon(Icons.wifi_off_rounded, size: 14, color: Colors.black),
             const SizedBox(width: 6),
             Text(
               t.offlineBanner,
-              style: LALTypography.labelSmall.copyWith(color: Colors.white70),
+              style: LALTypography.labelSmall.copyWith(color: Colors.black),
             ),
           ],
         ),

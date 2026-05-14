@@ -30,7 +30,7 @@ class AppException implements Exception {
       );
 
   String get userFriendlyMessage => switch (code) {
-        'network' => 'No internet connection.',
+        'network' => 'No internet.',
         'unauthorized' => 'Please sign in to continue.',
         'not-found' => 'This content is no longer available.',
         'permission-denied' => 'You don\'t have access to this.',

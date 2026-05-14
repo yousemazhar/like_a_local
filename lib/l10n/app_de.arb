@@ -292,6 +292,8 @@
   "errorNoConnectionBody": "Überprüfe deine Verbindung und versuche es erneut.",
 
   "offlineBanner": "Keine Internetverbindung",
+  "offlineBackOnline": "Wieder online",
+  "offlineActionUnavailable": "Diese Aktion ist offline nicht möglich.",
 
   "buttonCancel": "Abbrechen",
   "buttonSave": "Speichern",

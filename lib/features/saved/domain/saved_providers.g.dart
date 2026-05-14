@@ -200,7 +200,7 @@ class _IsPlacePinnedProviderElement
   String get placeId => (origin as IsPlacePinnedProvider).placeId;
 }
 
-String _$savedNotifierHash() => r'c9a99108d793256d1def3d8e5de48e2229dd7442';
+String _$savedNotifierHash() => r'1303c9ed19d9215699c69e8eac139579e1aca8b5';
 
 /// See also [SavedNotifier].
 @ProviderFor(SavedNotifier)

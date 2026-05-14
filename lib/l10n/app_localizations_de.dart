@@ -812,6 +812,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get offlineBanner => 'Keine Internetverbindung';
 
   @override
+  String get offlineBackOnline => 'Wieder online';
+
+  @override
+  String get offlineActionUnavailable =>
+      'Diese Aktion ist offline nicht möglich.';
+
+  @override
   String get buttonCancel => 'Abbrechen';
 
   @override

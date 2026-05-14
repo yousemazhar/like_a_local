@@ -784,13 +784,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorRetry => 'Try again';
 
   @override
-  String get errorNoConnection => 'No internet connection';
+  String get errorNoConnection => 'No internet';
 
   @override
   String get errorNoConnectionBody => 'Check your connection and try again.';
 
   @override
-  String get offlineBanner => 'No internet connection';
+  String get offlineBanner => 'No internet';
+
+  @override
+  String get offlineBackOnline => 'Back online';
+
+  @override
+  String get offlineActionUnavailable => 'This action cannot be done offline.';
 
   @override
   String get buttonCancel => 'Cancel';

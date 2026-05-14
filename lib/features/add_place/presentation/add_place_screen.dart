@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,8 @@ import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../core/providers/connectivity_provider.dart';
+import '../../../core/widgets/offline_action_snack_bar.dart';
 import '../../../core/widgets/lal_chip.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
@@ -119,8 +122,9 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
     if (_step < steps.length - 1) {
       setState(() => _step++);
       _pageController.nextPage(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut);
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
     }
   }
 
@@ -128,8 +132,9 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
     if (_step > 0) {
       setState(() => _step--);
       _pageController.previousPage(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut);
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
     } else {
       context.pop();
     }
@@ -162,8 +167,9 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
         return (lat: null, lng: null);
       }
       final pos = await Geolocator.getCurrentPosition(
-        locationSettings:
-            const LocationSettings(accuracy: LocationAccuracy.medium),
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.medium,
+        ),
       );
       return (lat: pos.latitude, lng: pos.longitude);
     } catch (_) {
@@ -179,10 +185,7 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
       final file = File(_draft.photos[i].path);
       final ts = DateTime.now().millisecondsSinceEpoch;
       final ref = storage.ref('places/$placeId/photo_${baseIndex + i}_$ts.jpg');
-      await ref.putFile(
-        file,
-        SettableMetadata(contentType: 'image/jpeg'),
-      );
+      await ref.putFile(file, SettableMetadata(contentType: 'image/jpeg'));
       urls.add(await ref.getDownloadURL());
     }
     return urls;
@@ -190,6 +193,10 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
 
   Future<void> _publish() async {
     final t = AppLocalizations.of(context)!;
+    if (ref.read(isOnlineProvider).valueOrNull == false) {
+      showOfflineActionSnackBar(context);
+      return;
+    }
     final user = ref.read(authStateProvider).valueOrNull;
     if (user == null) {
       _snack(t.authErrorSignInFailed);
@@ -213,8 +220,9 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
         if (name.isNotEmpty) dishes.add({'name': name});
       }
 
-      final docRef =
-          FirebaseFirestore.instance.collection('places').doc(placeId);
+      final docRef = FirebaseFirestore.instance
+          .collection('places')
+          .doc(placeId);
 
       if (_isEdit) {
         await docRef.set({
@@ -255,13 +263,8 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
           'createdAt': FieldValue.serverTimestamp(),
           'updatedAt': FieldValue.serverTimestamp(),
         });
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .set({
-          'counters': {
-            'placesPosted': FieldValue.increment(1),
-          },
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+          'counters': {'placesPosted': FieldValue.increment(1)},
         }, SetOptions(merge: true));
       }
       if (!mounted) return;
@@ -276,12 +279,12 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
   }
 
   List<String> _buildSteps(AppLocalizations t) => [
-        t.addPlacePhotos,
-        t.addPlaceBasics,
-        'Location',
-        t.addPlaceTips,
-        t.addPlacePreview,
-      ];
+    t.addPlacePhotos,
+    t.addPlaceBasics,
+    'Location',
+    t.addPlaceTips,
+    t.addPlacePreview,
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -346,10 +349,9 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
                 _PhotosStep(
                   draft: _draft,
                   onPick: _pickPhoto,
-                  onRemoveNew: (i) =>
-                      setState(() => _draft.photos.removeAt(i)),
-                  onRemoveExisting: (i) => setState(
-                      () => _draft.existingPhotoUrls.removeAt(i)),
+                  onRemoveNew: (i) => setState(() => _draft.photos.removeAt(i)),
+                  onRemoveExisting: (i) =>
+                      setState(() => _draft.existingPhotoUrls.removeAt(i)),
                 ),
                 _BasicsStep(
                   draft: _draft,
@@ -376,9 +378,11 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
                 _TipsStep(
                   draft: _draft,
                   onAddTip: () => setState(
-                      () => _draft.tipCtrls.add(TextEditingController())),
+                    () => _draft.tipCtrls.add(TextEditingController()),
+                  ),
                   onAddDish: () => setState(
-                      () => _draft.dishCtrls.add(TextEditingController())),
+                    () => _draft.dishCtrls.add(TextEditingController()),
+                  ),
                 ),
                 _PreviewStep(draft: _draft),
               ],
@@ -386,7 +390,11 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
           ),
           Container(
             padding: EdgeInsets.fromLTRB(
-                20, 12, 20, 12 + MediaQuery.of(context).padding.bottom),
+              20,
+              12,
+              20,
+              12 + MediaQuery.of(context).padding.bottom,
+            ),
             decoration: const BoxDecoration(
               color: LALColors.surface,
               border: Border(top: BorderSide(color: LALColors.c100)),
@@ -400,11 +408,15 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
                       width: 18,
                       height: 18,
                       child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white),
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
                     )
-                  : Text(_step < steps.length - 1
-                      ? t.addPlaceNext(steps[_step + 1])
-                      : (_isEdit ? 'Save changes' : t.addPlacePublish)),
+                  : Text(
+                      _step < steps.length - 1
+                          ? t.addPlaceNext(steps[_step + 1])
+                          : (_isEdit ? 'Save changes' : t.addPlacePublish),
+                    ),
             ),
           ),
         ],
@@ -434,8 +446,10 @@ class _PhotosStep extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(t.addPlacePhotosTitle,
-              style: Theme.of(context).textTheme.headlineSmall),
+          Text(
+            t.addPlacePhotosTitle,
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
           const SizedBox(height: 6),
           Text(t.addPlacePhotosHint, style: LALTypography.bodySmall),
           const SizedBox(height: 20),
@@ -452,8 +466,10 @@ class _PhotosStep extends StatelessWidget {
                   children: [
                     ClipRRect(
                       borderRadius: LALRadii.lgBorder,
-                      child: Image.network(draft.existingPhotoUrls[i],
-                          fit: BoxFit.cover),
+                      child: CachedNetworkImage(
+                        imageUrl: draft.existingPhotoUrls[i],
+                        fit: BoxFit.cover,
+                      ),
                     ),
                     Positioned(
                       top: 4,
@@ -463,8 +479,11 @@ class _PhotosStep extends StatelessWidget {
                         child: const CircleAvatar(
                           radius: 12,
                           backgroundColor: Colors.black54,
-                          child: Icon(Icons.close,
-                              size: 14, color: Colors.white),
+                          child: Icon(
+                            Icons.close,
+                            size: 14,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
@@ -476,8 +495,10 @@ class _PhotosStep extends StatelessWidget {
                   children: [
                     ClipRRect(
                       borderRadius: LALRadii.lgBorder,
-                      child: Image.file(File(draft.photos[i].path),
-                          fit: BoxFit.cover),
+                      child: Image.file(
+                        File(draft.photos[i].path),
+                        fit: BoxFit.cover,
+                      ),
                     ),
                     Positioned(
                       top: 4,
@@ -487,8 +508,11 @@ class _PhotosStep extends StatelessWidget {
                         child: const CircleAvatar(
                           radius: 12,
                           backgroundColor: Colors.black54,
-                          child: Icon(Icons.close,
-                              size: 14, color: Colors.white),
+                          child: Icon(
+                            Icons.close,
+                            size: 14,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
@@ -503,8 +527,11 @@ class _PhotosStep extends StatelessWidget {
                     border: Border.all(color: LALColors.c200, width: 1.5),
                   ),
                   child: const Center(
-                    child: Icon(Icons.add_a_photo_outlined,
-                        color: LALColors.c500, size: 24),
+                    child: Icon(
+                      Icons.add_a_photo_outlined,
+                      color: LALColors.c500,
+                      size: 24,
+                    ),
                   ),
                 ),
               ),
@@ -537,8 +564,10 @@ class _BasicsStep extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(t.addPlaceDetailsTitle,
-              style: Theme.of(context).textTheme.headlineSmall),
+          Text(
+            t.addPlaceDetailsTitle,
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
           const SizedBox(height: 20),
           TextField(
             controller: draft.titleCtrl,
@@ -614,9 +643,7 @@ class _LocationStepState extends State<_LocationStep> {
     final lat = widget.draft.lat;
     final lng = widget.draft.lng;
     if (lat != null && lng != null) {
-      _controller?.animateCamera(
-        CameraUpdate.newLatLng(LatLng(lat, lng)),
-      );
+      _controller?.animateCamera(CameraUpdate.newLatLng(LatLng(lat, lng)));
     }
   }
 
@@ -630,8 +657,10 @@ class _LocationStepState extends State<_LocationStep> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Pin the location',
-                  style: Theme.of(context).textTheme.headlineSmall),
+              Text(
+                'Pin the location',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
               const SizedBox(height: 6),
               Text(
                 'Tap on the map to drop a pin, or use your current location.',
@@ -649,8 +678,7 @@ class _LocationStepState extends State<_LocationStep> {
                   zoom: hasPin ? 15 : 11,
                 ),
                 onMapCreated: (c) => _controller = c,
-                onTap: (pos) =>
-                    widget.onChanged(pos.latitude, pos.longitude),
+                onTap: (pos) => widget.onChanged(pos.latitude, pos.longitude),
                 markers: hasPin
                     ? {
                         Marker(
@@ -681,7 +709,9 @@ class _LocationStepState extends State<_LocationStep> {
                   bottom: 12,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 8),
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: LALColors.surface,
                       borderRadius: LALRadii.pillBorder,
@@ -725,8 +755,10 @@ class _TipsStep extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(t.addPlaceTips,
-              style: Theme.of(context).textTheme.headlineSmall),
+          Text(
+            t.addPlaceTips,
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
           const SizedBox(height: 6),
           Text(t.addPlaceTipsSubtitle, style: LALTypography.bodySmall),
           const SizedBox(height: 20),
@@ -779,7 +811,10 @@ class _PreviewStep extends StatelessWidget {
     if (draft.photos.isNotEmpty) {
       hero = Image.file(File(draft.photos.first.path), fit: BoxFit.cover);
     } else if (draft.existingPhotoUrls.isNotEmpty) {
-      hero = Image.network(draft.existingPhotoUrls.first, fit: BoxFit.cover);
+      hero = CachedNetworkImage(
+        imageUrl: draft.existingPhotoUrls.first,
+        fit: BoxFit.cover,
+      );
     }
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -789,10 +824,7 @@ class _PreviewStep extends StatelessWidget {
           if (hero != null)
             ClipRRect(
               borderRadius: LALRadii.lgBorder,
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: hero,
-              ),
+              child: AspectRatio(aspectRatio: 16 / 9, child: hero),
             ),
           const SizedBox(height: 16),
           Text(
@@ -814,8 +846,11 @@ class _PreviewStep extends StatelessWidget {
             const SizedBox(height: 6),
             Row(
               children: [
-                const Icon(Icons.place_outlined,
-                    size: 14, color: LALColors.c500),
+                const Icon(
+                  Icons.place_outlined,
+                  size: 14,
+                  color: LALColors.c500,
+                ),
                 const SizedBox(width: 4),
                 Text(
                   '${draft.lat!.toStringAsFixed(5)}, ${draft.lng!.toStringAsFixed(5)}',
@@ -825,8 +860,10 @@ class _PreviewStep extends StatelessWidget {
             ),
           ],
           const SizedBox(height: 12),
-          Text(draft.descriptionCtrl.text.trim(),
-              style: LALTypography.bodyMedium),
+          Text(
+            draft.descriptionCtrl.text.trim(),
+            style: LALTypography.bodyMedium,
+          ),
           const SizedBox(height: 20),
           Container(
             padding: const EdgeInsets.all(16),
@@ -836,12 +873,16 @@ class _PreviewStep extends StatelessWidget {
             ),
             child: Row(
               children: [
-                const Icon(Icons.check_circle_outline_rounded,
-                    color: LALColors.accent),
+                const Icon(
+                  Icons.check_circle_outline_rounded,
+                  color: LALColors.accent,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text(t.addPlaceReadyBody,
-                      style: LALTypography.bodySmall),
+                  child: Text(
+                    t.addPlaceReadyBody,
+                    style: LALTypography.bodySmall,
+                  ),
                 ),
               ],
             ),

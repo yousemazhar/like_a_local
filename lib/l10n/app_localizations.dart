@@ -1601,7 +1601,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorNoConnection.
   ///
   /// In en, this message translates to:
-  /// **'No internet connection'**
+  /// **'No internet'**
   String get errorNoConnection;
 
   /// No description provided for @errorNoConnectionBody.
@@ -1613,8 +1613,20 @@ abstract class AppLocalizations {
   /// No description provided for @offlineBanner.
   ///
   /// In en, this message translates to:
-  /// **'No internet connection'**
+  /// **'No internet'**
   String get offlineBanner;
+
+  /// No description provided for @offlineBackOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Back online'**
+  String get offlineBackOnline;
+
+  /// No description provided for @offlineActionUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This action cannot be done offline.'**
+  String get offlineActionUnavailable;
 
   /// No description provided for @buttonCancel.
   ///

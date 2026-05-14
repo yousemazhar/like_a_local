@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/widgets/lal_chip.dart';
 import '../../../core/widgets/lal_header.dart';
-import '../../../core/widgets/offline_banner.dart';
 import '../../../core/widgets/place_card.dart';
 import '../../../core/widgets/savable_place_card.dart';
 import '../../../core/widgets/section_title.dart';
@@ -160,7 +159,6 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
       backgroundColor: LALColors.bg,
       body: Column(
         children: [
-          const OfflineBanner(),
           Expanded(
             child: CustomScrollView(
               slivers: [

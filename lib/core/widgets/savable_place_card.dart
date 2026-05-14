@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/errors/offline_exception.dart';
+import '../../core/widgets/offline_action_snack_bar.dart';
 import '../../features/saved/domain/saved_providers.dart';
 import 'place_card.dart';
 
@@ -43,7 +45,13 @@ class SavablePlaceCard extends ConsumerWidget {
       variant: variant,
       onTap: onTap,
       onSave: () async {
-        await ref.read(savedNotifierProvider.notifier).togglePin(placeId);
+        try {
+          await ref.read(savedNotifierProvider.notifier).togglePin(placeId);
+        } on OfflineException {
+          if (!context.mounted) return;
+          showOfflineActionSnackBar(context);
+          return;
+        }
         if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

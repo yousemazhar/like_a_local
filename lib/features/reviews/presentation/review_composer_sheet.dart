@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/errors/offline_exception.dart';
+import '../../../core/widgets/offline_action_snack_bar.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
@@ -8,11 +10,7 @@ import '../domain/review.dart';
 import '../domain/review_providers.dart';
 
 class ReviewComposerSheet extends ConsumerStatefulWidget {
-  const ReviewComposerSheet({
-    super.key,
-    required this.placeId,
-    this.existing,
-  });
+  const ReviewComposerSheet({super.key, required this.placeId, this.existing});
 
   final String placeId;
   final Review? existing;
@@ -58,12 +56,12 @@ class _ReviewComposerSheetState extends ConsumerState<ReviewComposerSheet> {
     if (text.isEmpty) return;
     setState(() => _submitting = true);
     try {
-      await ref.read(reviewNotifierProvider.notifier).submit(
-            placeId: widget.placeId,
-            rating: _rating,
-            text: text,
-          );
+      await ref
+          .read(reviewNotifierProvider.notifier)
+          .submit(placeId: widget.placeId, rating: _rating, text: text);
       if (mounted) Navigator.of(context).pop();
+    } on OfflineException {
+      if (mounted) showOfflineActionSnackBar(context);
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
@@ -96,8 +94,10 @@ class _ReviewComposerSheetState extends ConsumerState<ReviewComposerSheet> {
                 ),
               ),
             ),
-            Text(t.reviewComposerTitle,
-                style: Theme.of(context).textTheme.headlineSmall),
+            Text(
+              t.reviewComposerTitle,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
             const SizedBox(height: 4),
             Text(t.reviewComposerBody, style: LALTypography.bodySmall),
             const SizedBox(height: 16),
@@ -144,10 +144,15 @@ class _ReviewComposerSheetState extends ConsumerState<ReviewComposerSheet> {
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white))
-                    : Text(widget.existing == null
-                        ? t.reviewComposerSubmit
-                        : t.reviewComposerUpdate),
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Text(
+                        widget.existing == null
+                            ? t.reviewComposerSubmit
+                            : t.reviewComposerUpdate,
+                      ),
               ),
             ),
           ],

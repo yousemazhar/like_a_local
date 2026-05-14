@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/providers/connectivity_provider.dart';
+import '../../../core/widgets/offline_action_snack_bar.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
@@ -41,14 +43,30 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     _seedFromPrefs();
 
     final placeTypes = <({String key, String label, IconData icon})>[
-      (key: 'Restaurants', label: t.placeTypeRestaurants, icon: Icons.restaurant_outlined),
+      (
+        key: 'Restaurants',
+        label: t.placeTypeRestaurants,
+        icon: Icons.restaurant_outlined,
+      ),
       (key: 'Cafés', label: t.placeTypeCafes, icon: Icons.coffee_outlined),
       (key: 'Bars', label: t.placeTypeBars, icon: Icons.local_bar_outlined),
-      (key: 'Viewpoints', label: t.placeTypeViewpoints, icon: Icons.landscape_outlined),
-      (key: 'Markets', label: t.placeTypeMarkets, icon: Icons.storefront_outlined),
+      (
+        key: 'Viewpoints',
+        label: t.placeTypeViewpoints,
+        icon: Icons.landscape_outlined,
+      ),
+      (
+        key: 'Markets',
+        label: t.placeTypeMarkets,
+        icon: Icons.storefront_outlined,
+      ),
       (key: 'Museums', label: t.placeTypeMuseums, icon: Icons.museum_outlined),
       (key: 'Parks', label: t.placeTypeParks, icon: Icons.park_outlined),
-      (key: 'Hidden Gems', label: t.placeTypeHiddenGems, icon: Icons.explore_outlined),
+      (
+        key: 'Hidden Gems',
+        label: t.placeTypeHiddenGems,
+        icon: Icons.explore_outlined,
+      ),
     ];
 
     final moods = <({String key, String label})>[
@@ -79,13 +97,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       style: Theme.of(context).textTheme.headlineLarge,
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      t.onboardingSubtitle,
-                      style: LALTypography.bodyMedium,
-                    ),
+                    Text(t.onboardingSubtitle, style: LALTypography.bodyMedium),
                     const SizedBox(height: 32),
-                    Text(t.onboardingPlaceTypes,
-                        style: LALTypography.labelLarge),
+                    Text(
+                      t.onboardingPlaceTypes,
+                      style: LALTypography.labelLarge,
+                    ),
                     const SizedBox(height: 12),
                     Wrap(
                       spacing: 8,
@@ -96,15 +113,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           label: pt.label,
                           icon: pt.icon,
                           isSelected: sel,
-                          onTap: () => setState(() => sel
-                              ? _placeTypesSel.remove(pt.key)
-                              : _placeTypesSel.add(pt.key)),
+                          onTap: () => setState(
+                            () => sel
+                                ? _placeTypesSel.remove(pt.key)
+                                : _placeTypesSel.add(pt.key),
+                          ),
                         );
                       }).toList(),
                     ),
                     const SizedBox(height: 28),
-                    Text(t.onboardingVibe,
-                        style: LALTypography.labelLarge),
+                    Text(t.onboardingVibe, style: LALTypography.labelLarge),
                     const SizedBox(height: 12),
                     Wrap(
                       spacing: 8,
@@ -114,8 +132,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         return _PreferenceChip(
                           label: m.label,
                           isSelected: sel,
-                          onTap: () => setState(() =>
-                              sel ? _moodsSel.remove(m.key) : _moodsSel.add(m.key)),
+                          onTap: () => setState(
+                            () => sel
+                                ? _moodsSel.remove(m.key)
+                                : _moodsSel.add(m.key),
+                          ),
                         );
                       }).toList(),
                     ),
@@ -126,7 +147,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             ),
             Padding(
               padding: EdgeInsets.fromLTRB(
-                  24, 0, 24, 24 + MediaQuery.of(context).padding.bottom),
+                24,
+                0,
+                24,
+                24 + MediaQuery.of(context).padding.bottom,
+              ),
               child: Column(
                 children: [
                   ElevatedButton(
@@ -136,7 +161,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             height: 20,
                             width: 20,
                             child: CircularProgressIndicator(
-                                strokeWidth: 2, color: Colors.white),
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
                           )
                         : Text(t.onboardingStart),
                   ),
@@ -145,8 +172,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     onPressed: () => context.go('/discover'),
                     child: Text(
                       t.onboardingSkip,
-                      style: LALTypography.labelMedium
-                          .copyWith(color: LALColors.c500),
+                      style: LALTypography.labelMedium.copyWith(
+                        color: LALColors.c500,
+                      ),
                     ),
                   ),
                 ],
@@ -159,6 +187,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   Future<void> _save() async {
+    if (ref.read(isOnlineProvider).valueOrNull == false) {
+      showOfflineActionSnackBar(context);
+      return;
+    }
     final user = ref.read(authStateProvider).valueOrNull;
     if (user == null) {
       context.go('/discover');
@@ -168,16 +200,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     setState(() => _loading = true);
     try {
       // Preserve fields onboarding doesn't edit (budget, pace).
-      final existing = ref.read(currentUserDocProvider).valueOrNull?.preferences;
+      final existing = ref
+          .read(currentUserDocProvider)
+          .valueOrNull
+          ?.preferences;
       final prefs = UserPreferences(
         placeTypes: _placeTypesSel.toList(),
         moods: _moodsSel.toList(),
         budget: existing?.budget,
         pace: existing?.pace,
       );
-      await ref
-          .read(authRepositoryProvider)
-          .updatePreferences(user.uid, prefs);
+      await ref.read(authRepositoryProvider).updatePreferences(user.uid, prefs);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -230,8 +263,11 @@ class _PreferenceChip extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
-              Icon(icon, size: 16,
-                  color: isSelected ? Colors.white : LALColors.c600),
+              Icon(
+                icon,
+                size: 16,
+                color: isSelected ? Colors.white : LALColors.c600,
+              ),
               const SizedBox(width: 6),
             ],
             Text(

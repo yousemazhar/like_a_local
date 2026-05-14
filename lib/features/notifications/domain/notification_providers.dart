@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../core/providers/connectivity_provider.dart';
 import '../../auth/domain/auth_providers.dart';
 import '../data/notification_repository.dart';
 import 'app_notification.dart';
@@ -8,8 +9,7 @@ import 'app_notification.dart';
 part 'notification_providers.g.dart';
 
 @Riverpod(keepAlive: true)
-NotificationRepository notificationRepository(
-        NotificationRepositoryRef ref) =>
+NotificationRepository notificationRepository(NotificationRepositoryRef ref) =>
     NotificationRepository(FirebaseFirestore.instance);
 
 @riverpod
@@ -25,14 +25,14 @@ class NotificationActions extends _$NotificationActions {
   void build() {}
 
   Future<void> markRead(String id) async {
+    if (ref.read(isOnlineProvider).valueOrNull == false) return;
     final user = ref.read(authStateProvider).valueOrNull;
     if (user == null) return;
-    await ref
-        .read(notificationRepositoryProvider)
-        .markRead(user.uid, id);
+    await ref.read(notificationRepositoryProvider).markRead(user.uid, id);
   }
 
   Future<void> markAllRead() async {
+    if (ref.read(isOnlineProvider).valueOrNull == false) return;
     final user = ref.read(authStateProvider).valueOrNull;
     if (user == null) return;
     await ref.read(notificationRepositoryProvider).markAllRead(user.uid);

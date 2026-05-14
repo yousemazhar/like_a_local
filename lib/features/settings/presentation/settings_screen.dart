@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/providers/connectivity_provider.dart';
 import '../../../core/providers/locale_provider.dart';
+import '../../../core/widgets/offline_action_snack_bar.dart';
 import '../../../features/auth/domain/auth_providers.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
@@ -12,14 +14,14 @@ import '../../../theme/typography.dart';
 
 final _userSettingsStreamProvider =
     StreamProvider.autoDispose<Map<String, dynamic>>((ref) {
-  final uid = FirebaseAuth.instance.currentUser?.uid;
-  if (uid == null) return Stream.value(const {});
-  return FirebaseFirestore.instance
-      .collection('users')
-      .doc(uid)
-      .snapshots()
-      .map((s) => s.data() ?? const {});
-});
+      final uid = FirebaseAuth.instance.currentUser?.uid;
+      if (uid == null) return Stream.value(const {});
+      return FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .snapshots()
+          .map((s) => s.data() ?? const {});
+    });
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -39,6 +41,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Future<void> _patch(Map<String, dynamic> patch) async {
+    if (ref.read(isOnlineProvider).valueOrNull == false) {
+      showOfflineActionSnackBar(context);
+      return;
+    }
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
     await ref.read(authRepositoryProvider).updateUserSettings(uid, patch);
@@ -60,8 +66,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final chatEnabled = (chatSettings['enabled'] as bool?) ?? true;
     final awayMode = (chatSettings['awayMode'] as bool?) ?? false;
     final showLocation = (privacy['shareLocation'] as bool?) ?? true;
-    final aiRecommendations =
-        (prefs['aiRecommendations'] as bool?) ?? true;
+    final aiRecommendations = (prefs['aiRecommendations'] as bool?) ?? true;
 
     return Scaffold(
       backgroundColor: LALColors.bg,
@@ -244,7 +249,10 @@ class _ToggleTile extends StatelessWidget {
       color: LALColors.surface,
       child: ListTile(
         leading: Icon(icon, color: LALColors.c700, size: 22),
-        title: Text(title, style: LALTypography.bodyMedium.copyWith(color: LALColors.c900)),
+        title: Text(
+          title,
+          style: LALTypography.bodyMedium.copyWith(color: LALColors.c900),
+        ),
         subtitle: subtitle != null
             ? Text(subtitle!, style: LALTypography.bodySmall)
             : null,
@@ -253,8 +261,7 @@ class _ToggleTile extends StatelessWidget {
           onChanged: onChanged,
           activeTrackColor: LALColors.accent,
         ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
       ),
     );
   }
@@ -282,8 +289,12 @@ class _ActionTile extends StatelessWidget {
       color: LALColors.surface,
       child: ListTile(
         leading: Icon(icon, color: c, size: 22),
-        title: Text(title,
-            style: LALTypography.bodyMedium.copyWith(color: color ?? LALColors.c900)),
+        title: Text(
+          title,
+          style: LALTypography.bodyMedium.copyWith(
+            color: color ?? LALColors.c900,
+          ),
+        ),
         subtitle: subtitle != null
             ? Text(subtitle!, style: LALTypography.bodySmall)
             : null,
@@ -291,8 +302,7 @@ class _ActionTile extends StatelessWidget {
             ? const Icon(Icons.chevron_right_rounded, color: LALColors.c300)
             : null,
         onTap: onTap,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
       ),
     );
   }

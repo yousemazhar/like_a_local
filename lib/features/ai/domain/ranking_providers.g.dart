@@ -62,7 +62,7 @@ final rankedDiscoverFeedProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef RankedDiscoverFeedRef = AutoDisposeFutureProviderRef<List<Place>>;
-String _$refreshRankingHash() => r'166fddbf42df8774b4ce25564dea70853777d77f';
+String _$refreshRankingHash() => r'7d59a0f4a0d6e51792ff3083b4c0bd1d80cf89a3';
 
 /// See also [RefreshRanking].
 @ProviderFor(RefreshRanking)

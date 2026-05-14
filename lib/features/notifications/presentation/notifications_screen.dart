@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/providers/connectivity_provider.dart';
 import '../../../core/widgets/empty_view.dart';
 import '../../../core/widgets/error_view.dart';
+import '../../../core/widgets/offline_action_snack_bar.dart';
 import '../../../core/widgets/skeleton.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
@@ -42,9 +44,13 @@ class NotificationsScreen extends ConsumerWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => ref
-                .read(notificationActionsProvider.notifier)
-                .markAllRead(),
+            onPressed: () {
+              if (ref.read(isOnlineProvider).valueOrNull == false) {
+                showOfflineActionSnackBar(context);
+                return;
+              }
+              ref.read(notificationActionsProvider.notifier).markAllRead();
+            },
             child: Text(t.notificationsMarkAllRead),
           ),
         ],
@@ -84,9 +90,15 @@ class NotificationsScreen extends ConsumerWidget {
                   _NotificationTile(
                     notification: n,
                     icon: _iconForType(n.type),
-                    onTap: () => ref
-                        .read(notificationActionsProvider.notifier)
-                        .markRead(n.id),
+                    onTap: () {
+                      if (ref.read(isOnlineProvider).valueOrNull == false) {
+                        showOfflineActionSnackBar(context);
+                        return;
+                      }
+                      ref
+                          .read(notificationActionsProvider.notifier)
+                          .markRead(n.id);
+                    },
                   ),
               ],
               if (earlier.isNotEmpty) ...[
@@ -95,9 +107,15 @@ class NotificationsScreen extends ConsumerWidget {
                   _NotificationTile(
                     notification: n,
                     icon: _iconForType(n.type),
-                    onTap: () => ref
-                        .read(notificationActionsProvider.notifier)
-                        .markRead(n.id),
+                    onTap: () {
+                      if (ref.read(isOnlineProvider).valueOrNull == false) {
+                        showOfflineActionSnackBar(context);
+                        return;
+                      }
+                      ref
+                          .read(notificationActionsProvider.notifier)
+                          .markRead(n.id);
+                    },
                   ),
               ],
               const SizedBox(height: 24),
@@ -119,8 +137,10 @@ class _GroupHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
       child: Text(
         title,
-        style: LALTypography.labelSmall
-            .copyWith(color: LALColors.c500, letterSpacing: 0.8),
+        style: LALTypography.labelSmall.copyWith(
+          color: LALColors.c500,
+          letterSpacing: 0.8,
+        ),
       ),
     );
   }
@@ -155,8 +175,10 @@ class _NotificationTile extends StatelessWidget {
             ? null
             : LALColors.accentSoft.withValues(alpha: 0.3),
         child: ListTile(
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 8,
+          ),
           leading: Container(
             width: 44,
             height: 44,
@@ -182,11 +204,16 @@ class _NotificationTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 2),
-              Text(notification.body,
-                  style: LALTypography.bodySmall, maxLines: 2),
+              Text(
+                notification.body,
+                style: LALTypography.bodySmall,
+                maxLines: 2,
+              ),
               const SizedBox(height: 4),
-              Text(_relativeTime(notification.createdAt),
-                  style: LALTypography.bodySmall),
+              Text(
+                _relativeTime(notification.createdAt),
+                style: LALTypography.bodySmall,
+              ),
             ],
           ),
           isThreeLine: true,

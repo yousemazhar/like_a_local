@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../core/errors/offline_exception.dart';
+import '../../../core/providers/connectivity_provider.dart';
 import '../../auth/domain/auth_providers.dart';
 import '../data/saved_repository.dart';
 import 'saved_pin.dart';
@@ -37,7 +39,14 @@ class SavedNotifier extends _$SavedNotifier {
   @override
   void build() {}
 
+  void _ensureOnline() {
+    if (ref.read(isOnlineProvider).valueOrNull == false) {
+      throw const OfflineException();
+    }
+  }
+
   Future<void> togglePin(String placeId) async {
+    _ensureOnline();
     final user = ref.read(authStateProvider).valueOrNull;
     if (user == null) return;
     final repo = ref.read(savedRepositoryProvider);
@@ -50,6 +59,7 @@ class SavedNotifier extends _$SavedNotifier {
   }
 
   Future<void> createCollection(String name) async {
+    _ensureOnline();
     final user = ref.read(authStateProvider).valueOrNull;
     if (user == null) return;
     await ref.read(savedRepositoryProvider).createCollection(user.uid, name);

@@ -40,8 +40,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              size: 20, color: LALColors.c900),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 20,
+            color: LALColors.c900,
+          ),
           onPressed: () => context.go('/auth/sign-in'),
         ),
       ),
@@ -52,13 +55,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 16),
-              Text(t.authCreateAccount,
-                  style: Theme.of(context).textTheme.displayMedium),
-              const SizedBox(height: 8),
               Text(
-                t.authCreateSubtitle,
-                style: LALTypography.bodyMedium,
+                t.authCreateAccount,
+                style: Theme.of(context).textTheme.displayMedium,
               ),
+              const SizedBox(height: 8),
+              Text(t.authCreateSubtitle, style: LALTypography.bodyMedium),
               const SizedBox(height: 40),
               if (_error != null) ...[
                 Container(
@@ -67,9 +69,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     color: LALColors.error.withValues(alpha: 0.1),
                     borderRadius: LALRadii.mdBorder,
                   ),
-                  child: Text(_error!,
-                      style: LALTypography.bodySmall
-                          .copyWith(color: LALColors.error)),
+                  child: Text(
+                    _error!,
+                    style: LALTypography.bodySmall.copyWith(
+                      color: LALColors.error,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
               ],
@@ -105,7 +110,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white),
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
                       )
                     : Text(t.authCreateAccountButton),
               ),
@@ -121,14 +128,14 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(t.authHaveAccount,
-                      style: LALTypography.bodySmall),
+                  Text(t.authHaveAccount, style: LALTypography.bodySmall),
                   GestureDetector(
                     onTap: () => context.go('/auth/sign-in'),
                     child: Text(
                       t.authSignInLink,
-                      style: LALTypography.labelMedium
-                          .copyWith(color: LALColors.accent),
+                      style: LALTypography.labelMedium.copyWith(
+                        color: LALColors.accent,
+                      ),
                     ),
                   ),
                 ],
@@ -142,14 +149,19 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   }
 
   Future<void> _signUpWithGoogle() async {
-    setState(() { _googleLoading = true; _error = null; });
+    setState(() {
+      _googleLoading = true;
+      _error = null;
+    });
     try {
       final user = await ref.read(authRepositoryProvider).signInWithGoogle();
       if (!mounted) return;
       // For Google sign-up, go to onboarding if new user, otherwise discover
       if (user != null) context.go('/onboarding');
     } catch (e) {
-      if (mounted) setState(() => _error = AuthRepository.friendlyAuthError(e, context));
+      if (mounted) {
+        setState(() => _error = AuthRepository.friendlyAuthError(e, context));
+      }
     } finally {
       if (mounted) setState(() => _googleLoading = false);
     }
@@ -182,14 +194,14 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       if (mounted) context.go('/onboarding');
     } catch (e) {
       if (mounted) {
-        setState(
-            () => _error = AuthRepository.friendlyAuthError(e, context));
+        setState(() => _error = AuthRepository.friendlyAuthError(e, context));
       }
     } finally {
       if (mounted) setState(() => _loading = false);
     }
   }
 }
+
 class _OrDivider extends StatelessWidget {
   const _OrDivider();
 
@@ -231,23 +243,35 @@ class _GoogleSignInButton extends StatelessWidget {
         onPressed: loading ? null : onPressed,
         style: OutlinedButton.styleFrom(
           side: const BorderSide(color: LALColors.c200),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           backgroundColor: Colors.white,
         ),
         child: loading
             ? const SizedBox(
-                height: 20, width: 20,
-                child: CircularProgressIndicator(strokeWidth: 2, color: LALColors.c600),
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: LALColors.c600,
+                ),
               )
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SizedBox(
-                    width: 20, height: 20,
+                    width: 20,
+                    height: 20,
                     child: CustomPaint(painter: _GoogleLogoPainter()),
                   ),
                   const SizedBox(width: 12),
-                  Text(label, style: LALTypography.labelMedium.copyWith(color: LALColors.c900)),
+                  Text(
+                    label,
+                    style: LALTypography.labelMedium.copyWith(
+                      color: LALColors.c900,
+                    ),
+                  ),
                 ],
               ),
       ),
@@ -263,7 +287,11 @@ class _GoogleLogoPainter extends CustomPainter {
     final rect = Rect.fromCircle(center: center, radius: radius - 1);
     const strokeWidth = 3.5;
     void drawArc(double start, double sweep, Color color) {
-      canvas.drawArc(rect, start, sweep, false,
+      canvas.drawArc(
+        rect,
+        start,
+        sweep,
+        false,
         Paint()
           ..color = color
           ..style = PaintingStyle.stroke
@@ -271,10 +299,11 @@ class _GoogleLogoPainter extends CustomPainter {
           ..strokeCap = StrokeCap.round,
       );
     }
+
     drawArc(-1.57, 1.57, const Color(0xFF4285F4));
-    drawArc(0.0,   1.57, const Color(0xFF34A853));
-    drawArc(1.57,  1.57, const Color(0xFFFBBC05));
-    drawArc(3.14,  1.57, const Color(0xFFEA4335));
+    drawArc(0.0, 1.57, const Color(0xFF34A853));
+    drawArc(1.57, 1.57, const Color(0xFFFBBC05));
+    drawArc(3.14, 1.57, const Color(0xFFEA4335));
   }
 
   @override

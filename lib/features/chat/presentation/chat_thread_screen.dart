@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/errors/offline_exception.dart';
+import '../../../core/widgets/offline_action_snack_bar.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
@@ -32,9 +34,9 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
   void _maybeMarkRead() {
     if (_markedRead) return;
     _markedRead = true;
-    Future.microtask(() => ref
-        .read(chatNotifierProvider.notifier)
-        .markRead(widget.threadId));
+    Future.microtask(
+      () => ref.read(chatNotifierProvider.notifier).markRead(widget.threadId),
+    );
   }
 
   Future<void> _send(String recipientUid) async {
@@ -48,16 +50,22 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     }
     _controller.clear();
     try {
-      await ref.read(chatNotifierProvider.notifier).send(
+      await ref
+          .read(chatNotifierProvider.notifier)
+          .send(
             threadId: widget.threadId,
             recipientUid: recipientUid,
             text: text,
           );
+    } on OfflineException {
+      if (!mounted) return;
+      _controller.text = text;
+      showOfflineActionSnackBar(context);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not send: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Could not send: $e')));
     }
   }
 
@@ -69,10 +77,10 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     final user = ref.watch(authStateProvider).valueOrNull;
 
     final thread = threadAsync.valueOrNull;
-    final otherUid = thread?.members.firstWhere(
+    final otherUid =
+        thread?.members.firstWhere(
           (m) => m != user?.uid,
-          orElse: () =>
-              thread.members.isEmpty ? '' : thread.members.first,
+          orElse: () => thread.members.isEmpty ? '' : thread.members.first,
         ) ??
         '';
     final otherMeta = thread?.memberMeta[otherUid];
@@ -97,8 +105,9 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
               backgroundColor: LALColors.c100,
               child: Text(
                 otherName.isNotEmpty ? otherName[0].toUpperCase() : '?',
-                style: LALTypography.labelMedium
-                    .copyWith(color: LALColors.c600),
+                style: LALTypography.labelMedium.copyWith(
+                  color: LALColors.c600,
+                ),
               ),
             ),
             const SizedBox(width: 10),
@@ -107,9 +116,13 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
               children: [
                 Text(otherName, style: LALTypography.labelLarge),
                 if (otherMeta?.isSuper ?? false)
-                  Text(t.chatSuperLocal,
-                      style: LALTypography.bodySmall
-                          .copyWith(color: LALColors.accent, fontSize: 11)),
+                  Text(
+                    t.chatSuperLocal,
+                    style: LALTypography.bodySmall.copyWith(
+                      color: LALColors.accent,
+                      fontSize: 11,
+                    ),
+                  ),
               ],
             ),
           ],
@@ -119,8 +132,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
         children: [
           Expanded(
             child: messagesAsync.when(
-              loading: () =>
-                  const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(child: CircularProgressIndicator()),
               error: (e, _) => ErrorView(message: '$e'),
               data: (messages) => ListView.builder(
                 padding: const EdgeInsets.all(16),
@@ -132,10 +144,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
               ),
             ),
           ),
-          _Composer(
-            controller: _controller,
-            onSend: () => _send(otherUid),
-          ),
+          _Composer(controller: _controller, onSend: () => _send(otherUid)),
         ],
       ),
     );
@@ -154,7 +163,8 @@ class _ChatBubble extends StatelessWidget {
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         constraints: BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width * 0.72),
+          maxWidth: MediaQuery.of(context).size.width * 0.72,
+        ),
         margin: const EdgeInsets.symmetric(vertical: 4),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
@@ -188,7 +198,11 @@ class _Composer extends StatelessWidget {
     final t = AppLocalizations.of(context)!;
     return Container(
       padding: EdgeInsets.fromLTRB(
-          16, 10, 16, 10 + MediaQuery.of(context).padding.bottom),
+        16,
+        10,
+        16,
+        10 + MediaQuery.of(context).padding.bottom,
+      ),
       decoration: const BoxDecoration(
         color: LALColors.surface,
         border: Border(top: BorderSide(color: LALColors.c100)),
@@ -215,7 +229,9 @@ class _Composer extends StatelessWidget {
                   borderSide: BorderSide.none,
                 ),
                 contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 10),
+                  horizontal: 16,
+                  vertical: 10,
+                ),
               ),
               maxLines: null,
               textInputAction: TextInputAction.send,
@@ -232,8 +248,11 @@ class _Composer extends StatelessWidget {
                 color: LALColors.c900,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.send_rounded,
-                  color: Colors.white, size: 18),
+              child: const Icon(
+                Icons.send_rounded,
+                color: Colors.white,
+                size: 18,
+              ),
             ),
           ),
         ],

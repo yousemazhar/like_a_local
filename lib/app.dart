@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'core/providers/connectivity_provider.dart';
 import 'core/providers/locale_provider.dart';
+import 'core/widgets/offline_banner.dart';
 import 'features/auth/domain/auth_providers.dart';
 import 'features/notifications/data/fcm_service.dart';
 import 'l10n/app_localizations.dart';
@@ -35,11 +37,55 @@ class App extends ConsumerWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [
-        Locale('en'),
-        Locale('de'),
-      ],
+      supportedLocales: const [Locale('en'), Locale('de')],
+      builder: (context, child) => _ConnectivityShell(child: child),
       debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+class _ConnectivityShell extends ConsumerStatefulWidget {
+  const _ConnectivityShell({required this.child});
+
+  final Widget? child;
+
+  @override
+  ConsumerState<_ConnectivityShell> createState() => _ConnectivityShellState();
+}
+
+class _ConnectivityShellState extends ConsumerState<_ConnectivityShell> {
+  bool _hasSeenConnectivity = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
+    ref.listen(isOnlineProvider, (previous, next) {
+      final online = next.valueOrNull;
+      if (online == null) return;
+      if (!_hasSeenConnectivity) {
+        _hasSeenConnectivity = true;
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 2),
+          content: Text(online ? t.offlineBackOnline : t.offlineBanner),
+        ),
+      );
+    });
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        widget.child ?? const SizedBox.shrink(),
+        const Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: SafeArea(bottom: false, child: OfflineBanner()),
+        ),
+      ],
     );
   }
 }

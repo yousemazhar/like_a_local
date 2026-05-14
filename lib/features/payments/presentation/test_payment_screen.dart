@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/providers/connectivity_provider.dart';
+import '../../../core/widgets/offline_action_snack_bar.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
 import '../../auth/domain/auth_providers.dart';
@@ -20,6 +22,10 @@ class _TestPaymentScreenState extends ConsumerState<TestPaymentScreen> {
   bool _busy = false;
 
   Future<void> _pay() async {
+    if (ref.read(isOnlineProvider).valueOrNull == false) {
+      showOfflineActionSnackBar(context);
+      return;
+    }
     // Confirm Firebase Auth has a current user before hitting the callable.
     final firebaseUser = FirebaseAuth.instance.currentUser;
     if (firebaseUser == null) {
@@ -51,9 +57,9 @@ class _TestPaymentScreenState extends ConsumerState<TestPaymentScreen> {
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -97,16 +103,22 @@ class _TestPaymentScreenState extends ConsumerState<TestPaymentScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.lock_outline,
-                        size: 48, color: LALColors.c300),
+                    const Icon(
+                      Icons.lock_outline,
+                      size: 48,
+                      color: LALColors.c300,
+                    ),
                     const SizedBox(height: 16),
-                    const Text('You need to sign in first.',
-                        style: LALTypography.bodyMedium,
-                        textAlign: TextAlign.center),
+                    const Text(
+                      'You need to sign in first.',
+                      style: LALTypography.bodyMedium,
+                      textAlign: TextAlign.center,
+                    ),
                     const SizedBox(height: 24),
                     FilledButton(
                       style: FilledButton.styleFrom(
-                          backgroundColor: LALColors.accent),
+                        backgroundColor: LALColors.accent,
+                      ),
                       onPressed: () => context.go('/auth/sign-in'),
                       child: const Text('Sign In'),
                     ),
@@ -165,15 +177,18 @@ class _TestPaymentScreenState extends ConsumerState<TestPaymentScreen> {
                 const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 8),
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   decoration: const BoxDecoration(
                     color: LALColors.surface,
                     borderRadius: LALRadii.lgBorder,
                   ),
                   child: Text(
                     'Signed in as: ${user.email}',
-                    style:
-                        LALTypography.bodySmall.copyWith(color: LALColors.c500),
+                    style: LALTypography.bodySmall.copyWith(
+                      color: LALColors.c500,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 24),

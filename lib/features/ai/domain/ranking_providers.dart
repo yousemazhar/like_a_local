@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../core/providers/connectivity_provider.dart';
 import '../../auth/domain/auth_providers.dart';
 import '../../place/domain/place.dart';
 import '../../place/domain/place_providers.dart';
@@ -40,5 +41,8 @@ class RefreshRanking extends _$RefreshRanking {
   @override
   void build() {}
 
-  Future<void> refresh() => ref.read(rankingRepositoryProvider).refresh();
+  Future<void> refresh() async {
+    if (ref.read(isOnlineProvider).valueOrNull == false) return;
+    await ref.read(rankingRepositoryProvider).refresh();
+  }
 }

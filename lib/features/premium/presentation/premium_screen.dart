@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/providers/connectivity_provider.dart';
+import '../../../core/widgets/offline_action_snack_bar.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
@@ -21,6 +23,10 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
   bool _busy = false;
 
   Future<void> _purchase() async {
+    if (ref.read(isOnlineProvider).valueOrNull == false) {
+      showOfflineActionSnackBar(context);
+      return;
+    }
     setState(() => _busy = true);
     try {
       await ref
@@ -42,15 +48,16 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
       if (code.toLowerCase().contains('cancel')) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content:
-              Text('Payment failed: ${e.error.localizedMessage ?? e.error.code}'),
+          content: Text(
+            'Payment failed: ${e.error.localizedMessage ?? e.error.code}',
+          ),
         ),
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Payment error: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Payment error: $e')));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -64,10 +71,16 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
 
     final features = [
       (icon: Icons.bookmark_border, text: t.premiumFeatureUnlimitedSaves),
-      (icon: Icons.collections_bookmark_outlined, text: t.premiumFeatureUnlimitedCollections),
+      (
+        icon: Icons.collections_bookmark_outlined,
+        text: t.premiumFeatureUnlimitedCollections,
+      ),
       (icon: Icons.auto_awesome_outlined, text: t.premiumFeatureAiChat),
       (icon: Icons.wifi_off_rounded, text: t.premiumFeatureOfflineMaps),
-      (icon: Icons.notifications_active_outlined, text: t.premiumFeatureReminders),
+      (
+        icon: Icons.notifications_active_outlined,
+        text: t.premiumFeatureReminders,
+      ),
     ];
 
     return Scaffold(
@@ -88,7 +101,10 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
             children: [
               // Badge
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: LALColors.accent.withValues(alpha: 0.2),
                   borderRadius: LALRadii.pillBorder,
@@ -106,8 +122,10 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                     const SizedBox(width: 6),
                     Text(
                       premium ? 'PREMIUM · ACTIVE' : t.premiumBadge,
-                      style: LALTypography.labelSmall
-                          .copyWith(color: LALColors.accent, letterSpacing: 1.5),
+                      style: LALTypography.labelSmall.copyWith(
+                        color: LALColors.accent,
+                        letterSpacing: 1.5,
+                      ),
                     ),
                   ],
                 ),
@@ -116,7 +134,9 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
               // Headline
               RichText(
                 text: TextSpan(
-                  style: LALTypography.displayMedium.copyWith(color: Colors.white),
+                  style: LALTypography.displayMedium.copyWith(
+                    color: Colors.white,
+                  ),
                   children: [
                     TextSpan(text: t.premiumHeadlinePrefix),
                     TextSpan(
@@ -180,9 +200,13 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                               color: Colors.white,
                             ),
                           )
-                        : Text(t.premiumCta,
+                        : Text(
+                            t.premiumCta,
                             style: const TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w700)),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -191,8 +215,9 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                     onPressed: _busy ? null : _purchase,
                     child: Text(
                       t.premiumRestorePurchases,
-                      style: LALTypography.bodySmall
-                          .copyWith(color: LALColors.c400),
+                      style: LALTypography.bodySmall.copyWith(
+                        color: LALColors.c400,
+                      ),
                     ),
                   ),
                 ),
@@ -201,8 +226,9 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                     _yearlySelected
                         ? t.premiumCancelAnnually
                         : t.premiumCancelMonthly,
-                    style: LALTypography.bodySmall
-                        .copyWith(color: LALColors.c600),
+                    style: LALTypography.bodySmall.copyWith(
+                      color: LALColors.c600,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -217,19 +243,24 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.workspace_premium_rounded,
-                          color: LALColors.accent, size: 28),
+                      const Icon(
+                        Icons.workspace_premium_rounded,
+                        color: LALColors.accent,
+                        size: 28,
+                      ),
                       const SizedBox(height: 8),
                       Text(
                         "You're all set",
-                        style: LALTypography.headlineSmall
-                            .copyWith(color: Colors.white),
+                        style: LALTypography.headlineSmall.copyWith(
+                          color: Colors.white,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         'All premium features are unlocked. Thanks for supporting locals.',
-                        style: LALTypography.bodySmall
-                            .copyWith(color: LALColors.c300),
+                        style: LALTypography.bodySmall.copyWith(
+                          color: LALColors.c300,
+                        ),
                       ),
                     ],
                   ),
@@ -244,9 +275,13 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                       foregroundColor: Colors.white,
                       minimumSize: const Size(double.infinity, 56),
                     ),
-                    child: const Text('Done',
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w700)),
+                    child: const Text(
+                      'Done',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -343,16 +378,19 @@ class _PlanCard extends StatelessWidget {
                   ),
                 ),
               ),
-            Text(title,
-                style: LALTypography.labelMedium
-                    .copyWith(color: LALColors.c300)),
+            Text(
+              title,
+              style: LALTypography.labelMedium.copyWith(color: LALColors.c300),
+            ),
             const SizedBox(height: 6),
-            Text(price,
-                style: LALTypography.headlineMedium
-                    .copyWith(color: Colors.white)),
-            Text(period,
-                style: LALTypography.bodySmall
-                    .copyWith(color: LALColors.c400)),
+            Text(
+              price,
+              style: LALTypography.headlineMedium.copyWith(color: Colors.white),
+            ),
+            Text(
+              period,
+              style: LALTypography.bodySmall.copyWith(color: LALColors.c400),
+            ),
           ],
         ),
       ),

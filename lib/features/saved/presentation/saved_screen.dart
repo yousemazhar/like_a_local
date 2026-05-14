@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/errors/offline_exception.dart';
+import '../../../core/providers/connectivity_provider.dart';
+import '../../../core/widgets/offline_action_snack_bar.dart';
 import '../../../core/widgets/empty_view.dart';
 import '../../../core/widgets/skeleton.dart';
 import '../../../l10n/app_localizations.dart';
@@ -50,13 +53,23 @@ class _SavedScreenState extends ConsumerState<SavedScreen>
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
               child: Row(
                 children: [
-                  Text(t.savedTitle,
-                      style: Theme.of(context).textTheme.headlineLarge),
+                  Text(
+                    t.savedTitle,
+                    style: Theme.of(context).textTheme.headlineLarge,
+                  ),
                   const Spacer(),
                   IconButton(
-                    onPressed: () => context.push('/add-place'),
-                    icon:
-                        const Icon(Icons.add_circle_outline, color: LALColors.c900),
+                    onPressed: () {
+                      if (ref.read(isOnlineProvider).valueOrNull == false) {
+                        showOfflineActionSnackBar(context);
+                        return;
+                      }
+                      context.push('/add-place');
+                    },
+                    icon: const Icon(
+                      Icons.add_circle_outline,
+                      color: LALColors.c900,
+                    ),
                   ),
                 ],
               ),
@@ -114,28 +127,39 @@ class _CollectionsTab extends ConsumerWidget {
             ),
             child: Row(
               children: [
-                const Icon(Icons.workspace_premium_rounded,
-                    color: LALColors.accent),
+                const Icon(
+                  Icons.workspace_premium_rounded,
+                  color: LALColors.accent,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(t.savedUnlockCollections,
-                          style: LALTypography.labelLarge
-                              .copyWith(color: LALColors.accentDark)),
+                      Text(
+                        t.savedUnlockCollections,
+                        style: LALTypography.labelLarge.copyWith(
+                          color: LALColors.accentDark,
+                        ),
+                      ),
                       const SizedBox(height: 2),
-                      Text(t.savedFreePlan,
-                          style: LALTypography.bodySmall
-                              .copyWith(color: LALColors.accentDark)),
+                      Text(
+                        t.savedFreePlan,
+                        style: LALTypography.bodySmall.copyWith(
+                          color: LALColors.accentDark,
+                        ),
+                      ),
                     ],
                   ),
                 ),
                 TextButton(
                   onPressed: () => context.push('/premium'),
-                  child: Text(t.savedUpgrade,
-                      style: LALTypography.labelMedium
-                          .copyWith(color: LALColors.accentDark)),
+                  child: Text(
+                    t.savedUpgrade,
+                    style: LALTypography.labelMedium.copyWith(
+                      color: LALColors.accentDark,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -161,6 +185,10 @@ class _CollectionsTab extends ConsumerWidget {
 
   Future<void> _createCollection(BuildContext context, WidgetRef ref) async {
     final t = AppLocalizations.of(context)!;
+    if (ref.read(isOnlineProvider).valueOrNull == false) {
+      showOfflineActionSnackBar(context);
+      return;
+    }
     final ctrl = TextEditingController();
     try {
       final name = await showDialog<String>(
@@ -179,17 +207,18 @@ class _CollectionsTab extends ConsumerWidget {
               child: Text(t.buttonCancel),
             ),
             ElevatedButton(
-              onPressed: () =>
-                  Navigator.of(dialogCtx).pop(ctrl.text.trim()),
+              onPressed: () => Navigator.of(dialogCtx).pop(ctrl.text.trim()),
               child: Text(t.savedCreate),
             ),
           ],
         ),
       );
       if (name != null && name.isNotEmpty) {
-        await ref
-            .read(savedNotifierProvider.notifier)
-            .createCollection(name);
+        try {
+          await ref.read(savedNotifierProvider.notifier).createCollection(name);
+        } on OfflineException {
+          if (context.mounted) showOfflineActionSnackBar(context);
+        }
       }
     } finally {
       ctrl.dispose();
@@ -242,8 +271,11 @@ class _CollectionCard extends StatelessWidget {
                 borderRadius: BorderRadius.vertical(top: LALRadii.lg),
               ),
               child: const Center(
-                child: Icon(Icons.collections_bookmark_outlined,
-                    color: LALColors.c300, size: 32),
+                child: Icon(
+                  Icons.collections_bookmark_outlined,
+                  color: LALColors.c300,
+                  size: 32,
+                ),
               ),
             ),
           ),
@@ -252,12 +284,16 @@ class _CollectionCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(collection.name,
-                    style: LALTypography.labelMedium,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis),
-                Text(t.savedPlacesCount(collection.count),
-                    style: LALTypography.bodySmall),
+                Text(
+                  collection.name,
+                  style: LALTypography.labelMedium,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  t.savedPlacesCount(collection.count),
+                  style: LALTypography.bodySmall,
+                ),
               ],
             ),
           ),
@@ -327,24 +363,31 @@ class _PinListItem extends ConsumerWidget {
                 color: LALColors.surfaceAlt,
                 borderRadius: LALRadii.mdBorder,
               ),
-              child: const Icon(Icons.place_outlined,
-                  color: LALColors.c300, size: 28),
+              child: const Icon(
+                Icons.place_outlined,
+                color: LALColors.c300,
+                size: 28,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title,
-                      style: LALTypography.labelMedium,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis),
+                  Text(
+                    title,
+                    style: LALTypography.labelMedium,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   if (pin.note != null) ...[
                     const SizedBox(height: 2),
-                    Text(pin.note!,
-                        style: LALTypography.bodySmall,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis),
+                    Text(
+                      pin.note!,
+                      style: LALTypography.bodySmall,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ],
                 ],
               ),
@@ -398,11 +441,9 @@ class _ReminderListItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final fallbackTitle = reminder.placeTitle ??
-        ref
-            .watch(placeDetailProvider(reminder.placeId))
-            .valueOrNull
-            ?.title ??
+    final fallbackTitle =
+        reminder.placeTitle ??
+        ref.watch(placeDetailProvider(reminder.placeId)).valueOrNull?.title ??
         '...';
     return GestureDetector(
       onTap: () => context.push('/place/${reminder.placeId}'),
@@ -427,9 +468,7 @@ class _ReminderListItem extends ConsumerWidget {
                 reminder.enabled
                     ? Icons.notifications_active
                     : Icons.notifications_off_outlined,
-                color: reminder.enabled
-                    ? LALColors.accent
-                    : LALColors.c400,
+                color: reminder.enabled ? LALColors.accent : LALColors.c400,
                 size: 22,
               ),
             ),
@@ -456,6 +495,10 @@ class _ReminderListItem extends ConsumerWidget {
               value: reminder.enabled,
               activeTrackColor: LALColors.accent,
               onChanged: (v) async {
+                if (ref.read(isOnlineProvider).valueOrNull == false) {
+                  showOfflineActionSnackBar(context);
+                  return;
+                }
                 final uid = ref.read(authStateProvider).valueOrNull?.uid;
                 if (uid == null) return;
                 await ref
@@ -464,9 +507,16 @@ class _ReminderListItem extends ConsumerWidget {
               },
             ),
             IconButton(
-              icon: const Icon(Icons.delete_outline,
-                  color: LALColors.c400, size: 20),
+              icon: const Icon(
+                Icons.delete_outline,
+                color: LALColors.c400,
+                size: 20,
+              ),
               onPressed: () async {
+                if (ref.read(isOnlineProvider).valueOrNull == false) {
+                  showOfflineActionSnackBar(context);
+                  return;
+                }
                 final uid = ref.read(authStateProvider).valueOrNull?.uid;
                 if (uid == null) return;
                 await ref

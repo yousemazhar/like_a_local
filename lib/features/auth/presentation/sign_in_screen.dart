@@ -43,13 +43,12 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               const SizedBox(height: 60),
               const _LALLogoHero(),
               const SizedBox(height: 40),
-              Text(t.authWelcomeBack,
-                  style: Theme.of(context).textTheme.displayMedium),
-              const SizedBox(height: 8),
               Text(
-                t.authWelcomeSubtitle,
-                style: LALTypography.bodyMedium,
+                t.authWelcomeBack,
+                style: Theme.of(context).textTheme.displayMedium,
               ),
+              const SizedBox(height: 8),
+              Text(t.authWelcomeSubtitle, style: LALTypography.bodyMedium),
               const SizedBox(height: 40),
               if (_error != null) ...[
                 Container(
@@ -58,9 +57,12 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                     color: LALColors.error.withValues(alpha: 0.1),
                     borderRadius: LALRadii.mdBorder,
                   ),
-                  child: Text(_error!,
-                      style: LALTypography.bodySmall
-                          .copyWith(color: LALColors.error)),
+                  child: Text(
+                    _error!,
+                    style: LALTypography.bodySmall.copyWith(
+                      color: LALColors.error,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
               ],
@@ -93,7 +95,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white),
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
                       )
                     : Text(t.authSignInButton),
               ),
@@ -109,14 +113,14 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(t.authNoAccount,
-                      style: LALTypography.bodySmall),
+                  Text(t.authNoAccount, style: LALTypography.bodySmall),
                   GestureDetector(
                     onTap: () => context.go('/auth/sign-up'),
                     child: Text(
                       t.authSignUpLink,
-                      style: LALTypography.labelMedium
-                          .copyWith(color: LALColors.accent),
+                      style: LALTypography.labelMedium.copyWith(
+                        color: LALColors.accent,
+                      ),
                     ),
                   ),
                 ],
@@ -146,8 +150,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       if (mounted) context.go('/discover');
     } catch (e) {
       if (mounted) {
-        setState(
-            () => _error = AuthRepository.friendlyAuthError(e, context));
+        setState(() => _error = AuthRepository.friendlyAuthError(e, context));
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -155,13 +158,18 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   }
 
   Future<void> _signInWithGoogle() async {
-    setState(() { _googleLoading = true; _error = null; });
+    setState(() {
+      _googleLoading = true;
+      _error = null;
+    });
     try {
       final user = await ref.read(authRepositoryProvider).signInWithGoogle();
       if (!mounted) return;
       if (user != null) context.go('/discover');
     } catch (e) {
-      if (mounted) setState(() => _error = AuthRepository.friendlyAuthError(e, context));
+      if (mounted) {
+        setState(() => _error = AuthRepository.friendlyAuthError(e, context));
+      }
     } finally {
       if (mounted) setState(() => _googleLoading = false);
     }
@@ -192,9 +200,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                     .read(authRepositoryProvider)
                     .sendPasswordResetEmail(emailCtrl.text);
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(t.authResetSent)),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(t.authResetSent)));
                 }
               } catch (_) {}
             },
@@ -255,6 +263,7 @@ class _LALLogoHero extends StatelessWidget {
     );
   }
 }
+
 class _OrDivider extends StatelessWidget {
   const _OrDivider();
 
@@ -296,23 +305,35 @@ class _GoogleSignInButton extends StatelessWidget {
         onPressed: loading ? null : onPressed,
         style: OutlinedButton.styleFrom(
           side: const BorderSide(color: LALColors.c200),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           backgroundColor: Colors.white,
         ),
         child: loading
             ? const SizedBox(
-                height: 20, width: 20,
-                child: CircularProgressIndicator(strokeWidth: 2, color: LALColors.c600),
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: LALColors.c600,
+                ),
               )
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SizedBox(
-                    width: 20, height: 20,
+                    width: 20,
+                    height: 20,
                     child: CustomPaint(painter: _GoogleLogoPainter()),
                   ),
                   const SizedBox(width: 12),
-                  Text(label, style: LALTypography.labelMedium.copyWith(color: LALColors.c900)),
+                  Text(
+                    label,
+                    style: LALTypography.labelMedium.copyWith(
+                      color: LALColors.c900,
+                    ),
+                  ),
                 ],
               ),
       ),
@@ -328,7 +349,11 @@ class _GoogleLogoPainter extends CustomPainter {
     final rect = Rect.fromCircle(center: center, radius: radius - 1);
     const strokeWidth = 3.5;
     void drawArc(double start, double sweep, Color color) {
-      canvas.drawArc(rect, start, sweep, false,
+      canvas.drawArc(
+        rect,
+        start,
+        sweep,
+        false,
         Paint()
           ..color = color
           ..style = PaintingStyle.stroke
@@ -336,10 +361,11 @@ class _GoogleLogoPainter extends CustomPainter {
           ..strokeCap = StrokeCap.round,
       );
     }
+
     drawArc(-1.57, 1.57, const Color(0xFF4285F4));
-    drawArc(0.0,   1.57, const Color(0xFF34A853));
-    drawArc(1.57,  1.57, const Color(0xFFFBBC05));
-    drawArc(3.14,  1.57, const Color(0xFFEA4335));
+    drawArc(0.0, 1.57, const Color(0xFF34A853));
+    drawArc(1.57, 1.57, const Color(0xFFFBBC05));
+    drawArc(3.14, 1.57, const Color(0xFFEA4335));
   }
 
   @override

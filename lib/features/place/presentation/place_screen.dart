@@ -1,9 +1,13 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/errors/offline_exception.dart';
+import '../../../core/providers/connectivity_provider.dart';
+import '../../../core/widgets/offline_action_snack_bar.dart';
 import '../../../core/widgets/skeleton.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
@@ -98,10 +102,7 @@ class _PlaceScaffoldError extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: onBack,
-                child: Text(t.placeGoBack),
-              ),
+              ElevatedButton(onPressed: onBack, child: Text(t.placeGoBack)),
             ],
           ),
         ),
@@ -146,8 +147,11 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
               child: CircleAvatar(
                 backgroundColor: Colors.white.withValues(alpha: 0.9),
                 child: IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                      size: 16, color: LALColors.c900),
+                  icon: const Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    size: 16,
+                    color: LALColors.c900,
+                  ),
                   onPressed: () => context.pop(),
                 ),
               ),
@@ -159,10 +163,18 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
                   child: CircleAvatar(
                     backgroundColor: Colors.white.withValues(alpha: 0.9),
                     child: IconButton(
-                      icon: const Icon(Icons.edit_outlined,
-                          size: 16, color: LALColors.c900),
-                      onPressed: () =>
-                          context.push('/edit-place/${place.id}'),
+                      icon: const Icon(
+                        Icons.edit_outlined,
+                        size: 16,
+                        color: LALColors.c900,
+                      ),
+                      onPressed: () {
+                        if (ref.read(isOnlineProvider).valueOrNull == false) {
+                          showOfflineActionSnackBar(context);
+                          return;
+                        }
+                        context.push('/edit-place/${place.id}');
+                      },
                     ),
                   ),
                 ),
@@ -171,8 +183,11 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
                 child: CircleAvatar(
                   backgroundColor: Colors.white.withValues(alpha: 0.9),
                   child: IconButton(
-                    icon: const Icon(Icons.share_outlined,
-                        size: 16, color: LALColors.c900),
+                    icon: const Icon(
+                      Icons.share_outlined,
+                      size: 16,
+                      color: LALColors.c900,
+                    ),
                     onPressed: () async {
                       final link = 'likealocal://place/${place.id}';
                       await Clipboard.setData(ClipboardData(text: link));
@@ -193,10 +208,12 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
                 fit: StackFit.expand,
                 children: [
                   if (place.mediaUrls.isNotEmpty)
-                    Image.network(
-                      place.mediaUrls.first,
+                    CachedNetworkImage(
+                      imageUrl: place.mediaUrls.first,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => const _HeroPlaceholder(),
+                      placeholder: (_, __) =>
+                          const ColoredBox(color: LALColors.c100),
+                      errorWidget: (_, __, ___) => const _HeroPlaceholder(),
                     )
                   else
                     const _HeroPlaceholder(),
@@ -206,14 +223,19 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
                       right: 16,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 5),
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.black.withValues(alpha: 0.5),
                           borderRadius: LALRadii.pillBorder,
                         ),
-                        child: Text('1 / ${place.mediaUrls.length}',
-                            style: LALTypography.labelSmall
-                                .copyWith(color: LALColors.surface)),
+                        child: Text(
+                          '1 / ${place.mediaUrls.length}',
+                          style: LALTypography.labelSmall.copyWith(
+                            color: LALColors.surface,
+                          ),
+                        ),
                       ),
                     ),
                 ],
@@ -236,25 +258,30 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
                       const SizedBox(height: 24),
                       Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: LALSpacing.xl),
+                          horizontal: LALSpacing.xl,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 4),
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
                               decoration: const BoxDecoration(
                                 color: LALColors.surfaceAlt,
                                 borderRadius: LALRadii.pillBorder,
                               ),
-                              child: Text(place.category,
-                                  style: LALTypography.labelSmall),
+                              child: Text(
+                                place.category,
+                                style: LALTypography.labelSmall,
+                              ),
                             ),
                             const SizedBox(height: 8),
-                            Text(place.title,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineLarge),
+                            Text(
+                              place.title,
+                              style: Theme.of(context).textTheme.headlineLarge,
+                            ),
                             const SizedBox(height: 4),
                             Text(
                               [
@@ -266,16 +293,25 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
                             ),
                             if (place.ratingAvg > 0) ...[
                               const SizedBox(height: 12),
-                              Row(children: [
-                                const Icon(Icons.star_rounded,
-                                    color: LALColors.accent, size: 16),
-                                const SizedBox(width: 4),
-                                Text(place.ratingAvg.toStringAsFixed(1),
-                                    style: LALTypography.labelMedium),
-                                const SizedBox(width: 4),
-                                Text(t.placeReviewsCount(place.ratingCount),
-                                    style: LALTypography.bodySmall),
-                              ]),
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.star_rounded,
+                                    color: LALColors.accent,
+                                    size: 16,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    place.ratingAvg.toStringAsFixed(1),
+                                    style: LALTypography.labelMedium,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    t.placeReviewsCount(place.ratingCount),
+                                    style: LALTypography.bodySmall,
+                                  ),
+                                ],
+                              ),
                             ],
                           ],
                         ),
@@ -306,9 +342,18 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
         isSaved: isSaved,
         isReminded: isReminded,
         isPremium: isPremium,
-        onToggleSave: () =>
-            ref.read(savedNotifierProvider.notifier).togglePin(place.id),
+        onToggleSave: () async {
+          try {
+            await ref.read(savedNotifierProvider.notifier).togglePin(place.id);
+          } on OfflineException {
+            if (context.mounted) showOfflineActionSnackBar(context);
+          }
+        },
         onToggleReminder: () async {
+          if (ref.read(isOnlineProvider).valueOrNull == false) {
+            showOfflineActionSnackBar(context);
+            return;
+          }
           final uid = FirebaseAuth.instance.currentUser?.uid;
           if (uid == null) return;
           if (!isPremium) {
@@ -351,12 +396,15 @@ class _HeroPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        color: LALColors.c100,
-        child: const Center(
-          child: Icon(Icons.image_not_supported_outlined,
-              color: LALColors.c300, size: 40),
-        ),
-      );
+    color: LALColors.c100,
+    child: const Center(
+      child: Icon(
+        Icons.image_not_supported_outlined,
+        color: LALColors.c300,
+        size: 40,
+      ),
+    ),
+  );
 }
 
 class _TipsCard extends StatelessWidget {
@@ -391,9 +439,12 @@ class _TipsCard extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                   child: Center(
-                    child: Text('${i + 1}',
-                        style: LALTypography.labelSmall
-                            .copyWith(color: LALColors.c700)),
+                    child: Text(
+                      '${i + 1}',
+                      style: LALTypography.labelSmall.copyWith(
+                        color: LALColors.c700,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -426,8 +477,7 @@ class _ContributorCard extends ConsumerWidget {
     final t = AppLocalizations.of(context)!;
     final ownerDisplayName = ownerUid.isEmpty
         ? ''
-        : ref.watch(userByIdProvider(ownerUid)).valueOrNull?.displayName ??
-            '';
+        : ref.watch(userByIdProvider(ownerUid)).valueOrNull?.displayName ?? '';
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: LALSpacing.xl),
       padding: const EdgeInsets.all(16),
@@ -455,10 +505,14 @@ class _ContributorCard extends ConsumerWidget {
                       color: LALColors.accent,
                       shape: BoxShape.circle,
                       border: Border.fromBorderSide(
-                          BorderSide(color: Colors.white, width: 1.5)),
+                        BorderSide(color: Colors.white, width: 1.5),
+                      ),
                     ),
-                    child: const Icon(Icons.workspace_premium_rounded,
-                        color: Colors.white, size: 8),
+                    child: const Icon(
+                      Icons.workspace_premium_rounded,
+                      color: Colors.white,
+                      size: 8,
+                    ),
                   ),
                 ),
             ],
@@ -469,76 +523,92 @@ class _ContributorCard extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                    ownerDisplayName.isNotEmpty
-                        ? ownerDisplayName
-                        : t.placeAnonymous,
-                    style: LALTypography.labelLarge),
+                  ownerDisplayName.isNotEmpty
+                      ? ownerDisplayName
+                      : t.placeAnonymous,
+                  style: LALTypography.labelLarge,
+                ),
                 Text(
                   ownerIsSuper ? t.placeSuperLocal : t.placeContributor,
-                  style:
-                      LALTypography.bodySmall.copyWith(color: LALColors.accent),
+                  style: LALTypography.bodySmall.copyWith(
+                    color: LALColors.accent,
+                  ),
                 ),
               ],
             ),
           ),
-          Builder(builder: (context) {
-            final currentUid =
-                ref.watch(authStateProvider).valueOrNull?.uid;
-            final isOwnPlace =
-                currentUid != null && ownerUid == currentUid;
-            if (isOwnPlace) {
-              return Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: LALColors.surfaceAlt,
-                  borderRadius: LALRadii.pillBorder,
+          Builder(
+            builder: (context) {
+              final currentUid = ref.watch(authStateProvider).valueOrNull?.uid;
+              final isOwnPlace = currentUid != null && ownerUid == currentUid;
+              if (isOwnPlace) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: LALColors.surfaceAlt,
+                    borderRadius: LALRadii.pillBorder,
+                  ),
+                  child: Text(
+                    'This is your place',
+                    style: LALTypography.labelSmall.copyWith(
+                      color: LALColors.c600,
+                    ),
+                  ),
+                );
+              }
+              final canChat = currentUid != null && ownerUid.isNotEmpty;
+              return ElevatedButton(
+                onPressed: !canChat
+                    ? null
+                    : () async {
+                        String? threadId;
+                        try {
+                          threadId = await ref
+                              .read(chatNotifierProvider.notifier)
+                              .openWithUser(
+                                otherUid: ownerUid,
+                                otherDisplayName: ownerDisplayName.isNotEmpty
+                                    ? ownerDisplayName
+                                    : t.placeAnonymous,
+                                otherIsSuper: ownerIsSuper,
+                                placeContext: placeId,
+                              );
+                        } on OfflineException {
+                          if (context.mounted) {
+                            showOfflineActionSnackBar(context);
+                          }
+                          return;
+                        }
+                        if (threadId != null && context.mounted) {
+                          context.push('/chat/$threadId');
+                        }
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: LALColors.accent,
+                  foregroundColor: Colors.white,
+                  disabledBackgroundColor: LALColors.c200,
+                  disabledForegroundColor: LALColors.c500,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 10,
+                  ),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  elevation: 0,
                 ),
                 child: Text(
-                  'This is your place',
-                  style: LALTypography.labelSmall
-                      .copyWith(color: LALColors.c600),
+                  t.placeChat,
+                  style: LALTypography.labelMedium.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               );
-            }
-            final canChat =
-                currentUid != null && ownerUid.isNotEmpty;
-            return ElevatedButton(
-              onPressed: !canChat
-                  ? null
-                  : () async {
-                      final threadId = await ref
-                          .read(chatNotifierProvider.notifier)
-                          .openWithUser(
-                            otherUid: ownerUid,
-                            otherDisplayName: ownerDisplayName.isNotEmpty
-                                ? ownerDisplayName
-                                : t.placeAnonymous,
-                            otherIsSuper: ownerIsSuper,
-                            placeContext: placeId,
-                          );
-                      if (threadId != null && context.mounted) {
-                        context.push('/chat/$threadId');
-                      }
-                    },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: LALColors.accent,
-                foregroundColor: Colors.white,
-                disabledBackgroundColor: LALColors.c200,
-                disabledForegroundColor: LALColors.c500,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                elevation: 0,
-              ),
-              child: Text(
-                t.placeChat,
-                style: LALTypography.labelMedium
-                    .copyWith(color: Colors.white, fontWeight: FontWeight.w600),
-              ),
-            );
-          }),
+            },
+          ),
         ],
       ),
     );
@@ -567,7 +637,11 @@ class _PlaceBottomBar extends StatelessWidget {
     final t = AppLocalizations.of(context)!;
     return Container(
       padding: EdgeInsets.fromLTRB(
-          20, 12, 20, 12 + MediaQuery.of(context).padding.bottom),
+        20,
+        12,
+        20,
+        12 + MediaQuery.of(context).padding.bottom,
+      ),
       decoration: const BoxDecoration(
         color: LALColors.surface,
         border: Border(top: BorderSide(color: LALColors.c100)),
@@ -581,14 +655,12 @@ class _PlaceBottomBar extends StatelessWidget {
                 isReminded
                     ? Icons.notifications_active
                     : (isPremium
-                        ? Icons.notifications_outlined
-                        : Icons.lock_outline),
+                          ? Icons.notifications_outlined
+                          : Icons.lock_outline),
                 size: 16,
                 color: isReminded ? LALColors.accent : null,
               ),
-              label: Text(
-                isReminded ? 'Reminder set' : t.placeRemindMe,
-              ),
+              label: Text(isReminded ? 'Reminder set' : t.placeRemindMe),
             ),
           ),
           const SizedBox(width: 12),
@@ -633,35 +705,42 @@ class _ReviewsSection extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Text(t.placeReviews,
-                  style: Theme.of(context).textTheme.headlineSmall),
+              Text(
+                t.placeReviews,
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
               const Spacer(),
               if (user != null)
                 TextButton.icon(
-                  onPressed: () => ReviewComposerSheet.show(
-                    context,
-                    placeId: placeId,
-                    existing: myReview,
-                  ),
+                  onPressed: () {
+                    if (ref.read(isOnlineProvider).valueOrNull == false) {
+                      showOfflineActionSnackBar(context);
+                      return;
+                    }
+                    ReviewComposerSheet.show(
+                      context,
+                      placeId: placeId,
+                      existing: myReview,
+                    );
+                  },
                   icon: Icon(
                     myReview == null ? Icons.add : Icons.edit_outlined,
                     size: 16,
                   ),
-                  label: Text(myReview == null
-                      ? t.placeWriteReview
-                      : t.placeEditReview),
+                  label: Text(
+                    myReview == null ? t.placeWriteReview : t.placeEditReview,
+                  ),
                 ),
             ],
           ),
           const SizedBox(height: 12),
           reviewsAsync.when(
-            loading: () =>
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 12),
-                  child: SkeletonBox(width: double.infinity, height: 80),
-                ),
-            error: (_, __) => Text(t.placeNoReviews,
-                style: LALTypography.bodySmall),
+            loading: () => const Padding(
+              padding: EdgeInsets.symmetric(vertical: 12),
+              child: SkeletonBox(width: double.infinity, height: 80),
+            ),
+            error: (_, __) =>
+                Text(t.placeNoReviews, style: LALTypography.bodySmall),
             data: (reviews) => reviews.isEmpty
                 ? Container(
                     padding: const EdgeInsets.all(20),
@@ -672,11 +751,12 @@ class _ReviewsSection extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(t.placeNoReviews,
-                            style: LALTypography.labelLarge),
+                        Text(t.placeNoReviews, style: LALTypography.labelLarge),
                         const SizedBox(height: 4),
-                        Text(t.placeNoReviewsBody,
-                            style: LALTypography.bodySmall),
+                        Text(
+                          t.placeNoReviewsBody,
+                          style: LALTypography.bodySmall,
+                        ),
                       ],
                     ),
                   )
@@ -686,9 +766,22 @@ class _ReviewsSection extends ConsumerWidget {
                         _ReviewTile(
                           review: r,
                           isMine: user?.uid == r.authorUid,
-                          onDelete: () => ref
-                              .read(reviewNotifierProvider.notifier)
-                              .delete(placeId, r.id),
+                          onDelete: () async {
+                            if (ref.read(isOnlineProvider).valueOrNull ==
+                                false) {
+                              showOfflineActionSnackBar(context);
+                              return;
+                            }
+                            try {
+                              await ref
+                                  .read(reviewNotifierProvider.notifier)
+                                  .delete(placeId, r.id);
+                            } on OfflineException {
+                              if (context.mounted) {
+                                showOfflineActionSnackBar(context);
+                              }
+                            }
+                          },
                         ),
                         const SizedBox(height: 10),
                       ],
@@ -733,8 +826,9 @@ class _ReviewTile extends StatelessWidget {
                   review.authorDisplayName.isNotEmpty
                       ? review.authorDisplayName[0].toUpperCase()
                       : '?',
-                  style: LALTypography.labelMedium
-                      .copyWith(color: LALColors.c600),
+                  style: LALTypography.labelMedium.copyWith(
+                    color: LALColors.c600,
+                  ),
                 ),
               ),
               const SizedBox(width: 10),

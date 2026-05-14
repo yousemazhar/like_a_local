@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../core/errors/offline_exception.dart';
+import '../../../core/providers/connectivity_provider.dart';
 import '../../auth/domain/auth_providers.dart';
 import '../data/review_repository.dart';
 import 'review.dart';
@@ -27,14 +29,23 @@ class ReviewNotifier extends _$ReviewNotifier {
   @override
   void build() {}
 
+  void _ensureOnline() {
+    if (ref.read(isOnlineProvider).valueOrNull == false) {
+      throw const OfflineException();
+    }
+  }
+
   Future<void> submit({
     required String placeId,
     required int rating,
     required String text,
   }) async {
+    _ensureOnline();
     final user = ref.read(authStateProvider).valueOrNull;
     if (user == null) return;
-    await ref.read(reviewRepositoryProvider).upsertReview(
+    await ref
+        .read(reviewRepositoryProvider)
+        .upsertReview(
           placeId: placeId,
           uid: user.uid,
           displayName: user.displayName ?? 'Anonymous',
@@ -45,6 +56,8 @@ class ReviewNotifier extends _$ReviewNotifier {
         );
   }
 
-  Future<void> delete(String placeId, String reviewId) =>
-      ref.read(reviewRepositoryProvider).deleteReview(placeId, reviewId);
+  Future<void> delete(String placeId, String reviewId) {
+    _ensureOnline();
+    return ref.read(reviewRepositoryProvider).deleteReview(placeId, reviewId);
+  }
 }

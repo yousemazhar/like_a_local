@@ -45,7 +45,7 @@ final myNotificationsProvider =
 typedef MyNotificationsRef =
     AutoDisposeStreamProviderRef<List<AppNotification>>;
 String _$notificationActionsHash() =>
-    r'ea6be6599990d8569709252d153bd6b5fc147eaa';
+    r'cfa2dfebea2c00fc09e417e0b7b370d08802edd2';
 
 /// See also [NotificationActions].
 @ProviderFor(NotificationActions)
