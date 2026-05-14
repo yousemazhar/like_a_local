@@ -301,6 +301,128 @@ class _ChatMessagesProviderElement
   String get threadId => (origin as ChatMessagesProvider).threadId;
 }
 
+String _$ownerChatSettingsHash() => r'c155d00ae0e5d3838d50a9315266518163cb0d42';
+
+/// See also [ownerChatSettings].
+@ProviderFor(ownerChatSettings)
+const ownerChatSettingsProvider = OwnerChatSettingsFamily();
+
+/// See also [ownerChatSettings].
+class OwnerChatSettingsFamily extends Family<AsyncValue<Map<String, dynamic>>> {
+  /// See also [ownerChatSettings].
+  const OwnerChatSettingsFamily();
+
+  /// See also [ownerChatSettings].
+  OwnerChatSettingsProvider call(String uid) {
+    return OwnerChatSettingsProvider(uid);
+  }
+
+  @override
+  OwnerChatSettingsProvider getProviderOverride(
+    covariant OwnerChatSettingsProvider provider,
+  ) {
+    return call(provider.uid);
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'ownerChatSettingsProvider';
+}
+
+/// See also [ownerChatSettings].
+class OwnerChatSettingsProvider
+    extends AutoDisposeStreamProvider<Map<String, dynamic>> {
+  /// See also [ownerChatSettings].
+  OwnerChatSettingsProvider(String uid)
+    : this._internal(
+        (ref) => ownerChatSettings(ref as OwnerChatSettingsRef, uid),
+        from: ownerChatSettingsProvider,
+        name: r'ownerChatSettingsProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$ownerChatSettingsHash,
+        dependencies: OwnerChatSettingsFamily._dependencies,
+        allTransitiveDependencies:
+            OwnerChatSettingsFamily._allTransitiveDependencies,
+        uid: uid,
+      );
+
+  OwnerChatSettingsProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.uid,
+  }) : super.internal();
+
+  final String uid;
+
+  @override
+  Override overrideWith(
+    Stream<Map<String, dynamic>> Function(OwnerChatSettingsRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: OwnerChatSettingsProvider._internal(
+        (ref) => create(ref as OwnerChatSettingsRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        uid: uid,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeStreamProviderElement<Map<String, dynamic>> createElement() {
+    return _OwnerChatSettingsProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is OwnerChatSettingsProvider && other.uid == uid;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, uid.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin OwnerChatSettingsRef
+    on AutoDisposeStreamProviderRef<Map<String, dynamic>> {
+  /// The parameter `uid` of this provider.
+  String get uid;
+}
+
+class _OwnerChatSettingsProviderElement
+    extends AutoDisposeStreamProviderElement<Map<String, dynamic>>
+    with OwnerChatSettingsRef {
+  _OwnerChatSettingsProviderElement(super.provider);
+
+  @override
+  String get uid => (origin as OwnerChatSettingsProvider).uid;
+}
+
 String _$chatNotifierHash() => r'bab1883df4f1f6cc60d886060f39e141b081925e';
 
 /// See also [ChatNotifier].

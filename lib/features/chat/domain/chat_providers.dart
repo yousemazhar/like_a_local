@@ -29,6 +29,23 @@ Stream<List<ChatMessage>> chatMessages(ChatMessagesRef ref, String threadId) =>
     ref.watch(chatRepositoryProvider).messages(threadId);
 
 @riverpod
+Stream<Map<String, dynamic>> ownerChatSettings(
+  OwnerChatSettingsRef ref,
+  String uid,
+) {
+  if (uid.isEmpty) return Stream.value(const <String, dynamic>{});
+  return FirebaseFirestore.instance
+      .collection('users')
+      .doc(uid)
+      .snapshots()
+      .map(
+        (s) =>
+            (s.data()?['chatSettings'] as Map?)?.cast<String, dynamic>() ??
+            const <String, dynamic>{},
+      );
+}
+
+@riverpod
 class ChatNotifier extends _$ChatNotifier {
   @override
   void build() {}

@@ -88,6 +88,16 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
         ? otherMeta!.displayName
         : 'Local';
 
+    final otherChatSettings = otherUid.isNotEmpty
+        ? ref.watch(ownerChatSettingsProvider(otherUid)).valueOrNull ??
+              const <String, dynamic>{}
+        : const <String, dynamic>{};
+    final otherChatEnabled = (otherChatSettings['enabled'] as bool?) ?? true;
+    final otherAwayMode = (otherChatSettings['awayMode'] as bool?) ?? false;
+    final isBlocked = !otherChatEnabled || otherAwayMode;
+    final blockedMessage =
+        !otherChatEnabled ? t.chatOwnerDisabled : t.chatOwnerAway;
+
     if (messagesAsync.hasValue) _maybeMarkRead();
 
     return Scaffold(
@@ -144,7 +154,10 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
               ),
             ),
           ),
-          _Composer(controller: _controller, onSend: () => _send(otherUid)),
+          if (isBlocked)
+            _BlockedBanner(message: blockedMessage)
+          else
+            _Composer(controller: _controller, onSend: () => _send(otherUid)),
         ],
       ),
     );
@@ -182,6 +195,40 @@ class _ChatBubble extends StatelessWidget {
             color: isMe ? Colors.white : LALColors.c900,
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _BlockedBanner extends StatelessWidget {
+  const _BlockedBanner({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        16,
+        14,
+        16,
+        14 + MediaQuery.of(context).padding.bottom,
+      ),
+      decoration: const BoxDecoration(
+        color: LALColors.surfaceAlt,
+        border: Border(top: BorderSide(color: LALColors.c100)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.info_outline, color: LALColors.c500, size: 18),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              message,
+              style: LALTypography.bodySmall.copyWith(color: LALColors.c600),
+            ),
+          ),
+        ],
       ),
     );
   }

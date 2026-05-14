@@ -479,6 +479,16 @@ class _ContributorCard extends ConsumerWidget {
     final ownerDisplayName = ownerUid.isEmpty
         ? ''
         : ref.watch(userByIdProvider(ownerUid)).valueOrNull?.displayName ?? '';
+    final currentUid = ref.watch(authStateProvider).valueOrNull?.uid;
+    final isOwnPlace = currentUid != null && ownerUid == currentUid;
+
+    final chatSettings = ownerUid.isNotEmpty
+        ? ref.watch(ownerChatSettingsProvider(ownerUid)).valueOrNull ??
+              const <String, dynamic>{}
+        : const <String, dynamic>{};
+    final chatEnabled = (chatSettings['enabled'] as bool?) ?? true;
+    final awayMode = (chatSettings['awayMode'] as bool?) ?? false;
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: LALSpacing.xl),
       padding: const EdgeInsets.all(16),
@@ -538,93 +548,80 @@ class _ContributorCard extends ConsumerWidget {
               ],
             ),
           ),
-          Builder(
-            builder: (context) {
-              final currentUid = ref.watch(authStateProvider).valueOrNull?.uid;
-              final isOwnPlace = currentUid != null && ownerUid == currentUid;
-              if (isOwnPlace) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: LALColors.surfaceAlt,
-                    borderRadius: LALRadii.pillBorder,
-                  ),
-                  child: Text(
-                    'This is your place',
-                    style: LALTypography.labelSmall.copyWith(
-                      color: LALColors.c600,
-                    ),
-                  ),
-                );
-              }
-              final canChat = currentUid != null && ownerUid.isNotEmpty;
-              return ElevatedButton(
-                onPressed: !canChat
-                    ? null
-                    : () async {
-                        final availability = await ref
-                            .read(chatRepositoryProvider)
-                            .checkOwnerAvailability(ownerUid);
-                        if (!context.mounted) return;
-                        if (availability != ChatAvailability.available) {
-                          final msg = switch (availability) {
-                            ChatAvailability.disabled => t.chatOwnerDisabled,
-                            ChatAvailability.away => t.chatOwnerAway,
-                            _ => t.chatOwnerUnavailable,
-                          };
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(msg)),
-                          );
-                          return;
-                        }
-                        String? threadId;
-                        try {
-                          threadId = await ref
-                              .read(chatNotifierProvider.notifier)
-                              .openWithUser(
-                                otherUid: ownerUid,
-                                otherDisplayName: ownerDisplayName.isNotEmpty
-                                    ? ownerDisplayName
-                                    : t.placeAnonymous,
-                                otherIsSuper: ownerIsSuper,
-                                placeContext: placeId,
-                              );
-                        } on OfflineException {
-                          if (context.mounted) {
-                            showOfflineActionSnackBar(context);
-                          }
-                          return;
-                        }
-                        if (threadId != null && context.mounted) {
-                          context.push('/chat/$threadId');
-                        }
-                      },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: LALColors.accent,
-                  foregroundColor: Colors.white,
-                  disabledBackgroundColor: LALColors.c200,
-                  disabledForegroundColor: LALColors.c500,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 18,
-                    vertical: 10,
-                  ),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  elevation: 0,
+          if (isOwnPlace)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: LALColors.surfaceAlt,
+                borderRadius: LALRadii.pillBorder,
+              ),
+              child: Text(
+                'This is your place',
+                style: LALTypography.labelSmall.copyWith(color: LALColors.c600),
+              ),
+            )
+          else if (chatEnabled)
+            ElevatedButton(
+              onPressed: currentUid == null || ownerUid.isEmpty
+                  ? null
+                  : () async {
+                      if (awayMode) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(t.chatOwnerAway)),
+                        );
+                        return;
+                      }
+                      final availability = await ref
+                          .read(chatRepositoryProvider)
+                          .checkOwnerAvailability(ownerUid);
+                      if (!context.mounted) return;
+                      if (availability == ChatAvailability.outsideSchedule) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(t.chatOwnerUnavailable)),
+                        );
+                        return;
+                      }
+                      String? threadId;
+                      try {
+                        threadId = await ref
+                            .read(chatNotifierProvider.notifier)
+                            .openWithUser(
+                              otherUid: ownerUid,
+                              otherDisplayName: ownerDisplayName.isNotEmpty
+                                  ? ownerDisplayName
+                                  : t.placeAnonymous,
+                              otherIsSuper: ownerIsSuper,
+                              placeContext: placeId,
+                            );
+                      } on OfflineException {
+                        if (context.mounted) showOfflineActionSnackBar(context);
+                        return;
+                      }
+                      if (threadId != null && context.mounted) {
+                        context.push('/chat/$threadId');
+                      }
+                    },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: LALColors.accent,
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: LALColors.c200,
+                disabledForegroundColor: LALColors.c500,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 10,
                 ),
-                child: Text(
-                  t.placeChat,
-                  style: LALTypography.labelMedium.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                elevation: 0,
+              ),
+              child: Text(
+                t.placeChat,
+                style: LALTypography.labelMedium.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
                 ),
-              );
-            },
-          ),
+              ),
+            ),
         ],
       ),
     );
