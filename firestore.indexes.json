@@ -22,6 +22,15 @@
       "collectionGroup": "places",
       "queryScope": "COLLECTION",
       "fields": [
+        { "fieldPath": "ownerUid", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "places",
+      "queryScope": "COLLECTION",
+      "fields": [
         { "fieldPath": "hidden", "order": "ASCENDING" },
         { "fieldPath": "featured", "order": "ASCENDING" }
       ]

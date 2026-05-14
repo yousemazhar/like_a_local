@@ -9,17 +9,17 @@ import '../../../l10n/app_localizations.dart';
 import '../domain/app_user.dart';
 
 void _printGoogleSignInFailure(Object error, StackTrace stackTrace) {
-  print('Google sign-in failed.');
-  print('Google sign-in error runtimeType: ${error.runtimeType}');
-  print('Google sign-in error toString: $error');
+  debugPrint('Google sign-in failed.');
+  debugPrint('Google sign-in error runtimeType: ${error.runtimeType}');
+  debugPrint('Google sign-in error toString: $error');
 
   if (error is PlatformException) {
-    print('Google sign-in PlatformException code: ${error.code}');
-    print('Google sign-in PlatformException message: ${error.message}');
-    print('Google sign-in PlatformException details: ${error.details}');
+    debugPrint('Google sign-in PlatformException code: ${error.code}');
+    debugPrint('Google sign-in PlatformException message: ${error.message}');
+    debugPrint('Google sign-in PlatformException details: ${error.details}');
   }
 
-  print('Google sign-in stackTrace: $stackTrace');
+  debugPrint('Google sign-in stackTrace: $stackTrace');
 }
 
 class AuthRepository {
@@ -71,10 +71,7 @@ class AuthRepository {
       'locale': resolveDeviceLocale(),
       'role': 'user',
       'emailVerified': false,
-      'preferences': {
-        'placeTypes': [],
-        'moods': [],
-      },
+      'preferences': {'placeTypes': [], 'moods': []},
       'createdAt': FieldValue.serverTimestamp(),
     });
 
@@ -86,32 +83,34 @@ class AuthRepository {
     // Always show the account picker so the user can switch accounts.
     await _googleSignIn.signOut();
 
-      final googleUser = await (() async {
-        try {
-          return await _googleSignIn.signIn();
-        } catch (e, stackTrace) {
-          _printGoogleSignInFailure(e, stackTrace);
-          rethrow;
-        }
-      })();
-      if (googleUser == null) {
-        print('Google sign-in returned null: user cancelled account picker.');
-      } else {
-        print(
-          'Google sign-in returned account: ${googleUser.email} '
-          '(${googleUser.id}).',
-        );
+    final googleUser = await (() async {
+      try {
+        return await _googleSignIn.signIn();
+      } catch (e, stackTrace) {
+        _printGoogleSignInFailure(e, stackTrace);
+        rethrow;
       }
+    })();
+    if (googleUser == null) {
+      debugPrint(
+        'Google sign-in returned null: user cancelled account picker.',
+      );
+    } else {
+      debugPrint(
+        'Google sign-in returned account: ${googleUser.email} '
+        '(${googleUser.id}).',
+      );
+    }
     if (googleUser == null) return null; // user cancelled
 
-      final googleAuth = await (() async {
-        try {
-          return await googleUser.authentication;
-        } catch (e, stackTrace) {
-          _printGoogleSignInFailure(e, stackTrace);
-          rethrow;
-        }
-      })();
+    final googleAuth = await (() async {
+      try {
+        return await googleUser.authentication;
+      } catch (e, stackTrace) {
+        _printGoogleSignInFailure(e, stackTrace);
+        rethrow;
+      }
+    })();
     final credential = GoogleAuthProvider.credential(
       accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken,
@@ -130,10 +129,7 @@ class AuthRepository {
         'locale': resolveDeviceLocale(),
         'role': 'user',
         'emailVerified': true,
-        'preferences': {
-          'placeTypes': [],
-          'moods': [],
-        },
+        'preferences': {'placeTypes': [], 'moods': []},
         'createdAt': FieldValue.serverTimestamp(),
       });
     }
@@ -144,26 +140,17 @@ class AuthRepository {
   /// Signs out from both FirebaseAuth and GoogleSignIn so the account picker
   /// is always shown on the next sign-in attempt.
   Future<void> signOut() async {
-    await Future.wait([
-      _auth.signOut(),
-      _googleSignIn.signOut(),
-    ]);
+    await Future.wait([_auth.signOut(), _googleSignIn.signOut()]);
   }
 
   Future<void> sendPasswordResetEmail(String email) =>
       _auth.sendPasswordResetEmail(email: email.trim());
 
-  Future<void> updatePreferences(
-    String uid,
-    UserPreferences prefs,
-  ) => _db.collection('users').doc(uid).update({
-        'preferences': prefs.toJson(),
-      });
+  Future<void> updatePreferences(String uid, UserPreferences prefs) =>
+      _db.collection('users').doc(uid).update({'preferences': prefs.toJson()});
 
-  Future<void> updateUserSettings(
-    String uid,
-    Map<String, dynamic> patch,
-  ) => _db.collection('users').doc(uid).update(patch);
+  Future<void> updateUserSettings(String uid, Map<String, dynamic> patch) =>
+      _db.collection('users').doc(uid).update(patch);
 
   Future<AppUser> _enrichUser(User user) async {
     try {
@@ -181,7 +168,8 @@ class AuthRepository {
           premium: data['premium'] as bool? ?? false,
           preferences: data['preferences'] != null
               ? UserPreferences.fromJson(
-                  Map<String, dynamic>.from(data['preferences'] as Map))
+                  Map<String, dynamic>.from(data['preferences'] as Map),
+                )
               : const UserPreferences(),
         );
       }
@@ -190,19 +178,20 @@ class AuthRepository {
   }
 
   AppUser _fromFirebaseUser(User user) => AppUser(
-        uid: user.uid,
-        email: user.email ?? '',
-        displayName: user.displayName,
-        photoUrl: user.photoURL,
-        emailVerified: user.emailVerified,
-      );
+    uid: user.uid,
+    email: user.email ?? '',
+    displayName: user.displayName,
+    photoUrl: user.photoURL,
+    emailVerified: user.emailVerified,
+  );
 
   static String friendlyAuthError(Object e, BuildContext context) {
     final t = AppLocalizations.of(context)!;
     if (e is FirebaseAuthException) {
       return switch (e.code) {
-        'user-not-found' || 'wrong-password' || 'invalid-credential' =>
-          t.authErrorInvalidCredential,
+        'user-not-found' ||
+        'wrong-password' ||
+        'invalid-credential' => t.authErrorInvalidCredential,
         'email-already-in-use' => t.authErrorEmailInUse,
         'weak-password' => t.authErrorWeakPassword,
         'invalid-email' => t.authErrorInvalidEmail,

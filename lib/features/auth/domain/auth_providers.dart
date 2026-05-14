@@ -13,10 +13,10 @@ GoogleSignIn googleSignIn(GoogleSignInRef ref) => GoogleSignIn();
 
 @Riverpod(keepAlive: true)
 AuthRepository authRepository(AuthRepositoryRef ref) => AuthRepository(
-      FirebaseAuth.instance,
-      FirebaseFirestore.instance,
-      ref.watch(googleSignInProvider),
-    );
+  FirebaseAuth.instance,
+  FirebaseFirestore.instance,
+  ref.watch(googleSignInProvider),
+);
 
 @Riverpod(keepAlive: true)
 Stream<AppUser?> authState(AuthStateRef ref) =>
@@ -24,33 +24,33 @@ Stream<AppUser?> authState(AuthStateRef ref) =>
 
 @Riverpod(keepAlive: true)
 Stream<AppUser?> currentUserDoc(CurrentUserDocRef ref) {
-  final uid = FirebaseAuth.instance.currentUser?.uid;
-  if (uid == null) return Stream.value(null);
+  final authAsync = ref.watch(authStateProvider);
+  final authUser = authAsync.valueOrNull;
+  if (authUser == null) return Stream.value(null);
+
   return FirebaseFirestore.instance
       .collection('users')
-      .doc(uid)
+      .doc(authUser.uid)
       .snapshots()
       .map((snap) {
-    final data = snap.data();
-    if (data == null) return null;
-    return AppUser(
-      uid: uid,
-      email: (data['email'] as String?) ??
-          FirebaseAuth.instance.currentUser?.email ??
-          '',
-      displayName: data['displayName'] as String?,
-      photoUrl: FirebaseAuth.instance.currentUser?.photoURL,
-      locale: data['locale'] as String? ?? 'en',
-      role: data['role'] as String? ?? 'user',
-      emailVerified:
-          FirebaseAuth.instance.currentUser?.emailVerified ?? false,
-      premium: data['premium'] as bool? ?? false,
-      preferences: data['preferences'] != null
-          ? UserPreferences.fromJson(
-              Map<String, dynamic>.from(data['preferences'] as Map))
-          : const UserPreferences(),
-    );
-  });
+        final data = snap.data();
+        if (data == null) return authUser;
+        return AppUser(
+          uid: authUser.uid,
+          email: (data['email'] as String?) ?? authUser.email,
+          displayName: data['displayName'] as String? ?? authUser.displayName,
+          photoUrl: authUser.photoUrl ?? (data['photoUrl'] as String?),
+          locale: data['locale'] as String? ?? 'en',
+          role: data['role'] as String? ?? 'user',
+          emailVerified: authUser.emailVerified,
+          premium: data['premium'] as bool? ?? false,
+          preferences: data['preferences'] != null
+              ? UserPreferences.fromJson(
+                  Map<String, dynamic>.from(data['preferences'] as Map),
+                )
+              : const UserPreferences(),
+        );
+      });
 }
 
 /// Public-ish profile lookup for any uid. Used to render owner/author
@@ -63,15 +63,15 @@ Stream<AppUser?> userById(UserByIdRef ref, String uid) {
       .doc(uid)
       .snapshots()
       .map((snap) {
-    final data = snap.data();
-    if (data == null) return null;
-    return AppUser(
-      uid: uid,
-      email: (data['email'] as String?) ?? '',
-      displayName: data['displayName'] as String?,
-      photoUrl: data['photoUrl'] as String?,
-      locale: data['locale'] as String? ?? 'en',
-      role: data['role'] as String? ?? 'user',
-    );
-  });
+        final data = snap.data();
+        if (data == null) return null;
+        return AppUser(
+          uid: uid,
+          email: (data['email'] as String?) ?? '',
+          displayName: data['displayName'] as String?,
+          photoUrl: data['photoUrl'] as String?,
+          locale: data['locale'] as String? ?? 'en',
+          role: data['role'] as String? ?? 'user',
+        );
+      });
 }

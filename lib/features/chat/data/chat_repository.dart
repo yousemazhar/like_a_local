@@ -17,25 +17,30 @@ class ChatRepository {
       .where('members', arrayContains: uid)
       .orderBy('lastAt', descending: true)
       .snapshots()
-      .map((s) => s.docs
-          .map((d) => ChatThread.fromJson({...d.data(), 'id': d.id}))
-          .toList());
+      .map(
+        (s) => s.docs
+            .map((d) => ChatThread.fromJson({...d.data(), 'id': d.id}))
+            .toList(),
+      );
 
-  Stream<ChatThread?> thread(String threadId) =>
-      _chats.doc(threadId).snapshots().map(
-            (d) => d.exists
-                ? ChatThread.fromJson({...d.data()!, 'id': d.id})
-                : null,
-          );
+  Stream<ChatThread?> thread(String threadId) => _chats
+      .doc(threadId)
+      .snapshots()
+      .map(
+        (d) =>
+            d.exists ? ChatThread.fromJson({...d.data()!, 'id': d.id}) : null,
+      );
 
   Stream<List<ChatMessage>> messages(String threadId, {int limit = 100}) =>
       _messages(threadId)
           .orderBy('createdAt', descending: true)
           .limit(limit)
           .snapshots()
-          .map((s) => s.docs.reversed
-              .map((d) => ChatMessage.fromJson({...d.data(), 'id': d.id}))
-              .toList());
+          .map(
+            (s) => s.docs.reversed
+                .map((d) => ChatMessage.fromJson({...d.data(), 'id': d.id}))
+                .toList(),
+          );
 
   Future<String> ensureThread({
     required String currentUid,
@@ -68,7 +73,7 @@ class ChatRepository {
         'lastMessage': '',
         'lastAt': FieldValue.serverTimestamp(),
         'unread': {currentUid: 0, otherUid: 0},
-        if (placeContext != null) 'placeContext': placeContext,
+        'placeContext': ?placeContext,
       });
     }
     return threadId;

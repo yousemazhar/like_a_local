@@ -57,7 +57,7 @@ final authStateProvider = StreamProvider<AppUser?>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef AuthStateRef = StreamProviderRef<AppUser?>;
-String _$currentUserDocHash() => r'eb1f74f48e9fc4303138cb83d960f0456d07643c';
+String _$currentUserDocHash() => r'3a3b25978ca5852afad470732422a7c2b2f4c8d7';
 
 /// See also [currentUserDoc].
 @ProviderFor(currentUserDoc)
