@@ -123,12 +123,19 @@ class ReminderLocationService {
         return false;
       }
 
-      // On Android 10+ we must separately request "always" permission
-      // after the user has already granted "while in use".
+      // On Android 11+ the OS won't show "Allow all the time" in the
+      // initial dialog; it only appears after the user has granted
+      // whileInUse. A second requestPermission() call then redirects to
+      // the app settings page where "Allow all the time" is present.
+      // We accept whileInUse as a fallback so the service still works
+      // when the app is open; the Reminders tab banner prompts the user
+      // to upgrade to background access.
       if (Platform.isAndroid && perm == LocationPermission.whileInUse) {
         perm = await Geolocator.requestPermission();
       }
 
+      // Accept whileInUse too — proximity checks still fire while the app
+      // is in the foreground; the warning banner handles the rest.
       return perm == LocationPermission.always ||
           perm == LocationPermission.whileInUse;
     } catch (e) {
