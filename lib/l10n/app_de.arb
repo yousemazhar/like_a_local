@@ -298,8 +298,28 @@
   "buttonCancel": "Abbrechen",
   "buttonSave": "Speichern",
   "buttonNext": "Weiter",
-  "buttonDone": "Fertig"
-  ,"authSignInWithGoogle": "Mit Google anmelden",
+  "buttonDone": "Fertig",
+
+  "dayMonday": "Montag",
+  "dayTuesday": "Dienstag",
+  "dayWednesday": "Mittwoch",
+  "dayThursday": "Donnerstag",
+  "dayFriday": "Freitag",
+  "daySaturday": "Samstag",
+  "daySunday": "Sonntag",
+
+  "chatScheduleTitle": "Chat-Zeiten",
+  "chatScheduleEnforce": "Zeiten einhalten",
+  "chatScheduleEnforceSubtitle": "Nachrichten nur in gesetzten Zeiten annehmen",
+  "chatScheduleFrom": "Von",
+  "chatScheduleTo": "Bis",
+  "chatScheduleSaved": "Zeiten gespeichert",
+
+  "chatOwnerDisabled": "Dieser Eigentümer hat den Chat deaktiviert",
+  "chatOwnerAway": "Dieser Eigentümer ist im Abwesend-Modus",
+  "chatOwnerUnavailable": "Eigentümer ist zu dieser Zeit nicht verfügbar",
+
+  "authSignInWithGoogle": "Mit Google anmelden",
   "@authSignInWithGoogle": {
     "description": "Button label for signing in with Google"
   },

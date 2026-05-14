@@ -1652,6 +1652,102 @@ abstract class AppLocalizations {
   /// **'Done'**
   String get buttonDone;
 
+  /// No description provided for @dayMonday.
+  ///
+  /// In en, this message translates to:
+  /// **'Monday'**
+  String get dayMonday;
+
+  /// No description provided for @dayTuesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Tuesday'**
+  String get dayTuesday;
+
+  /// No description provided for @dayWednesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Wednesday'**
+  String get dayWednesday;
+
+  /// No description provided for @dayThursday.
+  ///
+  /// In en, this message translates to:
+  /// **'Thursday'**
+  String get dayThursday;
+
+  /// No description provided for @dayFriday.
+  ///
+  /// In en, this message translates to:
+  /// **'Friday'**
+  String get dayFriday;
+
+  /// No description provided for @daySaturday.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturday'**
+  String get daySaturday;
+
+  /// No description provided for @daySunday.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunday'**
+  String get daySunday;
+
+  /// No description provided for @chatScheduleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat Schedule'**
+  String get chatScheduleTitle;
+
+  /// No description provided for @chatScheduleEnforce.
+  ///
+  /// In en, this message translates to:
+  /// **'Enforce schedule'**
+  String get chatScheduleEnforce;
+
+  /// No description provided for @chatScheduleEnforceSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Only accept messages during set hours'**
+  String get chatScheduleEnforceSubtitle;
+
+  /// No description provided for @chatScheduleFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get chatScheduleFrom;
+
+  /// No description provided for @chatScheduleTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get chatScheduleTo;
+
+  /// No description provided for @chatScheduleSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule saved'**
+  String get chatScheduleSaved;
+
+  /// No description provided for @chatOwnerDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'This owner has disabled chat'**
+  String get chatOwnerDisabled;
+
+  /// No description provided for @chatOwnerAway.
+  ///
+  /// In en, this message translates to:
+  /// **'This owner is in away mode'**
+  String get chatOwnerAway;
+
+  /// No description provided for @chatOwnerUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner is unavailable during these hours'**
+  String get chatOwnerUnavailable;
+
   /// Button label for signing in with Google
   ///
   /// In en, this message translates to:

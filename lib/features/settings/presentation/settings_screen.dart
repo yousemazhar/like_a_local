@@ -99,7 +99,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             icon: Icons.schedule_outlined,
             title: t.settingsChatSchedule,
             subtitle: t.settingsChatScheduleSubtitle,
-            onTap: () => _comingSoon(t.settingsChatSchedule),
+            onTap: () => context.push('/chat-schedule'),
           ),
 
           // Privacy

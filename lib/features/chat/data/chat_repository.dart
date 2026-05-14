@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../domain/chat.dart';
 
+enum ChatAvailability { available, disabled, away, outsideSchedule }
+
 class ChatRepository {
   ChatRepository(this._db);
 
@@ -103,4 +105,48 @@ class ChatRepository {
 
   Future<void> markRead(String threadId, String uid) =>
       _chats.doc(threadId).update({'unread.$uid': 0});
+
+  /// Checks whether [ownerUid] is currently available for chat.
+  Future<ChatAvailability> checkOwnerAvailability(String ownerUid) async {
+    final doc = await _db.collection('users').doc(ownerUid).get();
+    final chatSettings =
+        (doc.data()?['chatSettings'] as Map?)?.cast<String, dynamic>() ??
+        const <String, dynamic>{};
+
+    final enabled = (chatSettings['enabled'] as bool?) ?? true;
+    if (!enabled) return ChatAvailability.disabled;
+
+    final awayMode = (chatSettings['awayMode'] as bool?) ?? false;
+    if (awayMode) return ChatAvailability.away;
+
+    final scheduleEnabled = (chatSettings['scheduleEnabled'] as bool?) ?? false;
+    if (!scheduleEnabled) return ChatAvailability.available;
+
+    final now = DateTime.now();
+    final dayKey = '${now.weekday}';
+    final schedule =
+        (chatSettings['schedule'] as Map?)?.cast<String, dynamic>() ??
+        const <String, dynamic>{};
+    final daySlot = (schedule[dayKey] as Map?)?.cast<String, dynamic>();
+
+    if (daySlot == null) return ChatAvailability.outsideSchedule;
+
+    final dayEnabled = (daySlot['enabled'] as bool?) ?? false;
+    if (!dayEnabled) return ChatAvailability.outsideSchedule;
+
+    final fromHour = (daySlot['fromHour'] as int?) ?? 0;
+    final fromMin = (daySlot['fromMinute'] as int?) ?? 0;
+    final toHour = (daySlot['toHour'] as int?) ?? 23;
+    final toMin = (daySlot['toMinute'] as int?) ?? 59;
+
+    final currentMinutes = now.hour * 60 + now.minute;
+    final fromMinutes = fromHour * 60 + fromMin;
+    final toMinutes = toHour * 60 + toMin;
+
+    if (currentMinutes < fromMinutes || currentMinutes > toMinutes) {
+      return ChatAvailability.outsideSchedule;
+    }
+
+    return ChatAvailability.available;
+  }
 }

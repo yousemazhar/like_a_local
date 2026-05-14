@@ -20,6 +20,7 @@ import '../features/premium/presentation/premium_screen.dart';
 import '../features/profile/presentation/profile_screen.dart';
 import '../features/saved/presentation/saved_screen.dart';
 import '../features/search/presentation/search_screen.dart';
+import '../features/settings/presentation/chat_schedule_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
 import 'guards.dart';
 
@@ -66,6 +67,10 @@ GoRouter appRouter(AppRouterRef ref) {
       GoRoute(
         path: '/settings',
         builder: (_, __) => const SettingsScreen(),
+      ),
+      GoRoute(
+        path: '/chat-schedule',
+        builder: (_, __) => const ChatScheduleScreen(),
       ),
       GoRoute(
         path: '/notifications',

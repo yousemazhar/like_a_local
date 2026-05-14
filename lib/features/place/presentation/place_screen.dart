@@ -13,6 +13,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
 import '../../auth/domain/auth_providers.dart';
+import '../../chat/data/chat_repository.dart';
 import '../../chat/domain/chat_providers.dart';
 import '../../reminders/domain/reminder_providers.dart';
 import '../../reviews/domain/review.dart';
@@ -564,6 +565,21 @@ class _ContributorCard extends ConsumerWidget {
                 onPressed: !canChat
                     ? null
                     : () async {
+                        final availability = await ref
+                            .read(chatRepositoryProvider)
+                            .checkOwnerAvailability(ownerUid);
+                        if (!context.mounted) return;
+                        if (availability != ChatAvailability.available) {
+                          final msg = switch (availability) {
+                            ChatAvailability.disabled => t.chatOwnerDisabled,
+                            ChatAvailability.away => t.chatOwnerAway,
+                            _ => t.chatOwnerUnavailable,
+                          };
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(msg)),
+                          );
+                          return;
+                        }
                         String? threadId;
                         try {
                           threadId = await ref

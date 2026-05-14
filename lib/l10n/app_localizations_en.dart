@@ -811,6 +811,55 @@ class AppLocalizationsEn extends AppLocalizations {
   String get buttonDone => 'Done';
 
   @override
+  String get dayMonday => 'Monday';
+
+  @override
+  String get dayTuesday => 'Tuesday';
+
+  @override
+  String get dayWednesday => 'Wednesday';
+
+  @override
+  String get dayThursday => 'Thursday';
+
+  @override
+  String get dayFriday => 'Friday';
+
+  @override
+  String get daySaturday => 'Saturday';
+
+  @override
+  String get daySunday => 'Sunday';
+
+  @override
+  String get chatScheduleTitle => 'Chat Schedule';
+
+  @override
+  String get chatScheduleEnforce => 'Enforce schedule';
+
+  @override
+  String get chatScheduleEnforceSubtitle =>
+      'Only accept messages during set hours';
+
+  @override
+  String get chatScheduleFrom => 'From';
+
+  @override
+  String get chatScheduleTo => 'To';
+
+  @override
+  String get chatScheduleSaved => 'Schedule saved';
+
+  @override
+  String get chatOwnerDisabled => 'This owner has disabled chat';
+
+  @override
+  String get chatOwnerAway => 'This owner is in away mode';
+
+  @override
+  String get chatOwnerUnavailable => 'Owner is unavailable during these hours';
+
+  @override
   String get authSignInWithGoogle => 'Sign in with Google';
 
   @override
