@@ -33,6 +33,20 @@
   "@discoverSeeAll": {},
   "discoverSearchHint": "Search restaurants, places…",
   "@discoverSearchHint": {},
+  "discoverCustomDistance": "Custom distance",
+  "@discoverCustomDistance": {},
+  "discoverCustomDistanceFilter": "Custom {distance}",
+  "@discoverCustomDistanceFilter": {
+    "placeholders": { "distance": { "type": "String" } }
+  },
+  "discoverDistanceKm": "Distance in km",
+  "@discoverDistanceKm": {},
+  "discoverNoNearbyPlaces": "No nearby places",
+  "@discoverNoNearbyPlaces": {},
+  "discoverNoNearbyPlacesBody": "Try a wider distance filter.",
+  "@discoverNoNearbyPlacesBody": {},
+  "discoverRefreshLocation": "Refresh location",
+  "@discoverRefreshLocation": {},
 
   "categoryAll": "All",
   "@categoryAll": {},

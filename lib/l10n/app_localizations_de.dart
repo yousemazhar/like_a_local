@@ -54,6 +54,27 @@ class AppLocalizationsDe extends AppLocalizations {
   String get discoverSearchHint => 'Restaurants, Orte suchen…';
 
   @override
+  String get discoverCustomDistance => 'Eigene Entfernung';
+
+  @override
+  String discoverCustomDistanceFilter(String distance) {
+    return 'Eigene $distance';
+  }
+
+  @override
+  String get discoverDistanceKm => 'Entfernung in km';
+
+  @override
+  String get discoverNoNearbyPlaces => 'Keine Orte in der Nähe';
+
+  @override
+  String get discoverNoNearbyPlacesBody =>
+      'Versuche einen größeren Entfernungsfilter.';
+
+  @override
+  String get discoverRefreshLocation => 'Standort aktualisieren';
+
+  @override
   String get categoryAll => 'Alle';
 
   @override

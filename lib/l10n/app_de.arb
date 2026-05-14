@@ -18,6 +18,15 @@
   "discoverViewProfile": "Profil ansehen",
   "discoverSeeAll": "Alle ansehen",
   "discoverSearchHint": "Restaurants, Orte suchen…",
+  "discoverCustomDistance": "Eigene Entfernung",
+  "discoverCustomDistanceFilter": "Eigene {distance}",
+  "@discoverCustomDistanceFilter": {
+    "placeholders": { "distance": { "type": "String" } }
+  },
+  "discoverDistanceKm": "Entfernung in km",
+  "discoverNoNearbyPlaces": "Keine Orte in der Nähe",
+  "discoverNoNearbyPlacesBody": "Versuche einen größeren Entfernungsfilter.",
+  "discoverRefreshLocation": "Standort aktualisieren",
 
   "categoryAll": "Alle",
   "categoryRestaurant": "Restaurant",

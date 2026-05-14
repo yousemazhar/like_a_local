@@ -54,6 +54,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get discoverSearchHint => 'Search restaurants, places…';
 
   @override
+  String get discoverCustomDistance => 'Custom distance';
+
+  @override
+  String discoverCustomDistanceFilter(String distance) {
+    return 'Custom $distance';
+  }
+
+  @override
+  String get discoverDistanceKm => 'Distance in km';
+
+  @override
+  String get discoverNoNearbyPlaces => 'No nearby places';
+
+  @override
+  String get discoverNoNearbyPlacesBody => 'Try a wider distance filter.';
+
+  @override
+  String get discoverRefreshLocation => 'Refresh location';
+
+  @override
   String get categoryAll => 'All';
 
   @override

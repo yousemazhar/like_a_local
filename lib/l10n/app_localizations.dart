@@ -188,6 +188,42 @@ abstract class AppLocalizations {
   /// **'Search restaurants, places…'**
   String get discoverSearchHint;
 
+  /// No description provided for @discoverCustomDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom distance'**
+  String get discoverCustomDistance;
+
+  /// No description provided for @discoverCustomDistanceFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom {distance}'**
+  String discoverCustomDistanceFilter(String distance);
+
+  /// No description provided for @discoverDistanceKm.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance in km'**
+  String get discoverDistanceKm;
+
+  /// No description provided for @discoverNoNearbyPlaces.
+  ///
+  /// In en, this message translates to:
+  /// **'No nearby places'**
+  String get discoverNoNearbyPlaces;
+
+  /// No description provided for @discoverNoNearbyPlacesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Try a wider distance filter.'**
+  String get discoverNoNearbyPlacesBody;
+
+  /// No description provided for @discoverRefreshLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh location'**
+  String get discoverRefreshLocation;
+
   /// No description provided for @categoryAll.
   ///
   /// In en, this message translates to:
