@@ -314,9 +314,11 @@ class _FeatureRow extends StatelessWidget {
             child: Icon(feature.icon, color: LALColors.accent, size: 16),
           ),
           const SizedBox(width: 14),
-          Text(
-            feature.text,
-            style: LALTypography.bodyLarge.copyWith(color: Colors.white),
+          Expanded(
+            child: Text(
+              feature.text,
+              style: LALTypography.bodyLarge.copyWith(color: Colors.white),
+            ),
           ),
         ],
       ),
