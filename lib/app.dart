@@ -7,6 +7,7 @@ import 'core/providers/locale_provider.dart';
 import 'core/widgets/offline_banner.dart';
 import 'features/auth/domain/auth_providers.dart';
 import 'features/notifications/data/fcm_service.dart';
+import 'features/reminders/data/reminder_location_service.dart';
 import 'l10n/app_localizations.dart';
 import 'router/app_router.dart';
 import 'theme/app_theme.dart';
@@ -23,6 +24,9 @@ class App extends ConsumerWidget {
       final user = next.valueOrNull;
       if (user != null) {
         FcmService.instance.register();
+        ReminderLocationService.instance.start(user.uid);
+      } else {
+        ReminderLocationService.instance.stop();
       }
     });
 

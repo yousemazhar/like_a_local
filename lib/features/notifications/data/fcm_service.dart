@@ -104,14 +104,10 @@ class FcmService {
     }
   }
 
-  Future<void> _showForeground(RemoteMessage message) async {
-    final notif = message.notification;
-    final title = notif?.title ?? message.data['title'] as String? ?? 'LikeALocal';
-    final body = notif?.body ?? message.data['body'] as String? ?? '';
-    if (title.isEmpty && body.isEmpty) return;
+  Future<void> showLocal(int id, String title, String body) async {
     await _ensureLocalReady();
     await _local.show(
-      DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      id,
       title,
       body,
       const NotificationDetails(
@@ -125,5 +121,13 @@ class FcmService {
         iOS: DarwinNotificationDetails(presentAlert: true, presentSound: true),
       ),
     );
+  }
+
+  Future<void> _showForeground(RemoteMessage message) async {
+    final notif = message.notification;
+    final title = notif?.title ?? message.data['title'] as String? ?? 'LikeALocal';
+    final body = notif?.body ?? message.data['body'] as String? ?? '';
+    if (title.isEmpty && body.isEmpty) return;
+    await showLocal(DateTime.now().millisecondsSinceEpoch ~/ 1000, title, body);
   }
 }

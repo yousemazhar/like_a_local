@@ -398,6 +398,12 @@ abstract class AppLocalizations {
   /// **'Free plan: up to 10 saved places.'**
   String get savedFreePlan;
 
+  /// No description provided for @savedFreePlanCollections.
+  ///
+  /// In en, this message translates to:
+  /// **'Free plan: up to 3 collections.'**
+  String get savedFreePlanCollections;
+
   /// No description provided for @savedUpgrade.
   ///
   /// In en, this message translates to:
@@ -457,6 +463,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Set location reminders on any saved place.'**
   String get savedNoRemindersBody;
+
+  /// No description provided for @reminderSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder set'**
+  String get reminderSet;
+
+  /// No description provided for @reminderFreeLimitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder limit reached'**
+  String get reminderFreeLimitTitle;
+
+  /// No description provided for @reminderFreeLimitBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Free plan includes up to 3 location reminders. Upgrade to Premium for unlimited reminders.'**
+  String get reminderFreeLimitBody;
+
+  /// No description provided for @reminderRemovedFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder removed for {place}'**
+  String reminderRemovedFor(String place);
+
+  /// No description provided for @reminderNearPlace.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll remind you near {place}'**
+  String reminderNearPlace(String place);
+
+  /// No description provided for @pinFreeLimitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved places limit reached'**
+  String get pinFreeLimitTitle;
+
+  /// No description provided for @pinFreeLimitBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Free plan includes up to 10 saved places. Upgrade to Premium for unlimited saves.'**
+  String get pinFreeLimitBody;
+
+  /// No description provided for @collectionFreeLimitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Collections limit reached'**
+  String get collectionFreeLimitTitle;
+
+  /// No description provided for @collectionFreeLimitBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Free plan includes up to 3 collections. Upgrade to Premium for unlimited collections.'**
+  String get collectionFreeLimitBody;
 
   /// No description provided for @inboxTitle.
   ///
@@ -1103,13 +1163,13 @@ abstract class AppLocalizations {
   /// No description provided for @premiumFeatureUnlimitedSaves.
   ///
   /// In en, this message translates to:
-  /// **'Unlimited saved places'**
+  /// **'Unlimited saved places (free: 10)'**
   String get premiumFeatureUnlimitedSaves;
 
   /// No description provided for @premiumFeatureUnlimitedCollections.
   ///
   /// In en, this message translates to:
-  /// **'Unlimited collections'**
+  /// **'Unlimited collections (free: 3)'**
   String get premiumFeatureUnlimitedCollections;
 
   /// No description provided for @premiumFeatureAiChat.
@@ -1127,7 +1187,7 @@ abstract class AppLocalizations {
   /// No description provided for @premiumFeatureReminders.
   ///
   /// In en, this message translates to:
-  /// **'Location reminders'**
+  /// **'Unlimited location reminders (free: 3)'**
   String get premiumFeatureReminders;
 
   /// No description provided for @settingsTitle.

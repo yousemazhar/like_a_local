@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/providers/connectivity_provider.dart';
 import '../../l10n/app_localizations.dart';
-import '../../theme/tokens.dart';
 import '../../theme/typography.dart';
 
 class OfflineBanner extends ConsumerWidget {

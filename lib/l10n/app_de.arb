@@ -60,6 +60,7 @@
   "savedEmptyBody": "Speichere Orte, die du liebst, um sie später wiederzufinden.",
   "savedUnlockCollections": "Unbegrenzte Sammlungen freischalten",
   "savedFreePlan": "Gratis-Plan: bis zu 10 gespeicherte Orte.",
+  "savedFreePlanCollections": "Gratis-Plan: bis zu 3 Sammlungen.",
   "savedUpgrade": "Upgraden",
   "savedNoCollections": "Noch keine Sammlungen",
   "savedNoCollectionsBody": "Ordne deine gespeicherten Orte in Sammlungen.",
@@ -73,6 +74,21 @@
   },
   "savedNoReminders": "Keine Erinnerungen",
   "savedNoRemindersBody": "Setze Orts-Erinnerungen für gespeicherte Orte.",
+  "reminderSet": "Erinnerung gesetzt",
+  "reminderFreeLimitTitle": "Erinnerungslimit erreicht",
+  "reminderFreeLimitBody": "Der Gratis-Plan umfasst bis zu 3 Orts-Erinnerungen. Upgrade auf Premium für unbegrenzte Erinnerungen.",
+  "reminderRemovedFor": "Erinnerung für {place} entfernt",
+  "@reminderRemovedFor": {
+    "placeholders": { "place": { "type": "String" } }
+  },
+  "reminderNearPlace": "Wir erinnern dich in der Nähe von {place}",
+  "@reminderNearPlace": {
+    "placeholders": { "place": { "type": "String" } }
+  },
+  "pinFreeLimitTitle": "Limit für gespeicherte Orte erreicht",
+  "pinFreeLimitBody": "Der Gratis-Plan umfasst bis zu 10 gespeicherte Orte. Upgrade auf Premium für unbegrenzte Speicherungen.",
+  "collectionFreeLimitTitle": "Sammlungslimit erreicht",
+  "collectionFreeLimitBody": "Der Gratis-Plan umfasst bis zu 3 Sammlungen. Upgrade auf Premium für unbegrenzte Sammlungen.",
 
   "inboxTitle": "Nachrichten",
   "inboxEmpty": "Noch keine Nachrichten",
@@ -196,11 +212,11 @@
   "premiumRestorePurchases": "Käufe wiederherstellen",
   "premiumCancelAnnually": "Jederzeit kündbar. Jährliche Abrechnung.",
   "premiumCancelMonthly": "Jederzeit kündbar. Monatliche Abrechnung.",
-  "premiumFeatureUnlimitedSaves": "Unbegrenzt gespeicherte Orte",
-  "premiumFeatureUnlimitedCollections": "Unbegrenzte Sammlungen",
+  "premiumFeatureUnlimitedSaves": "Unbegrenzt gespeicherte Orte (Gratis: 10)",
+  "premiumFeatureUnlimitedCollections": "Unbegrenzte Sammlungen (Gratis: 3)",
   "premiumFeatureAiChat": "Local AI Chat-Assistent",
   "premiumFeatureOfflineMaps": "Offline-Karten für Stadtviertel",
-  "premiumFeatureReminders": "Orts-Erinnerungen",
+  "premiumFeatureReminders": "Unbegrenzte Orts-Erinnerungen (Gratis: 3)",
 
   "settingsTitle": "Einstellungen",
   "settingsChat": "Chat",

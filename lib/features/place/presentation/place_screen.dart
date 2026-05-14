@@ -345,6 +345,13 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
         isPremium: isPremium,
         onToggleSave: () async {
           try {
+            if (!isSaved && !isPremium) {
+              final pins = ref.read(savedPinsProvider).valueOrNull ?? [];
+              if (pins.length >= 10) {
+                _showPinLimitDialog(context, t);
+                return;
+              }
+            }
             await ref.read(savedNotifierProvider.notifier).togglePin(place.id);
           } on OfflineException {
             if (context.mounted) showOfflineActionSnackBar(context);
@@ -357,11 +364,6 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
           }
           final uid = FirebaseAuth.instance.currentUser?.uid;
           if (uid == null) return;
-          if (!isPremium) {
-            if (!context.mounted) return;
-            context.push('/premium');
-            return;
-          }
           final repo = ref.read(reminderRepositoryProvider);
           if (isReminded) {
             await repo.remove(uid, place.id);
@@ -369,24 +371,90 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 duration: const Duration(seconds: 2),
-                content: Text('Reminder removed for ${place.title}'),
+                content: Text(t.reminderRemovedFor(place.title)),
               ),
             );
           } else {
+            if (!isPremium) {
+              final reminders = ref.read(remindersStreamProvider).valueOrNull ?? [];
+              if (reminders.length >= 3) {
+                if (!context.mounted) return;
+                _showReminderLimitDialog(context, t);
+                return;
+              }
+            }
+            if (place.lat == 0.0 && place.lng == 0.0) {
+              if (!context.mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  duration: const Duration(seconds: 2),
+                  content: Text(t.errorGenericBody),
+                ),
+              );
+              return;
+            }
             await repo.set(
               uid: uid,
               placeId: place.id,
               placeTitle: place.title,
+              lat: place.lat,
+              lng: place.lng,
             );
             if (!context.mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 duration: const Duration(seconds: 2),
-                content: Text("We'll remind you near ${place.title}"),
+                content: Text(t.reminderNearPlace(place.title)),
               ),
             );
           }
         },
+      ),
+    );
+  }
+
+  void _showReminderLimitDialog(BuildContext context, AppLocalizations t) {
+    showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(t.reminderFreeLimitTitle),
+        content: Text(t.reminderFreeLimitBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(t.buttonCancel),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.push('/premium');
+            },
+            child: Text(t.savedUpgrade),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showPinLimitDialog(BuildContext context, AppLocalizations t) {
+    showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(t.pinFreeLimitTitle),
+        content: Text(t.pinFreeLimitBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(t.buttonCancel),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.push('/premium');
+            },
+            child: Text(t.savedUpgrade),
+          ),
+        ],
       ),
     );
   }
@@ -667,13 +735,11 @@ class _PlaceBottomBar extends StatelessWidget {
               icon: Icon(
                 isReminded
                     ? Icons.notifications_active
-                    : (isPremium
-                          ? Icons.notifications_outlined
-                          : Icons.lock_outline),
+                    : Icons.notifications_outlined,
                 size: 16,
                 color: isReminded ? LALColors.accent : null,
               ),
-              label: Text(isReminded ? 'Reminder set' : t.placeRemindMe),
+              label: Text(isReminded ? t.reminderSet : t.placeRemindMe),
             ),
           ),
           const SizedBox(width: 12),

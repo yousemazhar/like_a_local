@@ -6,6 +6,8 @@ class Reminder {
     required this.type,
     required this.radiusMeters,
     required this.enabled,
+    required this.lat,
+    required this.lng,
     this.placeTitle,
     this.createdAt,
   });
@@ -14,6 +16,8 @@ class Reminder {
   final String type;
   final int radiusMeters;
   final bool enabled;
+  final double lat;
+  final double lng;
   final String? placeTitle;
   final DateTime? createdAt;
 
@@ -24,6 +28,8 @@ class Reminder {
       type: (json['type'] as String?) ?? 'location',
       radiusMeters: (json['radiusMeters'] as num?)?.toInt() ?? 200,
       enabled: (json['enabled'] as bool?) ?? true,
+      lat: (json['lat'] as num?)?.toDouble() ?? 0.0,
+      lng: (json['lng'] as num?)?.toDouble() ?? 0.0,
       placeTitle: json['placeTitle'] as String?,
       createdAt: ts is Timestamp ? ts.toDate() : null,
     );

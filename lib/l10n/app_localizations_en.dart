@@ -162,6 +162,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get savedFreePlan => 'Free plan: up to 10 saved places.';
 
   @override
+  String get savedFreePlanCollections => 'Free plan: up to 3 collections.';
+
+  @override
   String get savedUpgrade => 'Upgrade';
 
   @override
@@ -194,6 +197,40 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get savedNoRemindersBody =>
       'Set location reminders on any saved place.';
+
+  @override
+  String get reminderSet => 'Reminder set';
+
+  @override
+  String get reminderFreeLimitTitle => 'Reminder limit reached';
+
+  @override
+  String get reminderFreeLimitBody =>
+      'Free plan includes up to 3 location reminders. Upgrade to Premium for unlimited reminders.';
+
+  @override
+  String reminderRemovedFor(String place) {
+    return 'Reminder removed for $place';
+  }
+
+  @override
+  String reminderNearPlace(String place) {
+    return 'We\'ll remind you near $place';
+  }
+
+  @override
+  String get pinFreeLimitTitle => 'Saved places limit reached';
+
+  @override
+  String get pinFreeLimitBody =>
+      'Free plan includes up to 10 saved places. Upgrade to Premium for unlimited saves.';
+
+  @override
+  String get collectionFreeLimitTitle => 'Collections limit reached';
+
+  @override
+  String get collectionFreeLimitBody =>
+      'Free plan includes up to 3 collections. Upgrade to Premium for unlimited collections.';
 
   @override
   String get inboxTitle => 'Inbox';
@@ -530,10 +567,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get premiumCancelMonthly => 'Cancel anytime. Billed monthly.';
 
   @override
-  String get premiumFeatureUnlimitedSaves => 'Unlimited saved places';
+  String get premiumFeatureUnlimitedSaves =>
+      'Unlimited saved places (free: 10)';
 
   @override
-  String get premiumFeatureUnlimitedCollections => 'Unlimited collections';
+  String get premiumFeatureUnlimitedCollections =>
+      'Unlimited collections (free: 3)';
 
   @override
   String get premiumFeatureAiChat => 'Local AI chat assistant';
@@ -542,7 +581,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get premiumFeatureOfflineMaps => 'Offline neighborhood maps';
 
   @override
-  String get premiumFeatureReminders => 'Location reminders';
+  String get premiumFeatureReminders =>
+      'Unlimited location reminders (free: 3)';
 
   @override
   String get settingsTitle => 'Settings';

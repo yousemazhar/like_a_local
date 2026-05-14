@@ -25,6 +25,8 @@ class ReminderRepository {
   Future<void> set({
     required String uid,
     required String placeId,
+    required double lat,
+    required double lng,
     String? placeTitle,
     int radiusMeters = 200,
   }) => _items(uid).doc(placeId).set({
@@ -32,6 +34,8 @@ class ReminderRepository {
     'type': 'location',
     'radiusMeters': radiusMeters,
     'enabled': true,
+    'lat': lat,
+    'lng': lng,
     'placeTitle': ?placeTitle,
     'createdAt': FieldValue.serverTimestamp(),
   });

@@ -30,4 +30,17 @@ class NotificationRepository {
     }
     await batch.commit();
   }
+
+  Future<void> writeProximityNotification({
+    required String uid,
+    required String placeId,
+    required String placeTitle,
+  }) => _items(uid).add({
+    'type': 'pinNear',
+    'title': 'You\'re near $placeTitle',
+    'body': 'Your reminder for $placeTitle is active.',
+    'data': {'placeId': placeId},
+    'read': false,
+    'createdAt': FieldValue.serverTimestamp(),
+  });
 }

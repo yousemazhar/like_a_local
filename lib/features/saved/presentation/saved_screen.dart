@@ -113,58 +113,62 @@ class _CollectionsTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context)!;
     final collectionsAsync = ref.watch(savedCollectionsProvider);
+    final isPremium =
+        ref.watch(currentUserDocProvider).valueOrNull?.premium ?? false;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         children: [
-          // Premium nag
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(
-              color: LALColors.accentSoft,
-              borderRadius: LALRadii.lgBorder,
-            ),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.workspace_premium_rounded,
-                  color: LALColors.accent,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        t.savedUnlockCollections,
-                        style: LALTypography.labelLarge.copyWith(
-                          color: LALColors.accentDark,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        t.savedFreePlan,
-                        style: LALTypography.bodySmall.copyWith(
-                          color: LALColors.accentDark,
-                        ),
-                      ),
-                    ],
+          // Upgrade nag — only shown for free users
+          if (!isPremium) ...[
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: const BoxDecoration(
+                color: LALColors.accentSoft,
+                borderRadius: LALRadii.lgBorder,
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.workspace_premium_rounded,
+                    color: LALColors.accent,
                   ),
-                ),
-                TextButton(
-                  onPressed: () => context.push('/premium'),
-                  child: Text(
-                    t.savedUpgrade,
-                    style: LALTypography.labelMedium.copyWith(
-                      color: LALColors.accentDark,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          t.savedUnlockCollections,
+                          style: LALTypography.labelLarge.copyWith(
+                            color: LALColors.accentDark,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          t.savedFreePlanCollections,
+                          style: LALTypography.bodySmall.copyWith(
+                            color: LALColors.accentDark,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ],
+                  TextButton(
+                    onPressed: () => context.push('/premium'),
+                    child: Text(
+                      t.savedUpgrade,
+                      style: LALTypography.labelMedium.copyWith(
+                        color: LALColors.accentDark,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 20),
+            const SizedBox(height: 20),
+          ],
           collectionsAsync.when(
             loading: () => const SkeletonList(itemCount: 3),
             error: (_, __) => const SizedBox.shrink(),
@@ -188,6 +192,34 @@ class _CollectionsTab extends ConsumerWidget {
     if (ref.read(isOnlineProvider).valueOrNull == false) {
       showOfflineActionSnackBar(context);
       return;
+    }
+    final isPremium =
+        ref.read(currentUserDocProvider).valueOrNull?.premium ?? false;
+    if (!isPremium) {
+      final cols = ref.read(savedCollectionsProvider).valueOrNull ?? [];
+      if (cols.length >= 3) {
+        showDialog<void>(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: Text(t.collectionFreeLimitTitle),
+            content: Text(t.collectionFreeLimitBody),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(t.buttonCancel),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  context.push('/premium');
+                },
+                child: Text(t.savedUpgrade),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
     }
     final ctrl = TextEditingController();
     try {

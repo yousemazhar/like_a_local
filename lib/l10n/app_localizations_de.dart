@@ -164,6 +164,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get savedFreePlan => 'Gratis-Plan: bis zu 10 gespeicherte Orte.';
 
   @override
+  String get savedFreePlanCollections => 'Gratis-Plan: bis zu 3 Sammlungen.';
+
+  @override
   String get savedUpgrade => 'Upgraden';
 
   @override
@@ -196,6 +199,40 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get savedNoRemindersBody =>
       'Setze Orts-Erinnerungen für gespeicherte Orte.';
+
+  @override
+  String get reminderSet => 'Erinnerung gesetzt';
+
+  @override
+  String get reminderFreeLimitTitle => 'Erinnerungslimit erreicht';
+
+  @override
+  String get reminderFreeLimitBody =>
+      'Der Gratis-Plan umfasst bis zu 3 Orts-Erinnerungen. Upgrade auf Premium für unbegrenzte Erinnerungen.';
+
+  @override
+  String reminderRemovedFor(String place) {
+    return 'Erinnerung für $place entfernt';
+  }
+
+  @override
+  String reminderNearPlace(String place) {
+    return 'Wir erinnern dich in der Nähe von $place';
+  }
+
+  @override
+  String get pinFreeLimitTitle => 'Limit für gespeicherte Orte erreicht';
+
+  @override
+  String get pinFreeLimitBody =>
+      'Der Gratis-Plan umfasst bis zu 10 gespeicherte Orte. Upgrade auf Premium für unbegrenzte Speicherungen.';
+
+  @override
+  String get collectionFreeLimitTitle => 'Sammlungslimit erreicht';
+
+  @override
+  String get collectionFreeLimitBody =>
+      'Der Gratis-Plan umfasst bis zu 3 Sammlungen. Upgrade auf Premium für unbegrenzte Sammlungen.';
 
   @override
   String get inboxTitle => 'Nachrichten';
@@ -537,10 +574,12 @@ class AppLocalizationsDe extends AppLocalizations {
       'Jederzeit kündbar. Monatliche Abrechnung.';
 
   @override
-  String get premiumFeatureUnlimitedSaves => 'Unbegrenzt gespeicherte Orte';
+  String get premiumFeatureUnlimitedSaves =>
+      'Unbegrenzt gespeicherte Orte (Gratis: 10)';
 
   @override
-  String get premiumFeatureUnlimitedCollections => 'Unbegrenzte Sammlungen';
+  String get premiumFeatureUnlimitedCollections =>
+      'Unbegrenzte Sammlungen (Gratis: 3)';
 
   @override
   String get premiumFeatureAiChat => 'Local AI Chat-Assistent';
@@ -549,7 +588,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get premiumFeatureOfflineMaps => 'Offline-Karten für Stadtviertel';
 
   @override
-  String get premiumFeatureReminders => 'Orts-Erinnerungen';
+  String get premiumFeatureReminders =>
+      'Unbegrenzte Orts-Erinnerungen (Gratis: 3)';
 
   @override
   String get settingsTitle => 'Einstellungen';
