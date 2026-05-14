@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../../notifications/data/fcm_service.dart';
@@ -44,11 +45,21 @@ class ReminderLocationService {
     if (!hasPermission) return;
 
     final settings = _buildLocationSettings();
-    _positionSub = Geolocator.getPositionStream(locationSettings: settings)
-        .listen(
-          (pos) => _checkProximity(uid, pos),
-          onError: (Object e) => debugPrint('ReminderLocationService error: $e'),
-        );
+    try {
+      _positionSub = Geolocator.getPositionStream(locationSettings: settings)
+          .listen(
+            (pos) => _checkProximity(uid, pos),
+            onError: (Object e) {
+              debugPrint('ReminderLocationService stream error: $e');
+              // PlatformException from a missing foreground service declaration
+              // or a revoked permission — tear down cleanly so the guard resets.
+              if (e is PlatformException) stop();
+            },
+          );
+    } on PlatformException catch (e) {
+      debugPrint('ReminderLocationService failed to start stream: $e');
+      _positionSub = null;
+    }
   }
 
   Future<void> stop() async {
