@@ -463,14 +463,16 @@ class _RemindersTab extends ConsumerWidget {
                   width: double.infinity,
                   child: OutlinedButton.icon(
                     onPressed: () async {
-                      await ReminderLocationService.instance
-                          .debugTriggerAll(uid);
+                      final count = await ReminderLocationService.instance
+                          .debugTriggerNearby(uid);
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            duration: Duration(seconds: 2),
+                          SnackBar(
+                            duration: const Duration(seconds: 3),
                             content: Text(
-                              '[DEBUG] Triggered all reminder notifications',
+                              count == 0
+                                  ? '[DEBUG] No reminders within range'
+                                  : '[DEBUG] Triggered $count reminder${count == 1 ? '' : 's'} within range',
                             ),
                           ),
                         );

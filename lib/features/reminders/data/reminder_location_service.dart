@@ -71,16 +71,41 @@ class ReminderLocationService {
     _lastFired.clear();
   }
 
-  /// Fires notifications for every enabled reminder immediately, ignoring
-  /// distance and cooldown. Only intended for debug/testing.
-  Future<void> debugTriggerAll(String uid) async {
+  /// Fires notifications for reminders whose place is within [radiusMeters]
+  /// of the user's current position. Cooldown is bypassed so results are
+  /// immediate. Only intended for debug/testing.
+  ///
+  /// Returns the number of reminders triggered.
+  Future<int> debugTriggerNearby(String uid) async {
     if (_reminders.isEmpty) {
-      debugPrint('ReminderLocationService.debugTriggerAll: no reminders loaded');
-      return;
+      debugPrint('ReminderLocationService.debugTriggerNearby: no reminders loaded');
+      return 0;
     }
+    late Position pos;
+    try {
+      pos = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
+    } catch (e) {
+      debugPrint('ReminderLocationService.debugTriggerNearby: location error $e');
+      return 0;
+    }
+    var count = 0;
     for (final r in _reminders) {
-      await _fire(uid, r.placeId, r.placeTitle ?? 'Saved place');
+      final distance = Geolocator.distanceBetween(
+        pos.latitude, pos.longitude, r.lat, r.lng,
+      );
+      debugPrint(
+        'debugTriggerNearby: ${r.placeTitle} is ${distance.toStringAsFixed(0)}m away (limit ${r.radiusMeters}m)',
+      );
+      if (distance <= r.radiusMeters) {
+        await _fire(uid, r.placeId, r.placeTitle ?? 'Saved place');
+        count++;
+      }
     }
+    return count;
   }
 
   // ─── private ─────────────────────────────────────────────────────────────
