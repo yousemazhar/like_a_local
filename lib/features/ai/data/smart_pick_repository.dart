@@ -32,7 +32,12 @@ class SmartPickRepository {
       }
       return SmartPickResult(placeId: placeId, reason: reason);
     } on FirebaseFunctionsException catch (e) {
-      throw SmartPickUnavailableException(e.message ?? e.code);
+      final detail = e.details?.toString();
+      final message = [
+        e.message ?? e.code,
+        if (detail != null && detail.isNotEmpty) detail,
+      ].join(' ');
+      throw SmartPickUnavailableException(message);
     } catch (e) {
       throw SmartPickUnavailableException(e.toString());
     }

@@ -28,8 +28,11 @@ interface UserPrefs {
 
 const BUDGET_ORDER: Record<string, number> = {
   low: 1,
+  "$": 1,
   mid: 2,
+  "$$": 2,
   high: 3,
+  "$$$": 3,
 };
 
 /**

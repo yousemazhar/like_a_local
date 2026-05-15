@@ -17,7 +17,7 @@ interface PlaceLite {
   description: string;
 }
 
-const MODEL_NAME = "gemini-1.5-flash";
+const MODEL_NAME = "gemini-2.5-flash";
 const MAX_CANDIDATES = 10;
 
 /**
@@ -62,7 +62,8 @@ export const geminiTopPick = onCall(
     const placeSnaps = await Promise.all(
       placeIds.map((id) => db.collection("places").doc(id).get())
     );
-    const candidates: PlaceLite[] = placeSnaps
+    const candidates: PlaceLite[] = shuffle(
+      placeSnaps
       .filter((s) => s.exists)
       .map((s) => {
         const d = s.data() ?? {};
@@ -76,7 +77,8 @@ export const geminiTopPick = onCall(
           ratingAvg: (d.ratingAvg as number) ?? 0,
           description: ((d.description as string) ?? "").slice(0, 280),
         };
-      });
+      })
+    );
 
     if (candidates.length === 0) {
       throw new HttpsError("failed-precondition", "No candidate places found.");
@@ -88,7 +90,14 @@ export const geminiTopPick = onCall(
       throw new HttpsError("unavailable", "AI service not configured.");
     }
 
-    const prompt = buildPrompt(prefs, candidates);
+    const randomSeed = Math.random().toString(36).slice(2, 10);
+    const prompt = buildPrompt(prefs, candidates, randomSeed);
+    logger.info("Gemini top-pick prompt", {
+      uid,
+      model: MODEL_NAME,
+      randomSeed,
+      prompt,
+    });
 
     try {
       const genAI = new GoogleGenerativeAI(apiKey);
@@ -96,7 +105,8 @@ export const geminiTopPick = onCall(
         model: MODEL_NAME,
         generationConfig: {
           responseMimeType: "application/json",
-          temperature: 0.4,
+          temperature: 0.9,
+          topP: 0.95,
         },
       });
       const result = await model.generateContent(prompt);
@@ -114,15 +124,25 @@ export const geminiTopPick = onCall(
 
       return { placeId: valid.id, reason: parsed.reason };
     } catch (err) {
-      logger.error("Gemini pick failed", { uid, err: (err as Error).message });
-      throw new HttpsError("unavailable", "AI service is currently unavailable.");
+      const message = err instanceof Error ? err.message : String(err);
+      logger.error("Gemini pick failed", {
+        uid,
+        model: MODEL_NAME,
+        err: message,
+      });
+      throw new HttpsError(
+        "unavailable",
+        "AI service is currently unavailable.",
+        { model: MODEL_NAME, cause: message }
+      );
     }
   }
 );
 
 function buildPrompt(
   prefs: { placeTypes?: string[]; moods?: string[]; budget?: string | null },
-  candidates: PlaceLite[]
+  candidates: PlaceLite[],
+  randomSeed: string
 ): string {
   const prefsJson = JSON.stringify({
     placeTypes: prefs.placeTypes ?? [],
@@ -132,13 +152,25 @@ function buildPrompt(
   const candJson = JSON.stringify(candidates);
 
   return [
-    "You are a local-travel assistant. Pick ONE place from CANDIDATES that best matches the user's PREFERENCES.",
+    "You are a local-travel assistant. Pick ONE place from CANDIDATES that fits the user's PREFERENCES.",
+    "Do not always choose the top-ranked or first candidate. Use the RANDOM_SEED to add variety between valid matches.",
+    "If several candidates are reasonable fits, rotate among them and prefer a different good option from the obvious first choice.",
     "Respond ONLY with strict JSON of the shape: {\"placeId\": string, \"reason\": string}.",
     "The `reason` must be one short sentence (max 30 words) explaining why this place fits the user. Address the user directly (\"you\"). Do not invent details not in the candidate data.",
     "",
+    `RANDOM_SEED: ${randomSeed}`,
     `PREFERENCES: ${prefsJson}`,
     `CANDIDATES: ${candJson}`,
   ].join("\n");
+}
+
+function shuffle<T>(items: T[]): T[] {
+  const copy = [...items];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
 }
 
 function parseGeminiResponse(text: string): { placeId: string; reason: string } {

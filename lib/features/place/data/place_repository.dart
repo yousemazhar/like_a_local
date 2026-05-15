@@ -31,10 +31,8 @@ class PlaceRepository {
       .snapshots()
       .map(_toDomain);
 
-  Stream<Place?> placeById(String id) => _places
-      .doc(id)
-      .snapshots()
-      .map((d) => d.exists ? _docToPlace(d) : null);
+  Stream<Place?> placeById(String id) =>
+      _places.doc(id).snapshots().map((d) => d.exists ? _docToPlace(d) : null);
 
   Stream<List<Place>> search(String query) {
     if (query.length < 2) return const Stream.empty();
@@ -71,6 +69,34 @@ class PlaceRepository {
   List<Place> _toDomain(QuerySnapshot<Map<String, dynamic>> snap) =>
       snap.docs.map(_docToPlace).toList();
 
-  Place _docToPlace(DocumentSnapshot<Map<String, dynamic>> doc) =>
-      Place.fromJson({...doc.data()!, 'id': doc.id});
+  Place _docToPlace(DocumentSnapshot<Map<String, dynamic>> doc) {
+    final data = {...doc.data()!, 'id': doc.id};
+    data['mediaUrls'] = _normalisedMediaUrls(data);
+    return Place.fromJson(data);
+  }
+
+  List<String> _normalisedMediaUrls(Map<String, dynamic> data) {
+    final mediaUrls = data['mediaUrls'];
+    if (mediaUrls is List && mediaUrls.isNotEmpty) {
+      return mediaUrls.whereType<String>().where((u) => u.isNotEmpty).toList();
+    }
+
+    final legacyLists = [data['photoUrls'], data['photos']];
+    for (final value in legacyLists) {
+      if (value is List && value.isNotEmpty) {
+        return value.whereType<String>().where((u) => u.isNotEmpty).toList();
+      }
+    }
+
+    final legacySingles = [
+      data['imageUrl'],
+      data['thumbnailUrl'],
+      data['coverImage'],
+      data['coverImageUrl'],
+    ];
+    return legacySingles
+        .whereType<String>()
+        .where((u) => u.isNotEmpty)
+        .toList();
+  }
 }
