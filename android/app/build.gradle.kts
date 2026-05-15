@@ -63,3 +63,7 @@ flutter {
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }
+
+configurations.configureEach {
+    exclude(group = "com.google.firebase", module = "firebase-appcheck")
+}

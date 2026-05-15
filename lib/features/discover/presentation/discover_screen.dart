@@ -147,7 +147,17 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final nearbyAsync = _filtered(ref.watch(discoverFeedProvider));
+    final nearbyAsync = _currentPosition == null
+        ? const AsyncData<List<Place>>([])
+        : _filtered(
+            ref.watch(
+              nearbyPlacesProvider(
+                _currentPosition!.latitude,
+                _currentPosition!.longitude,
+                _nearbyRadiusKm,
+              ),
+            ),
+          );
     final trendingAsync = _filtered(ref.watch(trendingPlacesProvider));
     final unreadCount = ref
         .watch(myNotificationsProvider)
@@ -469,7 +479,7 @@ class _FeaturedSection extends StatelessWidget {
 
     final maxDistanceMeters = radiusKm * 1000;
     final nearby = places
-        .where((place) => place.lat != 0 || place.lng != 0)
+        .where((place) => place.lat != 0 && place.lng != 0)
         .map(
           (place) => _PlaceDistance(
             place: place,

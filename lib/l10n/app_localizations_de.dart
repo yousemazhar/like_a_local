@@ -96,6 +96,19 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String superUsersStatsNoChats(int places, int reviews) {
+    return '$places Orte · $reviews Bewertungen';
+  }
+
+  @override
+  String get superUsersRecalculateScores => 'Super-User-Scores neu berechnen';
+
+  @override
+  String superUsersRecalculatedScores(int count) {
+    return 'Scores für $count Nutzer neu berechnet';
+  }
+
+  @override
   String get superUsersEmpty => 'Noch keine Super Users';
 
   @override

@@ -260,6 +260,24 @@ abstract class AppLocalizations {
   /// **'{places} places · {chats} chats · {reviews} reviews'**
   String superUsersStats(int places, int chats, int reviews);
 
+  /// No description provided for @superUsersStatsNoChats.
+  ///
+  /// In en, this message translates to:
+  /// **'{places} places · {reviews} reviews'**
+  String superUsersStatsNoChats(int places, int reviews);
+
+  /// No description provided for @superUsersRecalculateScores.
+  ///
+  /// In en, this message translates to:
+  /// **'Recalculate Super User scores'**
+  String get superUsersRecalculateScores;
+
+  /// No description provided for @superUsersRecalculatedScores.
+  ///
+  /// In en, this message translates to:
+  /// **'Recalculated scores for {count} users'**
+  String superUsersRecalculatedScores(int count);
+
   /// No description provided for @superUsersEmpty.
   ///
   /// In en, this message translates to:

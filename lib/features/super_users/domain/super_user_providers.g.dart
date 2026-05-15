@@ -7,7 +7,7 @@ part of 'super_user_providers.dart';
 // **************************************************************************
 
 String _$superUserRepositoryHash() =>
-    r'60bce13df0a74d28e0dc2794ed430795fc356a75';
+    r'0a96b6f659c371ff2069aedbe3f9134eb2127a1c';
 
 /// See also [superUserRepository].
 @ProviderFor(superUserRepository)

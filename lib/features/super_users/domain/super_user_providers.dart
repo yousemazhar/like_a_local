@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../auth/domain/app_user.dart';
@@ -9,7 +10,7 @@ part 'super_user_providers.g.dart';
 
 @Riverpod(keepAlive: true)
 SuperUserRepository superUserRepository(SuperUserRepositoryRef ref) =>
-    SuperUserRepository(FirebaseFirestore.instance);
+    SuperUserRepository(FirebaseFirestore.instance, FirebaseFunctions.instance);
 
 @riverpod
 Stream<List<AppUser>> superUsers(SuperUsersRef ref) =>

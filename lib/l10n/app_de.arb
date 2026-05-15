@@ -40,6 +40,18 @@
       "reviews": { "type": "int" }
     }
   },
+  "superUsersStatsNoChats": "{places} Orte · {reviews} Bewertungen",
+  "@superUsersStatsNoChats": {
+    "placeholders": {
+      "places": { "type": "int" },
+      "reviews": { "type": "int" }
+    }
+  },
+  "superUsersRecalculateScores": "Super-User-Scores neu berechnen",
+  "superUsersRecalculatedScores": "Scores für {count} Nutzer neu berechnet",
+  "@superUsersRecalculatedScores": {
+    "placeholders": { "count": { "type": "int" } }
+  },
   "superUsersEmpty": "Noch keine Super Users",
   "superUsersEmptyBody": "Beitragende erscheinen hier, sobald ihr Score den Badge-Schwellenwert erreicht.",
   "superUsersError": "Super Users konnten nicht geladen werden",

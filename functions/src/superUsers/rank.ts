@@ -5,8 +5,6 @@ import {
   WriteBatch,
 } from "firebase-admin/firestore";
 import {
-  onDocumentCreated,
-  onDocumentDeleted,
   onDocumentWritten,
 } from "firebase-functions/v2/firestore";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
@@ -23,8 +21,19 @@ const PLACE_UPDATE_BATCH_SIZE = 450;
 async function countQuery(
   query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData>
 ): Promise<number> {
-  const snap = await query.count().get();
-  return snap.data().count;
+  try {
+    const snap = await query.count().get();
+    return snap.data().count;
+  } catch (err) {
+    logger.warn("Aggregate count failed; falling back to document count", err);
+    try {
+      const snap = await query.get();
+      return snap.size;
+    } catch (fallbackErr) {
+      logger.error("Document count fallback failed", fallbackErr);
+      throw fallbackErr;
+    }
+  }
 }
 
 async function commitBatch(batch: WriteBatch, writes: number): Promise<void> {
@@ -43,12 +52,19 @@ async function propagateOwnerStatus(
   let writes = 0;
 
   for (const place of places.docs) {
+    const data = place.data();
+    const update: Record<string, unknown> = {
+      ownerIsSuper: isSuper,
+      ownerSuperScore: score,
+    };
+    if (data.hidden === undefined) update.hidden = false;
+    if (data.ratingAvg === undefined) update.ratingAvg = 0;
+    if (data.ratingCount === undefined) update.ratingCount = 0;
+    if (data.saveCount === undefined) update.saveCount = 0;
+
     batch.set(
       place.ref,
-      {
-        ownerIsSuper: isSuper,
-        ownerSuperScore: score,
-      },
+      update,
       { merge: true }
     );
     writes += 1;
@@ -119,7 +135,12 @@ export async function recalculateSuperUserForUid(uid: string): Promise<{
 
   if (previousRole !== role || placesSnap.docs.some((p) => {
     const data = p.data();
-    return data.ownerIsSuper !== isSuper || data.ownerSuperScore !== score;
+    return data.ownerIsSuper !== isSuper ||
+      data.ownerSuperScore !== score ||
+      data.hidden === undefined ||
+      data.ratingAvg === undefined ||
+      data.ratingCount === undefined ||
+      data.saveCount === undefined;
   })) {
     await propagateOwnerStatus(uid, isSuper, score);
   }
@@ -154,19 +175,60 @@ export const recalculateSuperUserRank = onCall(
   }
 );
 
-export const onPlaceCreatedRecalculateSuperUser = onDocumentCreated(
-  { document: "places/{placeId}", region: "us-central1" },
-  async (event) => {
-    const ownerUid = event.data?.data().ownerUid as string | undefined;
-    if (ownerUid) await recalculateSuperUserForUid(ownerUid);
+export const recalculateAllSuperUserRanks = onCall(
+  { region: "us-central1", enforceAppCheck: false, timeoutSeconds: 540 },
+  async (request) => {
+    if (!request.auth?.uid) {
+      throw new HttpsError("unauthenticated", "Sign in required.");
+    }
+
+    const db = getFirestore();
+    const usersSnap = await db.collection("users").get();
+    const results = [];
+
+    for (const user of usersSnap.docs) {
+      const result = await recalculateSuperUserForUid(user.id);
+      results.push({
+        uid: user.id,
+        score: result.score,
+        isSuper: result.isSuper,
+      });
+    }
+
+    logger.info("Recalculated all super-user ranks", {
+      requestedBy: request.auth.uid,
+      userCount: results.length,
+    });
+
+    return {
+      userCount: results.length,
+      superUserCount: results.filter((result) => result.isSuper).length,
+      results,
+    };
   }
 );
 
-export const onPlaceDeletedRecalculateSuperUser = onDocumentDeleted(
+export const onPlaceWrittenRecalculateSuperUser = onDocumentWritten(
   { document: "places/{placeId}", region: "us-central1" },
   async (event) => {
-    const ownerUid = event.data?.data().ownerUid as string | undefined;
-    if (ownerUid) await recalculateSuperUserForUid(ownerUid);
+    const beforeOwnerUid = event.data?.before.data()?.ownerUid as
+      | string
+      | undefined;
+    const afterOwnerUid = event.data?.after.data()?.ownerUid as
+      | string
+      | undefined;
+    const ownerUids = new Set(
+      [beforeOwnerUid, afterOwnerUid].filter((uid): uid is string => Boolean(uid))
+    );
+
+    if (event.data?.before.exists && event.data?.after.exists) {
+      const ownerChanged = beforeOwnerUid !== afterOwnerUid;
+      if (!ownerChanged) return;
+    }
+
+    await Promise.all(
+      [...ownerUids].map((ownerUid) => recalculateSuperUserForUid(ownerUid))
+    );
   }
 );
 

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 
+import 'package:like_a_local/features/auth/domain/app_user.dart';
 import 'package:like_a_local/features/auth/domain/auth_providers.dart';
 import 'package:like_a_local/features/place/data/place_repository.dart';
 import 'package:like_a_local/features/place/domain/place_providers.dart';
@@ -14,7 +15,6 @@ import 'package:like_a_local/features/reviews/data/review_repository.dart';
 import 'package:like_a_local/features/reviews/domain/review_providers.dart';
 import 'package:like_a_local/features/saved/data/saved_repository.dart';
 import 'package:like_a_local/features/saved/domain/saved_providers.dart';
-import 'package:like_a_local/features/super_users/data/super_user_repository.dart';
 import 'package:like_a_local/features/super_users/domain/super_user_providers.dart';
 import 'package:like_a_local/features/super_users/presentation/super_users_screen.dart';
 import 'package:like_a_local/l10n/app_localizations.dart';
@@ -87,26 +87,25 @@ void main() {
   testWidgets('SuperUsersScreen renders ranked users with stats', (
     WidgetTester tester,
   ) async {
-    final firestore = FakeFirebaseFirestore();
-    await firestore.collection('users').doc('super-1').set({
-      'displayName': 'Maya Local',
-      'email': 'maya@example.com',
-      'photoUrl': '',
-      'role': 'super',
-      'superUserScore': 135,
-      'superUserStats': {
-        'placesCount': 3,
-        'chatCount': 10,
-        'reviewsCount': 2,
-        'averageReviewRating': 4.5,
-      },
-    });
-
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          superUserRepositoryProvider.overrideWith(
-            (ref) => SuperUserRepository(firestore),
+          superUsersProvider.overrideWith(
+            (ref) => Stream.value([
+              const AppUser(
+                uid: 'super-1',
+                email: 'maya@example.com',
+                displayName: 'Maya Local',
+                role: 'super',
+                superUserScore: 135,
+                superUserStats: SuperUserStats(
+                  placesCount: 3,
+                  chatCount: 10,
+                  reviewsCount: 2,
+                  averageReviewRating: 4.5,
+                ),
+              ),
+            ]),
           ),
         ],
         child: const MaterialApp(
@@ -126,7 +125,7 @@ void main() {
 
     expect(find.text('Maya Local'), findsOneWidget);
     expect(find.text('135'), findsOneWidget);
-    expect(find.text('3 places · 10 chats · 2 reviews'), findsOneWidget);
+    expect(find.text('3 places · 2 reviews'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

@@ -65,6 +65,19 @@
       "reviews": { "type": "int" }
     }
   },
+  "superUsersStatsNoChats": "{places} places · {reviews} reviews",
+  "@superUsersStatsNoChats": {
+    "placeholders": {
+      "places": { "type": "int" },
+      "reviews": { "type": "int" }
+    }
+  },
+  "superUsersRecalculateScores": "Recalculate Super User scores",
+  "@superUsersRecalculateScores": {},
+  "superUsersRecalculatedScores": "Recalculated scores for {count} users",
+  "@superUsersRecalculatedScores": {
+    "placeholders": { "count": { "type": "int" } }
+  },
   "superUsersEmpty": "No Super Users yet",
   "@superUsersEmpty": {},
   "superUsersEmptyBody": "Contributors appear here after their score reaches the badge threshold.",

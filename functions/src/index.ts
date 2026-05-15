@@ -13,9 +13,9 @@ export { seedEgyptPlaces } from "./seed/egypt";
 export { onChatMessageCreate } from "./chat/onMessage";
 export { sendTestNotification } from "./notifications/test";
 export {
-  onPlaceCreatedRecalculateSuperUser,
-  onPlaceDeletedRecalculateSuperUser,
+  onPlaceWrittenRecalculateSuperUser,
   onReviewWrittenRecalculateSuperUser,
+  recalculateAllSuperUserRanks,
   recalculateSuperUserRank,
 } from "./superUsers/rank";
 

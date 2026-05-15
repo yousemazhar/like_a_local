@@ -15,6 +15,20 @@ Stream<List<Place>> discoverFeed(DiscoverFeedRef ref) =>
     ref.watch(placeRepositoryProvider).discoverFeed();
 
 @riverpod
+Stream<List<Place>> nearbyPlaces(
+  NearbyPlacesRef ref,
+  double latitude,
+  double longitude,
+  double radiusKm,
+) => ref
+    .watch(placeRepositoryProvider)
+    .nearbyCandidates(
+      latitude: latitude,
+      longitude: longitude,
+      radiusKm: radiusKm,
+    );
+
+@riverpod
 Stream<List<Place>> featuredPlaces(FeaturedPlacesRef ref) =>
     ref.watch(placeRepositoryProvider).featured();
 

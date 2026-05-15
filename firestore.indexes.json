@@ -27,6 +27,7 @@
         { "fieldPath": "hidden", "order": "ASCENDING" },
         { "fieldPath": "ownerIsSuper", "order": "DESCENDING" },
         { "fieldPath": "saveCount", "order": "DESCENDING" },
+        { "fieldPath": "ratingAvg", "order": "DESCENDING" },
         { "fieldPath": "__name__", "order": "DESCENDING" }
       ]
     },
@@ -66,5 +67,13 @@
       ]
     }
   ],
-  "fieldOverrides": []
+  "fieldOverrides": [
+    {
+      "collectionGroup": "messages",
+      "fieldPath": "senderUid",
+      "indexes": [
+        { "order": "ASCENDING", "queryScope": "COLLECTION_GROUP" }
+      ]
+    }
+  ]
 }

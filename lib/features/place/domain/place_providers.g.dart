@@ -40,6 +40,175 @@ final discoverFeedProvider = AutoDisposeStreamProvider<List<Place>>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef DiscoverFeedRef = AutoDisposeStreamProviderRef<List<Place>>;
+String _$nearbyPlacesHash() => r'1e9768965dddf11ef3f6f35758549df90802254f';
+
+/// Copied from Dart SDK
+class _SystemHash {
+  _SystemHash._();
+
+  static int combine(int hash, int value) {
+    // ignore: parameter_assignments
+    hash = 0x1fffffff & (hash + value);
+    // ignore: parameter_assignments
+    hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
+    return hash ^ (hash >> 6);
+  }
+
+  static int finish(int hash) {
+    // ignore: parameter_assignments
+    hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
+    // ignore: parameter_assignments
+    hash = hash ^ (hash >> 11);
+    return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
+  }
+}
+
+/// See also [nearbyPlaces].
+@ProviderFor(nearbyPlaces)
+const nearbyPlacesProvider = NearbyPlacesFamily();
+
+/// See also [nearbyPlaces].
+class NearbyPlacesFamily extends Family<AsyncValue<List<Place>>> {
+  /// See also [nearbyPlaces].
+  const NearbyPlacesFamily();
+
+  /// See also [nearbyPlaces].
+  NearbyPlacesProvider call(
+    double latitude,
+    double longitude,
+    double radiusKm,
+  ) {
+    return NearbyPlacesProvider(latitude, longitude, radiusKm);
+  }
+
+  @override
+  NearbyPlacesProvider getProviderOverride(
+    covariant NearbyPlacesProvider provider,
+  ) {
+    return call(provider.latitude, provider.longitude, provider.radiusKm);
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'nearbyPlacesProvider';
+}
+
+/// See also [nearbyPlaces].
+class NearbyPlacesProvider extends AutoDisposeStreamProvider<List<Place>> {
+  /// See also [nearbyPlaces].
+  NearbyPlacesProvider(double latitude, double longitude, double radiusKm)
+    : this._internal(
+        (ref) =>
+            nearbyPlaces(ref as NearbyPlacesRef, latitude, longitude, radiusKm),
+        from: nearbyPlacesProvider,
+        name: r'nearbyPlacesProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$nearbyPlacesHash,
+        dependencies: NearbyPlacesFamily._dependencies,
+        allTransitiveDependencies:
+            NearbyPlacesFamily._allTransitiveDependencies,
+        latitude: latitude,
+        longitude: longitude,
+        radiusKm: radiusKm,
+      );
+
+  NearbyPlacesProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.latitude,
+    required this.longitude,
+    required this.radiusKm,
+  }) : super.internal();
+
+  final double latitude;
+  final double longitude;
+  final double radiusKm;
+
+  @override
+  Override overrideWith(
+    Stream<List<Place>> Function(NearbyPlacesRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: NearbyPlacesProvider._internal(
+        (ref) => create(ref as NearbyPlacesRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        latitude: latitude,
+        longitude: longitude,
+        radiusKm: radiusKm,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeStreamProviderElement<List<Place>> createElement() {
+    return _NearbyPlacesProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is NearbyPlacesProvider &&
+        other.latitude == latitude &&
+        other.longitude == longitude &&
+        other.radiusKm == radiusKm;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, latitude.hashCode);
+    hash = _SystemHash.combine(hash, longitude.hashCode);
+    hash = _SystemHash.combine(hash, radiusKm.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin NearbyPlacesRef on AutoDisposeStreamProviderRef<List<Place>> {
+  /// The parameter `latitude` of this provider.
+  double get latitude;
+
+  /// The parameter `longitude` of this provider.
+  double get longitude;
+
+  /// The parameter `radiusKm` of this provider.
+  double get radiusKm;
+}
+
+class _NearbyPlacesProviderElement
+    extends AutoDisposeStreamProviderElement<List<Place>>
+    with NearbyPlacesRef {
+  _NearbyPlacesProviderElement(super.provider);
+
+  @override
+  double get latitude => (origin as NearbyPlacesProvider).latitude;
+  @override
+  double get longitude => (origin as NearbyPlacesProvider).longitude;
+  @override
+  double get radiusKm => (origin as NearbyPlacesProvider).radiusKm;
+}
+
 String _$featuredPlacesHash() => r'46b52fced1be15d143120675430c0473d61c5d75';
 
 /// See also [featuredPlaces].
@@ -75,27 +244,6 @@ final trendingPlacesProvider = AutoDisposeStreamProvider<List<Place>>.internal(
 // ignore: unused_element
 typedef TrendingPlacesRef = AutoDisposeStreamProviderRef<List<Place>>;
 String _$placeDetailHash() => r'ab82b84a157b174a6b2a2ea16c6a9d318f5d974e';
-
-/// Copied from Dart SDK
-class _SystemHash {
-  _SystemHash._();
-
-  static int combine(int hash, int value) {
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + value);
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
-    return hash ^ (hash >> 6);
-  }
-
-  static int finish(int hash) {
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
-    // ignore: parameter_assignments
-    hash = hash ^ (hash >> 11);
-    return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
-  }
-}
 
 /// See also [placeDetail].
 @ProviderFor(placeDetail)

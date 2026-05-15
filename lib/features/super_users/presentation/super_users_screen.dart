@@ -24,6 +24,31 @@ class SuperUsersScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(t.superUsersTitle),
         backgroundColor: LALColors.surface,
+        actions: [
+          IconButton(
+            tooltip: t.superUsersRecalculateScores,
+            icon: const Icon(Icons.bug_report_outlined),
+            onPressed: () async {
+              try {
+                final count = await ref
+                    .read(superUserRepositoryProvider)
+                    .recalculateAllScores();
+                ref.invalidate(superUsersProvider);
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(t.superUsersRecalculatedScores(count)),
+                  ),
+                );
+              } catch (error) {
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(error.toString())));
+              }
+            },
+          ),
+        ],
       ),
       body: usersAsync.when(
         loading: () => SkeletonList(
@@ -169,9 +194,8 @@ class _SuperUserTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      t.superUsersStats(
+                      t.superUsersStatsNoChats(
                         stats.placesCount,
-                        stats.chatCount,
                         stats.reviewsCount,
                       ),
                       maxLines: 2,
