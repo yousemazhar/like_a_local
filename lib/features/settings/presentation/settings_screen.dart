@@ -128,6 +128,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             onChanged: (v) => _patch({'preferences.aiRecommendations': v}),
           ),
           _ActionTile(
+            icon: Icons.restaurant_menu_outlined,
+            title: t.settingsPrefPlaceTypes,
+            subtitle: _placeTypesSummary(t, prefs),
+            onTap: () => _editPlaceTypes(prefs),
+          ),
+          _ActionTile(
+            icon: Icons.mood_outlined,
+            title: t.settingsPrefMoods,
+            subtitle: _moodsSummary(t, prefs),
+            onTap: () => _editMoods(prefs),
+          ),
+          _ActionTile(
+            icon: Icons.payments_outlined,
+            title: t.settingsPrefBudget,
+            subtitle: _budgetSummary(t, prefs),
+            onTap: () => _editBudget(prefs),
+          ),
+          _ActionTile(
             icon: Icons.language_outlined,
             title: t.settingsLanguage,
             subtitle: languageCode == 'de'
@@ -206,6 +224,216 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Future<void> _signOut() async {
     await ref.read(authRepositoryProvider).signOut();
     if (mounted) context.go('/auth/sign-in');
+  }
+
+  // ── Preferences ────────────────────────────────────────────────────────────
+
+  static const _placeTypeOptions = <String>[
+    'Restaurant',
+    'Café',
+    'Bar',
+    'Viewpoint',
+    'Market',
+    'Museum',
+    'Park',
+  ];
+
+  static const _moodOptions = <String>[
+    'Romantic',
+    'Family',
+    'Hidden Gem',
+    'Lively',
+    'Peaceful',
+    'Foodie',
+    'Off-the-beaten-track',
+  ];
+
+  static const _budgetOptions = <String>['low', 'mid', 'high'];
+
+  String _placeTypesSummary(AppLocalizations t, Map<String, dynamic> prefs) {
+    final list = ((prefs['placeTypes'] as List?) ?? const [])
+        .cast<String>();
+    if (list.isEmpty) return t.settingsPrefNotSet;
+    return list.join(', ');
+  }
+
+  String _moodsSummary(AppLocalizations t, Map<String, dynamic> prefs) {
+    final list = ((prefs['moods'] as List?) ?? const []).cast<String>();
+    if (list.isEmpty) return t.settingsPrefNotSet;
+    return list.join(', ');
+  }
+
+  String _budgetSummary(AppLocalizations t, Map<String, dynamic> prefs) {
+    final value = prefs['budget'] as String?;
+    return switch (value) {
+      'low' => t.budgetLow,
+      'mid' => t.budgetMid,
+      'high' => t.budgetHigh,
+      _ => t.settingsPrefNotSet,
+    };
+  }
+
+  Future<void> _editPlaceTypes(Map<String, dynamic> prefs) async {
+    final initial =
+        ((prefs['placeTypes'] as List?) ?? const []).cast<String>().toSet();
+    final result = await _showMultiSelectSheet(
+      title: AppLocalizations.of(context)!.settingsPrefPlaceTypes,
+      options: _placeTypeOptions,
+      initial: initial,
+    );
+    if (result != null) {
+      await _patch({'preferences.placeTypes': result.toList()});
+    }
+  }
+
+  Future<void> _editMoods(Map<String, dynamic> prefs) async {
+    final initial =
+        ((prefs['moods'] as List?) ?? const []).cast<String>().toSet();
+    final result = await _showMultiSelectSheet(
+      title: AppLocalizations.of(context)!.settingsPrefMoods,
+      options: _moodOptions,
+      initial: initial,
+    );
+    if (result != null) {
+      await _patch({'preferences.moods': result.toList()});
+    }
+  }
+
+  Future<void> _editBudget(Map<String, dynamic> prefs) async {
+    final t = AppLocalizations.of(context)!;
+    final current = prefs['budget'] as String?;
+    final labels = {
+      'low': t.budgetLow,
+      'mid': t.budgetMid,
+      'high': t.budgetHigh,
+    };
+
+    final result = await showModalBottomSheet<String?>(
+      context: context,
+      builder: (sheetCtx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 12),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: LALColors.c200,
+                borderRadius: LALRadii.pillBorder,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  t.settingsPrefBudget,
+                  style: LALTypography.headlineSmall,
+                ),
+              ),
+            ),
+            for (final option in _budgetOptions)
+              ListTile(
+                title: Text(labels[option]!),
+                trailing: current == option
+                    ? const Icon(Icons.check_rounded, color: LALColors.accent)
+                    : null,
+                onTap: () => Navigator.of(sheetCtx).pop(option),
+              ),
+            ListTile(
+              title: Text(t.settingsPrefClear),
+              onTap: () => Navigator.of(sheetCtx).pop(''),
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
+    );
+
+    if (result == null) return;
+    await _patch({'preferences.budget': result.isEmpty ? null : result});
+  }
+
+  Future<Set<String>?> _showMultiSelectSheet({
+    required String title,
+    required List<String> options,
+    required Set<String> initial,
+  }) {
+    return showModalBottomSheet<Set<String>>(
+      context: context,
+      isScrollControlled: true,
+      builder: (sheetCtx) {
+        final selected = {...initial};
+        final t = AppLocalizations.of(sheetCtx)!;
+        return StatefulBuilder(
+          builder: (_, setSheetState) => SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 12),
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: LALColors.c200,
+                        borderRadius: LALRadii.pillBorder,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(title, style: LALTypography.headlineSmall),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final option in options)
+                        FilterChip(
+                          label: Text(option),
+                          selected: selected.contains(option),
+                          onSelected: (v) => setSheetState(() {
+                            if (v) {
+                              selected.add(option);
+                            } else {
+                              selected.remove(option);
+                            }
+                          }),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.of(sheetCtx).pop(),
+                          child: Text(t.buttonCancel),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: FilledButton(
+                          onPressed: () =>
+                              Navigator.of(sheetCtx).pop(selected),
+                          child: Text(t.buttonSave),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 }
 

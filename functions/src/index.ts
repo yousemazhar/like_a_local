@@ -8,6 +8,7 @@ import Stripe from "stripe";
 initializeApp();
 
 export { rankPlacesForUser } from "./ai/rank";
+export { geminiTopPick } from "./ai/gemini_pick";
 export { seedEgyptPlaces } from "./seed/egypt";
 export { onChatMessageCreate } from "./chat/onMessage";
 export { sendTestNotification } from "./notifications/test";

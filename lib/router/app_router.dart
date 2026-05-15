@@ -4,6 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../core/widgets/lal_bottom_nav.dart';
 import '../features/ai/presentation/ai_assistant_screen.dart';
+import '../features/ai/presentation/smart_recommendations_screen.dart';
 import '../features/add_place/presentation/add_place_screen.dart';
 import '../features/auth/domain/auth_providers.dart';
 import '../features/auth/presentation/onboarding_screen.dart';
@@ -101,6 +102,10 @@ GoRouter appRouter(AppRouterRef ref) {
           fullscreenDialog: true,
           child: AiAssistantScreen(),
         ),
+      ),
+      GoRoute(
+        path: '/ai/recommendations',
+        builder: (_, __) => const SmartRecommendationsScreen(),
       ),
       GoRoute(
         path: '/premium',

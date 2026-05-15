@@ -6,6 +6,7 @@ interface PlaceCandidate {
   id: string;
   category: string;
   moods: string[];
+  priceLevel: string;
   ratingAvg: number;
   ratingCount: number;
   saveCount: number;
@@ -19,6 +20,18 @@ interface RankedPlace {
   reason: string;
 }
 
+interface UserPrefs {
+  placeTypes: string[];
+  moods: string[];
+  budget?: string | null;
+}
+
+const BUDGET_ORDER: Record<string, number> = {
+  low: 1,
+  mid: 2,
+  high: 3,
+};
+
 /**
  * Score-only ranking (heuristic). Vertex AI Gemini integration can replace
  * the scoring step with a structured-output call; the wrapper, the cache
@@ -26,10 +39,13 @@ interface RankedPlace {
  */
 function heuristicRank(
   candidates: PlaceCandidate[],
-  prefs: { placeTypes: string[]; moods: string[] }
+  prefs: UserPrefs
 ): RankedPlace[] {
   const wantedTypes = new Set((prefs.placeTypes ?? []).map((s) => s.toLowerCase()));
   const wantedMoods = new Set((prefs.moods ?? []).map((s) => s.toLowerCase()));
+  const wantedBudgetOrder = prefs.budget
+    ? BUDGET_ORDER[prefs.budget.toLowerCase()]
+    : undefined;
 
   return candidates
     .map((p) => {
@@ -47,6 +63,19 @@ function heuristicRank(
       if (moodOverlap > 0) {
         score += moodOverlap * 15;
         reasons.push(`${moodOverlap} mood${moodOverlap > 1 ? "s" : ""} match`);
+      }
+
+      if (wantedBudgetOrder) {
+        const placeOrder = BUDGET_ORDER[(p.priceLevel ?? "").toLowerCase()];
+        if (placeOrder) {
+          const delta = Math.abs(placeOrder - wantedBudgetOrder);
+          if (delta === 0) {
+            score += 20;
+            reasons.push("fits your budget");
+          } else if (delta === 1) {
+            score += 5;
+          }
+        }
       }
 
       score += Math.min(p.ratingAvg, 5) * 4;
@@ -78,6 +107,7 @@ export const rankPlacesForUser = onCall(
     const prefs = (userData.preferences ?? {}) as {
       placeTypes?: string[];
       moods?: string[];
+      budget?: string | null;
     };
 
     const candidatesSnap = await db
@@ -93,6 +123,7 @@ export const rankPlacesForUser = onCall(
         id: d.id,
         category: data.category ?? "",
         moods: (data.moods as string[]) ?? [],
+        priceLevel: (data.priceLevel as string) ?? "",
         ratingAvg: (data.ratingAvg as number) ?? 0,
         ratingCount: (data.ratingCount as number) ?? 0,
         saveCount: (data.saveCount as number) ?? 0,
@@ -104,6 +135,7 @@ export const rankPlacesForUser = onCall(
     const ranked = heuristicRank(candidates, {
       placeTypes: prefs.placeTypes ?? [],
       moods: prefs.moods ?? [],
+      budget: prefs.budget ?? null,
     });
 
     const payload = {

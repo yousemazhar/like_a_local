@@ -9,6 +9,7 @@ import '../../../core/widgets/place_card.dart';
 import '../../../core/widgets/savable_place_card.dart';
 import '../../../core/widgets/section_title.dart';
 import '../../../core/widgets/skeleton.dart';
+import '../../../core/widgets/smart_suggestions_banner.dart';
 import '../../../features/notifications/domain/notification_providers.dart';
 import '../../../features/place/domain/place.dart';
 import '../../../features/place/domain/place_providers.dart';
@@ -170,6 +171,11 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                   ),
                 ),
                 SliverToBoxAdapter(child: _SearchPill()),
+                SliverToBoxAdapter(
+                  child: SmartSuggestionsBanner(
+                    onTap: () => context.push('/ai/recommendations'),
+                  ),
+                ),
                 SliverToBoxAdapter(
                   child: _FeaturedSection(
                     featuredAsync: nearbyAsync,

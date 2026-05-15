@@ -518,6 +518,68 @@ class AppLocalizationsDe extends AppLocalizations {
       'Gute Frage! Basierend auf deinen Vorlieben kann ich ein paar Geheimtipps empfehlen, die Locals lieben. Soll ich nach Küche oder Atmosphäre filtern?';
 
   @override
+  String get smartSuggestionsTitle => 'Smarte Vorschläge für dich';
+
+  @override
+  String get smartSuggestionsSubtitle => 'Auf deinen Geschmack zugeschnitten';
+
+  @override
+  String get smartRecsTitle => 'Für dich';
+
+  @override
+  String get smartRecsRanked => 'Nach deinem Stil sortiert';
+
+  @override
+  String get smartRecsEmptyPrefs => 'Vorlieben festlegen';
+
+  @override
+  String get smartRecsEmptyPrefsBody =>
+      'Sag uns, was du magst – wir personalisieren deine Empfehlungen.';
+
+  @override
+  String get smartRecsSetPreferences => 'Einstellungen öffnen';
+
+  @override
+  String get smartRecsError => 'Empfehlungen konnten nicht geladen werden';
+
+  @override
+  String get smartPickHeading => 'KI-Tipp für dich';
+
+  @override
+  String get smartPickBadge => 'KI-TIPP';
+
+  @override
+  String get smartPickPremiumLocked =>
+      'Upgrade auf Premium für einen personalisierten KI-Tipp mit kurzer Begründung.';
+
+  @override
+  String get smartPickError => 'KI ist gerade nicht verfügbar.';
+
+  @override
+  String get settingsPrefPlaceTypes => 'Orte';
+
+  @override
+  String get settingsPrefMoods => 'Atmosphäre';
+
+  @override
+  String get settingsPrefBudget => 'Budget';
+
+  @override
+  String get settingsPrefNotSet => 'Nicht festgelegt';
+
+  @override
+  String get settingsPrefClear => 'Zurücksetzen';
+
+  @override
+  String get budgetLow => 'Günstig';
+
+  @override
+  String get budgetMid => 'Mittel';
+
+  @override
+  String get budgetHigh => 'Premium';
+
+  @override
   String get premiumTitle => 'Premium holen';
 
   @override

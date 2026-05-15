@@ -1052,6 +1052,126 @@ abstract class AppLocalizations {
   /// **'Great question! Based on your preferences, I can suggest a few hidden gems locals love. Would you like me to narrow down by cuisine or atmosphere?'**
   String get aiFallbackReply;
 
+  /// No description provided for @smartSuggestionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart suggestions for you'**
+  String get smartSuggestionsTitle;
+
+  /// No description provided for @smartSuggestionsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Picks tailored to your taste'**
+  String get smartSuggestionsSubtitle;
+
+  /// No description provided for @smartRecsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'For you'**
+  String get smartRecsTitle;
+
+  /// No description provided for @smartRecsRanked.
+  ///
+  /// In en, this message translates to:
+  /// **'Ranked for your style'**
+  String get smartRecsRanked;
+
+  /// No description provided for @smartRecsEmptyPrefs.
+  ///
+  /// In en, this message translates to:
+  /// **'Set your preferences'**
+  String get smartRecsEmptyPrefs;
+
+  /// No description provided for @smartRecsEmptyPrefsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us what you like and we\'ll personalize your picks.'**
+  String get smartRecsEmptyPrefsBody;
+
+  /// No description provided for @smartRecsSetPreferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get smartRecsSetPreferences;
+
+  /// No description provided for @smartRecsError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load recommendations'**
+  String get smartRecsError;
+
+  /// No description provided for @smartPickHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'AI\'s pick for you'**
+  String get smartPickHeading;
+
+  /// No description provided for @smartPickBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'AI PICK'**
+  String get smartPickBadge;
+
+  /// No description provided for @smartPickPremiumLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade to Premium to get one personalized AI pick with a short reason.'**
+  String get smartPickPremiumLocked;
+
+  /// No description provided for @smartPickError.
+  ///
+  /// In en, this message translates to:
+  /// **'AI is unavailable right now.'**
+  String get smartPickError;
+
+  /// No description provided for @settingsPrefPlaceTypes.
+  ///
+  /// In en, this message translates to:
+  /// **'Place types'**
+  String get settingsPrefPlaceTypes;
+
+  /// No description provided for @settingsPrefMoods.
+  ///
+  /// In en, this message translates to:
+  /// **'Atmosphere'**
+  String get settingsPrefMoods;
+
+  /// No description provided for @settingsPrefBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget'**
+  String get settingsPrefBudget;
+
+  /// No description provided for @settingsPrefNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get settingsPrefNotSet;
+
+  /// No description provided for @settingsPrefClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get settingsPrefClear;
+
+  /// No description provided for @budgetLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget-friendly'**
+  String get budgetLow;
+
+  /// No description provided for @budgetMid.
+  ///
+  /// In en, this message translates to:
+  /// **'Mid-range'**
+  String get budgetMid;
+
+  /// No description provided for @budgetHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'Splurge'**
+  String get budgetHigh;
+
   /// No description provided for @premiumTitle.
   ///
   /// In en, this message translates to:

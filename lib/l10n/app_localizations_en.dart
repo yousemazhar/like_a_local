@@ -513,6 +513,68 @@ class AppLocalizationsEn extends AppLocalizations {
       'Great question! Based on your preferences, I can suggest a few hidden gems locals love. Would you like me to narrow down by cuisine or atmosphere?';
 
   @override
+  String get smartSuggestionsTitle => 'Smart suggestions for you';
+
+  @override
+  String get smartSuggestionsSubtitle => 'Picks tailored to your taste';
+
+  @override
+  String get smartRecsTitle => 'For you';
+
+  @override
+  String get smartRecsRanked => 'Ranked for your style';
+
+  @override
+  String get smartRecsEmptyPrefs => 'Set your preferences';
+
+  @override
+  String get smartRecsEmptyPrefsBody =>
+      'Tell us what you like and we\'ll personalize your picks.';
+
+  @override
+  String get smartRecsSetPreferences => 'Open settings';
+
+  @override
+  String get smartRecsError => 'Couldn\'t load recommendations';
+
+  @override
+  String get smartPickHeading => 'AI\'s pick for you';
+
+  @override
+  String get smartPickBadge => 'AI PICK';
+
+  @override
+  String get smartPickPremiumLocked =>
+      'Upgrade to Premium to get one personalized AI pick with a short reason.';
+
+  @override
+  String get smartPickError => 'AI is unavailable right now.';
+
+  @override
+  String get settingsPrefPlaceTypes => 'Place types';
+
+  @override
+  String get settingsPrefMoods => 'Atmosphere';
+
+  @override
+  String get settingsPrefBudget => 'Budget';
+
+  @override
+  String get settingsPrefNotSet => 'Not set';
+
+  @override
+  String get settingsPrefClear => 'Clear';
+
+  @override
+  String get budgetLow => 'Budget-friendly';
+
+  @override
+  String get budgetMid => 'Mid-range';
+
+  @override
+  String get budgetHigh => 'Splurge';
+
+  @override
   String get premiumTitle => 'Go Premium';
 
   @override
