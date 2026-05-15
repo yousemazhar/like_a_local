@@ -655,12 +655,12 @@ class _LocationPermissionBanner extends StatelessWidget {
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             onPressed: () async {
-              // On Android 11+ requestPermission() when current state is
-              // whileInUse directs the OS to open the settings page that
-              // includes "Allow all the time". Fall back to openAppSettings
-              // only if already deniedForever.
               final current = await Geolocator.checkPermission();
-              if (current == LocationPermission.deniedForever) {
+              // Android 11+ cannot upgrade whileInUse -> always through a
+              // runtime dialog; the user must toggle "Allow all the time"
+              // from the app's settings page.
+              if (current == LocationPermission.whileInUse ||
+                  current == LocationPermission.deniedForever) {
                 await Geolocator.openAppSettings();
               } else {
                 await Geolocator.requestPermission();
