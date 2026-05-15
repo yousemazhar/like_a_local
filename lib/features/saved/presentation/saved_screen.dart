@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/errors/offline_exception.dart';
+import '../../../core/forms/validators.dart';
 import '../../../core/providers/connectivity_provider.dart';
 import '../../../core/widgets/empty_view.dart';
 import '../../../core/widgets/lal_toast.dart';
@@ -234,40 +235,75 @@ class _CollectionsTab extends ConsumerWidget {
         return;
       }
     }
-    final ctrl = TextEditingController();
+    final name = await showDialog<String>(
+      context: context,
+      builder: (_) => const _NewCollectionDialog(),
+    );
+    if (name == null || name.isEmpty) return;
     try {
-      final name = await showDialog<String>(
-        context: context,
-        builder: (dialogCtx) => AlertDialog(
-          title: Text(t.savedNewCollection),
-          content: TextField(
-            controller: ctrl,
-            autofocus: true,
-            decoration: InputDecoration(labelText: t.savedCollectionName),
-            onSubmitted: (v) => Navigator.of(dialogCtx).pop(v.trim()),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogCtx).pop(),
-              child: Text(t.buttonCancel),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.of(dialogCtx).pop(ctrl.text.trim()),
-              child: Text(t.savedCreate),
-            ),
-          ],
-        ),
-      );
-      if (name != null && name.isNotEmpty) {
-        try {
-          await ref.read(savedNotifierProvider.notifier).createCollection(name);
-        } on OfflineException {
-          if (context.mounted) LALToast.showOffline(context);
-        }
-      }
-    } finally {
-      ctrl.dispose();
+      await ref.read(savedNotifierProvider.notifier).createCollection(name);
+    } on OfflineException {
+      if (context.mounted) LALToast.showOffline(context);
+    } catch (e) {
+      if (context.mounted) LALToast.showError(context, e);
     }
+  }
+}
+
+class _NewCollectionDialog extends StatefulWidget {
+  const _NewCollectionDialog();
+
+  @override
+  State<_NewCollectionDialog> createState() => _NewCollectionDialogState();
+}
+
+class _NewCollectionDialogState extends State<_NewCollectionDialog> {
+  final _formKey = GlobalKey<FormState>();
+  final _ctrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    Navigator.of(context).pop(_ctrl.text.trim());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    return AlertDialog(
+      title: Text(t.savedNewCollection),
+      content: Form(
+        key: _formKey,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        child: TextFormField(
+          controller: _ctrl,
+          autofocus: true,
+          textInputAction: TextInputAction.done,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: InputDecoration(labelText: t.savedCollectionName),
+          validator: LALValidators.compose([
+            LALValidators.required(t),
+            LALValidators.maxLength(t, 40),
+          ]),
+          onFieldSubmitted: (_) => _submit(),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(t.buttonCancel),
+        ),
+        ElevatedButton(
+          onPressed: _submit,
+          child: Text(t.savedCreate),
+        ),
+      ],
+    );
   }
 }
 
