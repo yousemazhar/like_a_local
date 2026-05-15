@@ -87,15 +87,27 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   ];
 
   final Completer<GoogleMapController> _mapController = Completer();
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
+  Timer? _searchDebounce;
   bool _isLocatingUser = false;
   bool _hasLocationPermission = false;
   _DemoMapPlace? _selectedPlace;
-  bool _didFitInitialBounds = false;
+  String _query = '';
+  String? _lastBoundsSignature;
 
   @override
   void initState() {
     super.initState();
     unawaited(_initializeMap());
+  }
+
+  @override
+  void dispose() {
+    _searchDebounce?.cancel();
+    _searchController.dispose();
+    _searchFocusNode.dispose();
+    super.dispose();
   }
 
   List<_DemoMapPlace> _placesFromFirestore(List<Place> places) {
@@ -106,14 +118,47 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             id: p.id,
             title: p.title,
             neighborhood: p.neighborhood.isNotEmpty ? p.neighborhood : p.city,
+            city: p.city,
             category: p.category,
             address: p.address,
+            moods: p.moods,
             lat: p.lat,
             lng: p.lng,
             rating: p.ratingAvg > 0 ? p.ratingAvg : null,
           ),
         )
         .toList(growable: false);
+  }
+
+  void _onSearchChanged(String value) {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 280), () {
+      if (!mounted) return;
+      setState(() {
+        _query = value.trim();
+        _selectedPlace = null;
+      });
+    });
+  }
+
+  void _clearSearch() {
+    _searchDebounce?.cancel();
+    _searchController.clear();
+    setState(() {
+      _query = '';
+      _selectedPlace = null;
+    });
+  }
+
+  bool _matchesQuery(_DemoMapPlace place, String query) {
+    if (query.isEmpty) return true;
+    final lower = query.toLowerCase();
+    return place.title.toLowerCase().contains(lower) ||
+        place.neighborhood.toLowerCase().contains(lower) ||
+        place.city.toLowerCase().contains(lower) ||
+        place.category.toLowerCase().contains(lower) ||
+        place.address.toLowerCase().contains(lower) ||
+        place.moods.any((mood) => mood.toLowerCase().contains(lower));
   }
 
   Future<void> _fitBoundsToPlaces(List<_DemoMapPlace> places) async {
@@ -271,11 +316,26 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       },
       orElse: () => _fallbackPlaces,
     );
-    _selectedPlace ??= places.first;
-    if (!_didFitInitialBounds && places.length > 1) {
-      _didFitInitialBounds = true;
+    final visiblePlaces = places
+        .where((place) => _matchesQuery(place, _query))
+        .toList(growable: false);
+    final selectedPlace = visiblePlaces.isEmpty
+        ? null
+        : visiblePlaces.firstWhere(
+            (p) => p.id == _selectedPlace?.id,
+            orElse: () => visiblePlaces.first,
+          );
+    _selectedPlace = selectedPlace;
+
+    final boundsSignature = visiblePlaces.map((p) => p.id).join('|');
+    if (_lastBoundsSignature != boundsSignature && visiblePlaces.isNotEmpty) {
+      _lastBoundsSignature = boundsSignature;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        unawaited(_fitBoundsToPlaces(places));
+        if (visiblePlaces.length == 1) {
+          unawaited(_focusPlace(visiblePlaces.first));
+        } else {
+          unawaited(_fitBoundsToPlaces(visiblePlaces));
+        }
       });
     }
     return Scaffold(
@@ -285,7 +345,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           Positioned.fill(
             child: GoogleMap(
               initialCameraPosition: _fallbackCamera,
-              markers: _buildMarkers(places),
+              markers: _buildMarkers(visiblePlaces),
               myLocationEnabled: _hasLocationPermission,
               myLocationButtonEnabled: false,
               zoomControlsEnabled: false,
@@ -321,11 +381,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     ),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
+                      child: DecoratedBox(
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: LALRadii.pillBorder,
@@ -337,21 +393,50 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                             ),
                           ],
                         ),
-                        child: Row(
-                          children: [
-                            const Icon(
+                        child: TextField(
+                          controller: _searchController,
+                          focusNode: _searchFocusNode,
+                          onChanged: _onSearchChanged,
+                          textInputAction: TextInputAction.search,
+                          decoration: InputDecoration(
+                            hintText: t.mapSearchOnMap,
+                            prefixIcon: const Icon(
                               Icons.search,
                               color: LALColors.c400,
                               size: 18,
                             ),
-                            const SizedBox(width: 8),
-                            Text(
-                              t.mapSearchOnMap,
-                              style: LALTypography.bodyMedium.copyWith(
-                                color: LALColors.c400,
+                            suffixIcon: _searchController.text.isNotEmpty
+                                ? IconButton(
+                                    onPressed: _clearSearch,
+                                    icon: const Icon(
+                                      Icons.clear,
+                                      color: LALColors.c400,
+                                      size: 18,
+                                    ),
+                                  )
+                                : null,
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                              borderRadius: LALRadii.pillBorder,
+                              borderSide: BorderSide.none,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: LALRadii.pillBorder,
+                              borderSide: BorderSide.none,
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: LALRadii.pillBorder,
+                              borderSide: const BorderSide(
+                                color: LALColors.c900,
+                                width: 1.5,
                               ),
                             ),
-                          ],
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -401,13 +486,59 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             bottom: 0,
             left: 0,
             right: 0,
-            child: _MapBottomSheet(
-              place: _selectedPlace!,
-              placeCount: places.length,
-              onDirectionsTap: () => _openDirections(_selectedPlace!),
-              onViewDetails: () => context.push('/place/${_selectedPlace!.id}'),
-            ),
+            child: selectedPlace == null
+                ? _NoMapResults(query: _query, onClear: _clearSearch)
+                : _MapBottomSheet(
+                    place: selectedPlace,
+                    placeCount: visiblePlaces.length,
+                    onDirectionsTap: () => _openDirections(selectedPlace),
+                    onViewDetails: () =>
+                        context.push('/place/${selectedPlace.id}'),
+                  ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _NoMapResults extends StatelessWidget {
+  const _NoMapResults({required this.query, required this.onClear});
+
+  final String query;
+  final VoidCallback onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    return Container(
+      decoration: const BoxDecoration(
+        color: LALColors.surface,
+        borderRadius: BorderRadius.vertical(top: LALRadii.xl),
+        boxShadow: [
+          BoxShadow(color: Colors.black12, blurRadius: 16, spreadRadius: 0),
+        ],
+      ),
+      padding: EdgeInsets.fromLTRB(
+        20,
+        20,
+        20,
+        20 + MediaQuery.of(context).padding.bottom,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.search_off, color: LALColors.c300, size: 40),
+          const SizedBox(height: 12),
+          Text(t.searchNoResults, style: LALTypography.labelLarge),
+          const SizedBox(height: 6),
+          Text(
+            query.isEmpty ? t.searchNoResultsBody : '"$query"',
+            style: LALTypography.bodySmall.copyWith(color: LALColors.c600),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 12),
+          TextButton(onPressed: onClear, child: Text(t.settingsPrefClear)),
         ],
       ),
     );
@@ -573,7 +704,9 @@ class _DemoMapPlace {
     required this.category,
     required this.lat,
     required this.lng,
+    this.city = '',
     this.address = '',
+    this.moods = const [],
     this.rating,
   });
 
@@ -581,7 +714,9 @@ class _DemoMapPlace {
   final String title;
   final String neighborhood;
   final String category;
+  final String city;
   final String address;
+  final List<String> moods;
   final double lat;
   final double lng;
   final double? rating;
