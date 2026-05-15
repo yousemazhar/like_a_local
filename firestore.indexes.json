@@ -14,7 +14,19 @@
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "hidden", "order": "ASCENDING" },
+        { "fieldPath": "ownerIsSuper", "order": "DESCENDING" },
+        { "fieldPath": "ownerSuperScore", "order": "DESCENDING" },
         { "fieldPath": "createdAt", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "places",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "hidden", "order": "ASCENDING" },
+        { "fieldPath": "ownerIsSuper", "order": "DESCENDING" },
+        { "fieldPath": "saveCount", "order": "DESCENDING" },
         { "fieldPath": "__name__", "order": "DESCENDING" }
       ]
     },
@@ -41,6 +53,15 @@
       "fields": [
         { "fieldPath": "members", "arrayConfig": "CONTAINS" },
         { "fieldPath": "lastAt", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "role", "order": "ASCENDING" },
+        { "fieldPath": "superUserScore", "order": "DESCENDING" },
         { "fieldPath": "__name__", "order": "DESCENDING" }
       ]
     }

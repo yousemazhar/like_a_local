@@ -36,6 +36,7 @@ mixin _$Place {
   List<String> get mediaUrls => throw _privateConstructorUsedError;
   String get ownerUid => throw _privateConstructorUsedError;
   bool get ownerIsSuper => throw _privateConstructorUsedError;
+  double get ownerSuperScore => throw _privateConstructorUsedError;
   double get ratingAvg => throw _privateConstructorUsedError;
   int get ratingCount => throw _privateConstructorUsedError;
   int get saveCount => throw _privateConstructorUsedError;
@@ -74,6 +75,7 @@ abstract class $PlaceCopyWith<$Res> {
     List<String> mediaUrls,
     String ownerUid,
     bool ownerIsSuper,
+    double ownerSuperScore,
     double ratingAvg,
     int ratingCount,
     int saveCount,
@@ -113,6 +115,7 @@ class _$PlaceCopyWithImpl<$Res, $Val extends Place>
     Object? mediaUrls = null,
     Object? ownerUid = null,
     Object? ownerIsSuper = null,
+    Object? ownerSuperScore = null,
     Object? ratingAvg = null,
     Object? ratingCount = null,
     Object? saveCount = null,
@@ -182,6 +185,10 @@ class _$PlaceCopyWithImpl<$Res, $Val extends Place>
                 ? _value.ownerIsSuper
                 : ownerIsSuper // ignore: cast_nullable_to_non_nullable
                       as bool,
+            ownerSuperScore: null == ownerSuperScore
+                ? _value.ownerSuperScore
+                : ownerSuperScore // ignore: cast_nullable_to_non_nullable
+                      as double,
             ratingAvg: null == ratingAvg
                 ? _value.ratingAvg
                 : ratingAvg // ignore: cast_nullable_to_non_nullable
@@ -236,6 +243,7 @@ abstract class _$$PlaceImplCopyWith<$Res> implements $PlaceCopyWith<$Res> {
     List<String> mediaUrls,
     String ownerUid,
     bool ownerIsSuper,
+    double ownerSuperScore,
     double ratingAvg,
     int ratingCount,
     int saveCount,
@@ -274,6 +282,7 @@ class __$$PlaceImplCopyWithImpl<$Res>
     Object? mediaUrls = null,
     Object? ownerUid = null,
     Object? ownerIsSuper = null,
+    Object? ownerSuperScore = null,
     Object? ratingAvg = null,
     Object? ratingCount = null,
     Object? saveCount = null,
@@ -343,6 +352,10 @@ class __$$PlaceImplCopyWithImpl<$Res>
             ? _value.ownerIsSuper
             : ownerIsSuper // ignore: cast_nullable_to_non_nullable
                   as bool,
+        ownerSuperScore: null == ownerSuperScore
+            ? _value.ownerSuperScore
+            : ownerSuperScore // ignore: cast_nullable_to_non_nullable
+                  as double,
         ratingAvg: null == ratingAvg
             ? _value.ratingAvg
             : ratingAvg // ignore: cast_nullable_to_non_nullable
@@ -391,6 +404,7 @@ class _$PlaceImpl implements _Place {
     final List<String> mediaUrls = const [],
     this.ownerUid = '',
     this.ownerIsSuper = false,
+    this.ownerSuperScore = 0.0,
     this.ratingAvg = 0.0,
     this.ratingCount = 0,
     this.saveCount = 0,
@@ -465,6 +479,9 @@ class _$PlaceImpl implements _Place {
   final bool ownerIsSuper;
   @override
   @JsonKey()
+  final double ownerSuperScore;
+  @override
+  @JsonKey()
   final double ratingAvg;
   @override
   @JsonKey()
@@ -484,7 +501,7 @@ class _$PlaceImpl implements _Place {
 
   @override
   String toString() {
-    return 'Place(id: $id, title: $title, description: $description, category: $category, moods: $moods, priceLevel: $priceLevel, city: $city, neighborhood: $neighborhood, address: $address, lat: $lat, lng: $lng, tips: $tips, mediaUrls: $mediaUrls, ownerUid: $ownerUid, ownerIsSuper: $ownerIsSuper, ratingAvg: $ratingAvg, ratingCount: $ratingCount, saveCount: $saveCount, featured: $featured, hidden: $hidden, createdAt: $createdAt)';
+    return 'Place(id: $id, title: $title, description: $description, category: $category, moods: $moods, priceLevel: $priceLevel, city: $city, neighborhood: $neighborhood, address: $address, lat: $lat, lng: $lng, tips: $tips, mediaUrls: $mediaUrls, ownerUid: $ownerUid, ownerIsSuper: $ownerIsSuper, ownerSuperScore: $ownerSuperScore, ratingAvg: $ratingAvg, ratingCount: $ratingCount, saveCount: $saveCount, featured: $featured, hidden: $hidden, createdAt: $createdAt)';
   }
 
   @override
@@ -516,6 +533,8 @@ class _$PlaceImpl implements _Place {
                 other.ownerUid == ownerUid) &&
             (identical(other.ownerIsSuper, ownerIsSuper) ||
                 other.ownerIsSuper == ownerIsSuper) &&
+            (identical(other.ownerSuperScore, ownerSuperScore) ||
+                other.ownerSuperScore == ownerSuperScore) &&
             (identical(other.ratingAvg, ratingAvg) ||
                 other.ratingAvg == ratingAvg) &&
             (identical(other.ratingCount, ratingCount) ||
@@ -548,6 +567,7 @@ class _$PlaceImpl implements _Place {
     const DeepCollectionEquality().hash(_mediaUrls),
     ownerUid,
     ownerIsSuper,
+    ownerSuperScore,
     ratingAvg,
     ratingCount,
     saveCount,
@@ -587,6 +607,7 @@ abstract class _Place implements Place {
     final List<String> mediaUrls,
     final String ownerUid,
     final bool ownerIsSuper,
+    final double ownerSuperScore,
     final double ratingAvg,
     final int ratingCount,
     final int saveCount,
@@ -627,6 +648,8 @@ abstract class _Place implements Place {
   String get ownerUid;
   @override
   bool get ownerIsSuper;
+  @override
+  double get ownerSuperScore;
   @override
   double get ratingAvg;
   @override

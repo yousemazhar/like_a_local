@@ -47,13 +47,17 @@ class ProfileScreen extends ConsumerWidget {
           SliverAppBar(
             backgroundColor: LALColors.surface,
             floating: true,
-            title: Text(t.profileTitle,
-                style: Theme.of(context).textTheme.headlineSmall),
+            title: Text(
+              t.profileTitle,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
             actions: [
               IconButton(
                 onPressed: () => context.push('/settings'),
-                icon:
-                    const Icon(Icons.settings_outlined, color: LALColors.c900),
+                icon: const Icon(
+                  Icons.settings_outlined,
+                  color: LALColors.c900,
+                ),
               ),
             ],
           ),
@@ -66,7 +70,7 @@ class ProfileScreen extends ConsumerWidget {
                 _StatsRow(
                   placesCount: places.length,
                   pinCount: pinCount,
-                  helpfulCount: _readCounter(user, 'helpfulCount'),
+                  helpfulCount: user?.superUserStats.reviewsCount ?? 0,
                 ),
                 const SizedBox(height: 16),
                 _TrustStrip(),
@@ -101,12 +105,6 @@ class ProfileScreen extends ConsumerWidget {
       ),
     );
   }
-
-  int _readCounter(AppUser? user, String key) {
-    // counters are written by Cloud Functions, not yet on AppUser model;
-    // surface 0 by default until that field flows through.
-    return 0;
-  }
 }
 
 class _AvatarSection extends StatelessWidget {
@@ -131,8 +129,7 @@ class _AvatarSection extends StatelessWidget {
                   ? CachedNetworkImageProvider(photo)
                   : null,
               child: (photo == null || photo.isEmpty)
-                  ? const Icon(Icons.person,
-                      color: LALColors.c400, size: 48)
+                  ? const Icon(Icons.person, color: LALColors.c400, size: 48)
                   : null,
             ),
             if (user?.role == 'super')
@@ -146,8 +143,11 @@ class _AvatarSection extends StatelessWidget {
                     color: LALColors.accent,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.workspace_premium_rounded,
-                      color: Colors.white, size: 16),
+                  child: const Icon(
+                    Icons.workspace_premium_rounded,
+                    color: Colors.white,
+                    size: 16,
+                  ),
                 ),
               ),
           ],
@@ -198,8 +198,7 @@ class _StatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(value,
-            style: LALTypography.headlineMedium.copyWith(fontSize: 24)),
+        Text(value, style: LALTypography.headlineMedium.copyWith(fontSize: 24)),
         const SizedBox(height: 2),
         Text(label, style: LALTypography.bodySmall),
       ],
@@ -229,16 +228,21 @@ class _TrustStrip extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.verified_outlined,
-              color: LALColors.accent, size: 20),
+          const Icon(
+            Icons.verified_outlined,
+            color: LALColors.accent,
+            size: 20,
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(t.profileVerified, style: LALTypography.labelLarge),
-                Text(t.profileVerifiedBody,
-                    style: LALTypography.bodySmall.copyWith(fontSize: 11)),
+                Text(
+                  t.profileVerifiedBody,
+                  style: LALTypography.bodySmall.copyWith(fontSize: 11),
+                ),
               ],
             ),
           ),
@@ -259,9 +263,9 @@ class _TestPushButtonState extends State<_TestPushButton> {
   Future<void> _send() async {
     setState(() => _busy = true);
     try {
-      final res = await FirebaseFunctions.instanceFor(region: 'us-central1')
-          .httpsCallable('sendTestNotification')
-          .call();
+      final res = await FirebaseFunctions.instanceFor(
+        region: 'us-central1',
+      ).httpsCallable('sendTestNotification').call();
       final data = res.data as Map?;
       final tokens = data?['tokens'] ?? 0;
       final delivered = data?['delivered'] ?? 0;
@@ -277,9 +281,9 @@ class _TestPushButtonState extends State<_TestPushButton> {
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Test push failed: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Test push failed: $e')));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -307,8 +311,10 @@ class _ShowFcmTokensButton extends StatelessWidget {
   Future<List<String>> _loadTokens() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return const [];
-    final snap =
-        await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    final snap = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .get();
     final raw = snap.data()?['fcmTokens'];
     if (raw is List) {
       return raw.whereType<String>().toList();
@@ -323,7 +329,8 @@ class _ShowFcmTokensButton extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-              'No FCM tokens registered yet. Open the app on a real device first.'),
+            'No FCM tokens registered yet. Open the app on a real device first.',
+          ),
         ),
       );
       return;
@@ -341,8 +348,10 @@ class _ShowFcmTokensButton extends StatelessWidget {
             itemBuilder: (_, i) => Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Token ${i + 1}',
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                Text(
+                  'Token ${i + 1}',
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
                 const SizedBox(height: 4),
                 SelectableText(
                   tokens[i],
@@ -355,14 +364,14 @@ class _ShowFcmTokensButton extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () async {
-              await Clipboard.setData(
-                ClipboardData(text: tokens.join('\n')),
-              );
+              await Clipboard.setData(ClipboardData(text: tokens.join('\n')));
               if (!ctx.mounted) return;
               Navigator.of(ctx).pop();
               ScaffoldMessenger.of(ctx).showSnackBar(
                 SnackBar(
-                  content: Text('Copied ${tokens.length} token(s) to clipboard'),
+                  content: Text(
+                    'Copied ${tokens.length} token(s) to clipboard',
+                  ),
                 ),
               );
             },
@@ -414,11 +423,13 @@ class _PlacesGrid extends StatelessWidget {
               padding: const EdgeInsets.all(40),
               child: Column(
                 children: [
-                  const Icon(Icons.add_location_alt_outlined,
-                      color: LALColors.c300, size: 40),
+                  const Icon(
+                    Icons.add_location_alt_outlined,
+                    color: LALColors.c300,
+                    size: 40,
+                  ),
                   const SizedBox(height: 12),
-                  Text(t.profileNoPlaces,
-                      style: LALTypography.bodyMedium),
+                  Text(t.profileNoPlaces, style: LALTypography.bodyMedium),
                 ],
               ),
             ),
@@ -473,8 +484,9 @@ class _PlacesGrid extends StatelessWidget {
                               p.title,
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
-                              style: LALTypography.labelLarge
-                                  .copyWith(color: Colors.white),
+                              style: LALTypography.labelLarge.copyWith(
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),

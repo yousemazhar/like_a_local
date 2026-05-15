@@ -11,12 +11,27 @@ service cloud.firestore {
     }
 
     // Server-only fields on the user doc.
-    function noServerFieldChanges() {
+    function noUserServerFieldChanges() {
       let serverKeys = ['premium', 'premiumUpdatedAt',
                         'stripeCustomerId', 'lastPaymentIntentId',
-                        'entitlements'];
+                        'entitlements', 'role', 'superUserScore',
+                        'superUserStats', 'superUserBecameAt',
+                        'superUserScoreUpdatedAt'];
       return !request.resource.data.diff(resource.data)
           .affectedKeys().hasAny(serverKeys);
+    }
+
+    function noPlaceServerFields() {
+      return !request.resource.data.keys()
+          .hasAny(['ownerIsSuper', 'ownerSuperScore', 'ratingAvg',
+                   'ratingCount', 'saveCount']);
+    }
+
+    function noPlaceServerFieldChanges() {
+      return !request.resource.data.diff(resource.data)
+          .affectedKeys()
+          .hasAny(['ownerIsSuper', 'ownerSuperScore', 'ratingAvg',
+                   'ratingCount', 'saveCount']);
     }
 
     match /users/{uid} {
@@ -27,8 +42,12 @@ service cloud.firestore {
       allow create: if isOwner(uid)
         && !request.resource.data.keys().hasAny(
              ['premium', 'premiumUpdatedAt', 'stripeCustomerId',
-              'lastPaymentIntentId', 'entitlements']);
-      allow update: if isOwner(uid) && noServerFieldChanges();
+              'lastPaymentIntentId', 'entitlements', 'superUserScore',
+              'superUserStats', 'superUserBecameAt',
+              'superUserScoreUpdatedAt'])
+        && (!request.resource.data.keys().hasAny(['role'])
+            || request.resource.data.role == 'user');
+      allow update: if isOwner(uid) && noUserServerFieldChanges();
       allow delete: if false;
     }
 
@@ -36,8 +55,12 @@ service cloud.firestore {
     match /places/{placeId} {
       allow read: if isSignedIn();
       allow create: if isSignedIn()
-        && request.resource.data.ownerUid == request.auth.uid;
-      allow update, delete: if isSignedIn()
+        && request.resource.data.ownerUid == request.auth.uid
+        && noPlaceServerFields();
+      allow update: if isSignedIn()
+        && resource.data.ownerUid == request.auth.uid
+        && noPlaceServerFieldChanges();
+      allow delete: if isSignedIn()
         && resource.data.ownerUid == request.auth.uid;
 
       match /media/{mediaId} {

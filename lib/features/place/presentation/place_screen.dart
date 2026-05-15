@@ -376,7 +376,8 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
             );
           } else {
             if (!isPremium) {
-              final reminders = ref.read(remindersStreamProvider).valueOrNull ?? [];
+              final reminders =
+                  ref.read(remindersStreamProvider).valueOrNull ?? [];
               if (reminders.length >= 3) {
                 if (!context.mounted) return;
                 _showReminderLimitDialog(context, t);
@@ -557,140 +558,157 @@ class _ContributorCard extends ConsumerWidget {
     final chatEnabled = (chatSettings['enabled'] as bool?) ?? true;
     final awayMode = (chatSettings['awayMode'] as bool?) ?? false;
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: LALSpacing.xl),
-      padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: LALSpacing.xl),
+      child: Material(
         color: LALColors.surface,
         borderRadius: LALRadii.lgBorder,
-      ),
-      child: Row(
-        children: [
-          Stack(
-            children: [
-              const CircleAvatar(
-                radius: 24,
-                backgroundColor: LALColors.c100,
-                child: Icon(Icons.person, color: LALColors.c400),
-              ),
-              if (ownerIsSuper)
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  child: Container(
-                    width: 14,
-                    height: 14,
-                    decoration: const BoxDecoration(
-                      color: LALColors.accent,
-                      shape: BoxShape.circle,
-                      border: Border.fromBorderSide(
-                        BorderSide(color: Colors.white, width: 1.5),
+        child: InkWell(
+          borderRadius: LALRadii.lgBorder,
+          onTap: ownerUid.isEmpty
+              ? null
+              : () => context.push('/users/$ownerUid'),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Stack(
+                  children: [
+                    const CircleAvatar(
+                      radius: 24,
+                      backgroundColor: LALColors.c100,
+                      child: Icon(Icons.person, color: LALColors.c400),
+                    ),
+                    if (ownerIsSuper)
+                      Positioned(
+                        top: 0,
+                        right: 0,
+                        child: Container(
+                          width: 14,
+                          height: 14,
+                          decoration: const BoxDecoration(
+                            color: LALColors.accent,
+                            shape: BoxShape.circle,
+                            border: Border.fromBorderSide(
+                              BorderSide(color: Colors.white, width: 1.5),
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.workspace_premium_rounded,
+                            color: Colors.white,
+                            size: 8,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        ownerDisplayName.isNotEmpty
+                            ? ownerDisplayName
+                            : t.placeAnonymous,
+                        style: LALTypography.labelLarge,
+                      ),
+                      Text(
+                        ownerIsSuper ? t.placeSuperLocal : t.placeContributor,
+                        style: LALTypography.bodySmall.copyWith(
+                          color: LALColors.accent,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (isOwnPlace)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: LALColors.surfaceAlt,
+                      borderRadius: LALRadii.pillBorder,
+                    ),
+                    child: Text(
+                      'This is your place',
+                      style: LALTypography.labelSmall.copyWith(
+                        color: LALColors.c600,
                       ),
                     ),
-                    child: const Icon(
-                      Icons.workspace_premium_rounded,
-                      color: Colors.white,
-                      size: 8,
+                  )
+                else if (chatEnabled)
+                  ElevatedButton(
+                    onPressed: currentUid == null || ownerUid.isEmpty
+                        ? null
+                        : () async {
+                            if (awayMode) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(t.chatOwnerAway)),
+                              );
+                              return;
+                            }
+                            final availability = await ref
+                                .read(chatRepositoryProvider)
+                                .checkOwnerAvailability(ownerUid);
+                            if (!context.mounted) return;
+                            if (availability ==
+                                ChatAvailability.outsideSchedule) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(t.chatOwnerUnavailable)),
+                              );
+                              return;
+                            }
+                            String? threadId;
+                            try {
+                              threadId = await ref
+                                  .read(chatNotifierProvider.notifier)
+                                  .openWithUser(
+                                    otherUid: ownerUid,
+                                    otherDisplayName:
+                                        ownerDisplayName.isNotEmpty
+                                        ? ownerDisplayName
+                                        : t.placeAnonymous,
+                                    otherIsSuper: ownerIsSuper,
+                                    placeContext: placeId,
+                                  );
+                            } on OfflineException {
+                              if (context.mounted) {
+                                showOfflineActionSnackBar(context);
+                              }
+                              return;
+                            }
+                            if (threadId != null && context.mounted) {
+                              context.push('/chat/$threadId');
+                            }
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: LALColors.accent,
+                      foregroundColor: Colors.white,
+                      disabledBackgroundColor: LALColors.c200,
+                      disabledForegroundColor: LALColors.c500,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 18,
+                        vertical: 10,
+                      ),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      elevation: 0,
+                    ),
+                    child: Text(
+                      t.placeChat,
+                      style: LALTypography.labelMedium.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
-                ),
-            ],
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  ownerDisplayName.isNotEmpty
-                      ? ownerDisplayName
-                      : t.placeAnonymous,
-                  style: LALTypography.labelLarge,
-                ),
-                Text(
-                  ownerIsSuper ? t.placeSuperLocal : t.placeContributor,
-                  style: LALTypography.bodySmall.copyWith(
-                    color: LALColors.accent,
-                  ),
-                ),
               ],
             ),
           ),
-          if (isOwnPlace)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: LALColors.surfaceAlt,
-                borderRadius: LALRadii.pillBorder,
-              ),
-              child: Text(
-                'This is your place',
-                style: LALTypography.labelSmall.copyWith(color: LALColors.c600),
-              ),
-            )
-          else if (chatEnabled)
-            ElevatedButton(
-              onPressed: currentUid == null || ownerUid.isEmpty
-                  ? null
-                  : () async {
-                      if (awayMode) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(t.chatOwnerAway)),
-                        );
-                        return;
-                      }
-                      final availability = await ref
-                          .read(chatRepositoryProvider)
-                          .checkOwnerAvailability(ownerUid);
-                      if (!context.mounted) return;
-                      if (availability == ChatAvailability.outsideSchedule) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(t.chatOwnerUnavailable)),
-                        );
-                        return;
-                      }
-                      String? threadId;
-                      try {
-                        threadId = await ref
-                            .read(chatNotifierProvider.notifier)
-                            .openWithUser(
-                              otherUid: ownerUid,
-                              otherDisplayName: ownerDisplayName.isNotEmpty
-                                  ? ownerDisplayName
-                                  : t.placeAnonymous,
-                              otherIsSuper: ownerIsSuper,
-                              placeContext: placeId,
-                            );
-                      } on OfflineException {
-                        if (context.mounted) showOfflineActionSnackBar(context);
-                        return;
-                      }
-                      if (threadId != null && context.mounted) {
-                        context.push('/chat/$threadId');
-                      }
-                    },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: LALColors.accent,
-                foregroundColor: Colors.white,
-                disabledBackgroundColor: LALColors.c200,
-                disabledForegroundColor: LALColors.c500,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 18,
-                  vertical: 10,
-                ),
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                elevation: 0,
-              ),
-              child: Text(
-                t.placeChat,
-                style: LALTypography.labelMedium.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-        ],
+        ),
       ),
     );
   }

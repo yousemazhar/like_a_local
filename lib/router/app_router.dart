@@ -23,15 +23,15 @@ import '../features/saved/presentation/saved_screen.dart';
 import '../features/search/presentation/search_screen.dart';
 import '../features/settings/presentation/chat_schedule_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
+import '../features/super_users/presentation/public_user_profile_screen.dart';
+import '../features/super_users/presentation/super_users_screen.dart';
 import 'guards.dart';
 
 part 'app_router.g.dart';
 
 @Riverpod(keepAlive: true)
 GoRouter appRouter(AppRouterRef ref) {
-  final notifier = RouterNotifier(
-    ref.read(authStateProvider).valueOrNull,
-  );
+  final notifier = RouterNotifier(ref.read(authStateProvider).valueOrNull);
 
   ref.listen<AsyncValue>(authStateProvider, (_, next) {
     notifier.update(next.valueOrNull);
@@ -44,14 +44,8 @@ GoRouter appRouter(AppRouterRef ref) {
     refreshListenable: notifier,
     redirect: notifier.guard,
     routes: [
-      GoRoute(
-        path: '/auth/sign-in',
-        builder: (_, __) => const SignInScreen(),
-      ),
-      GoRoute(
-        path: '/auth/sign-up',
-        builder: (_, __) => const SignUpScreen(),
-      ),
+      GoRoute(path: '/auth/sign-in', builder: (_, __) => const SignInScreen()),
+      GoRoute(path: '/auth/sign-up', builder: (_, __) => const SignUpScreen()),
       GoRoute(
         path: '/onboarding',
         builder: (_, __) => const OnboardingScreen(),
@@ -61,14 +55,8 @@ GoRouter appRouter(AppRouterRef ref) {
         builder: (_, state) =>
             PlaceScreen(placeId: state.pathParameters['id']!),
       ),
-      GoRoute(
-        path: '/map',
-        builder: (_, __) => const MapScreen(),
-      ),
-      GoRoute(
-        path: '/settings',
-        builder: (_, __) => const SettingsScreen(),
-      ),
+      GoRoute(path: '/map', builder: (_, __) => const MapScreen()),
+      GoRoute(path: '/settings', builder: (_, __) => const SettingsScreen()),
       GoRoute(
         path: '/chat-schedule',
         builder: (_, __) => const ChatScheduleScreen(),
@@ -78,16 +66,23 @@ GoRouter appRouter(AppRouterRef ref) {
         builder: (_, __) => const NotificationsScreen(),
       ),
       GoRoute(
+        path: '/super-users',
+        builder: (_, __) => const SuperUsersScreen(),
+      ),
+      GoRoute(
+        path: '/users/:uid',
+        builder: (_, state) =>
+            PublicUserProfileScreen(uid: state.pathParameters['uid']!),
+      ),
+      GoRoute(
         path: '/chat/:threadId',
         builder: (_, state) =>
             ChatThreadScreen(threadId: state.pathParameters['threadId']!),
       ),
       GoRoute(
         path: '/add-place',
-        pageBuilder: (_, __) => const MaterialPage(
-          fullscreenDialog: true,
-          child: AddPlaceScreen(),
-        ),
+        pageBuilder: (_, __) =>
+            const MaterialPage(fullscreenDialog: true, child: AddPlaceScreen()),
       ),
       GoRoute(
         path: '/edit-place/:id',
@@ -109,10 +104,8 @@ GoRouter appRouter(AppRouterRef ref) {
       ),
       GoRoute(
         path: '/premium',
-        pageBuilder: (_, __) => const MaterialPage(
-          fullscreenDialog: true,
-          child: PremiumScreen(),
-        ),
+        pageBuilder: (_, __) =>
+            const MaterialPage(fullscreenDialog: true, child: PremiumScreen()),
       ),
       GoRoute(
         path: '/test-payment',
@@ -142,18 +135,12 @@ GoRouter appRouter(AppRouterRef ref) {
           ),
           StatefulShellBranch(
             routes: [
-              GoRoute(
-                path: '/saved',
-                builder: (_, __) => const SavedScreen(),
-              ),
+              GoRoute(path: '/saved', builder: (_, __) => const SavedScreen()),
             ],
           ),
           StatefulShellBranch(
             routes: [
-              GoRoute(
-                path: '/inbox',
-                builder: (_, __) => const InboxScreen(),
-              ),
+              GoRoute(path: '/inbox', builder: (_, __) => const InboxScreen()),
             ],
           ),
           StatefulShellBranch(

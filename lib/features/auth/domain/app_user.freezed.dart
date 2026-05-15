@@ -29,6 +29,12 @@ mixin _$AppUser {
   String get role => throw _privateConstructorUsedError;
   bool get emailVerified => throw _privateConstructorUsedError;
   bool get premium => throw _privateConstructorUsedError;
+  double get superUserScore => throw _privateConstructorUsedError;
+  SuperUserStats get superUserStats => throw _privateConstructorUsedError;
+  @TimestampConverter()
+  DateTime? get superUserBecameAt => throw _privateConstructorUsedError;
+  @TimestampConverter()
+  DateTime? get superUserScoreUpdatedAt => throw _privateConstructorUsedError;
   UserPreferences get preferences => throw _privateConstructorUsedError;
 
   /// Serializes this AppUser to a JSON map.
@@ -54,9 +60,14 @@ abstract class $AppUserCopyWith<$Res> {
     String role,
     bool emailVerified,
     bool premium,
+    double superUserScore,
+    SuperUserStats superUserStats,
+    @TimestampConverter() DateTime? superUserBecameAt,
+    @TimestampConverter() DateTime? superUserScoreUpdatedAt,
     UserPreferences preferences,
   });
 
+  $SuperUserStatsCopyWith<$Res> get superUserStats;
   $UserPreferencesCopyWith<$Res> get preferences;
 }
 
@@ -83,6 +94,10 @@ class _$AppUserCopyWithImpl<$Res, $Val extends AppUser>
     Object? role = null,
     Object? emailVerified = null,
     Object? premium = null,
+    Object? superUserScore = null,
+    Object? superUserStats = null,
+    Object? superUserBecameAt = freezed,
+    Object? superUserScoreUpdatedAt = freezed,
     Object? preferences = null,
   }) {
     return _then(
@@ -119,6 +134,22 @@ class _$AppUserCopyWithImpl<$Res, $Val extends AppUser>
                 ? _value.premium
                 : premium // ignore: cast_nullable_to_non_nullable
                       as bool,
+            superUserScore: null == superUserScore
+                ? _value.superUserScore
+                : superUserScore // ignore: cast_nullable_to_non_nullable
+                      as double,
+            superUserStats: null == superUserStats
+                ? _value.superUserStats
+                : superUserStats // ignore: cast_nullable_to_non_nullable
+                      as SuperUserStats,
+            superUserBecameAt: freezed == superUserBecameAt
+                ? _value.superUserBecameAt
+                : superUserBecameAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            superUserScoreUpdatedAt: freezed == superUserScoreUpdatedAt
+                ? _value.superUserScoreUpdatedAt
+                : superUserScoreUpdatedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
             preferences: null == preferences
                 ? _value.preferences
                 : preferences // ignore: cast_nullable_to_non_nullable
@@ -126,6 +157,16 @@ class _$AppUserCopyWithImpl<$Res, $Val extends AppUser>
           )
           as $Val,
     );
+  }
+
+  /// Create a copy of AppUser
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $SuperUserStatsCopyWith<$Res> get superUserStats {
+    return $SuperUserStatsCopyWith<$Res>(_value.superUserStats, (value) {
+      return _then(_value.copyWith(superUserStats: value) as $Val);
+    });
   }
 
   /// Create a copy of AppUser
@@ -156,9 +197,15 @@ abstract class _$$AppUserImplCopyWith<$Res> implements $AppUserCopyWith<$Res> {
     String role,
     bool emailVerified,
     bool premium,
+    double superUserScore,
+    SuperUserStats superUserStats,
+    @TimestampConverter() DateTime? superUserBecameAt,
+    @TimestampConverter() DateTime? superUserScoreUpdatedAt,
     UserPreferences preferences,
   });
 
+  @override
+  $SuperUserStatsCopyWith<$Res> get superUserStats;
   @override
   $UserPreferencesCopyWith<$Res> get preferences;
 }
@@ -185,6 +232,10 @@ class __$$AppUserImplCopyWithImpl<$Res>
     Object? role = null,
     Object? emailVerified = null,
     Object? premium = null,
+    Object? superUserScore = null,
+    Object? superUserStats = null,
+    Object? superUserBecameAt = freezed,
+    Object? superUserScoreUpdatedAt = freezed,
     Object? preferences = null,
   }) {
     return _then(
@@ -221,6 +272,22 @@ class __$$AppUserImplCopyWithImpl<$Res>
             ? _value.premium
             : premium // ignore: cast_nullable_to_non_nullable
                   as bool,
+        superUserScore: null == superUserScore
+            ? _value.superUserScore
+            : superUserScore // ignore: cast_nullable_to_non_nullable
+                  as double,
+        superUserStats: null == superUserStats
+            ? _value.superUserStats
+            : superUserStats // ignore: cast_nullable_to_non_nullable
+                  as SuperUserStats,
+        superUserBecameAt: freezed == superUserBecameAt
+            ? _value.superUserBecameAt
+            : superUserBecameAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        superUserScoreUpdatedAt: freezed == superUserScoreUpdatedAt
+            ? _value.superUserScoreUpdatedAt
+            : superUserScoreUpdatedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
         preferences: null == preferences
             ? _value.preferences
             : preferences // ignore: cast_nullable_to_non_nullable
@@ -242,6 +309,10 @@ class _$AppUserImpl implements _AppUser {
     this.role = 'user',
     this.emailVerified = false,
     this.premium = false,
+    this.superUserScore = 0.0,
+    this.superUserStats = const SuperUserStats(),
+    @TimestampConverter() this.superUserBecameAt,
+    @TimestampConverter() this.superUserScoreUpdatedAt,
     this.preferences = const UserPreferences(),
   });
 
@@ -270,11 +341,23 @@ class _$AppUserImpl implements _AppUser {
   final bool premium;
   @override
   @JsonKey()
+  final double superUserScore;
+  @override
+  @JsonKey()
+  final SuperUserStats superUserStats;
+  @override
+  @TimestampConverter()
+  final DateTime? superUserBecameAt;
+  @override
+  @TimestampConverter()
+  final DateTime? superUserScoreUpdatedAt;
+  @override
+  @JsonKey()
   final UserPreferences preferences;
 
   @override
   String toString() {
-    return 'AppUser(uid: $uid, email: $email, displayName: $displayName, photoUrl: $photoUrl, locale: $locale, role: $role, emailVerified: $emailVerified, premium: $premium, preferences: $preferences)';
+    return 'AppUser(uid: $uid, email: $email, displayName: $displayName, photoUrl: $photoUrl, locale: $locale, role: $role, emailVerified: $emailVerified, premium: $premium, superUserScore: $superUserScore, superUserStats: $superUserStats, superUserBecameAt: $superUserBecameAt, superUserScoreUpdatedAt: $superUserScoreUpdatedAt, preferences: $preferences)';
   }
 
   @override
@@ -293,6 +376,17 @@ class _$AppUserImpl implements _AppUser {
             (identical(other.emailVerified, emailVerified) ||
                 other.emailVerified == emailVerified) &&
             (identical(other.premium, premium) || other.premium == premium) &&
+            (identical(other.superUserScore, superUserScore) ||
+                other.superUserScore == superUserScore) &&
+            (identical(other.superUserStats, superUserStats) ||
+                other.superUserStats == superUserStats) &&
+            (identical(other.superUserBecameAt, superUserBecameAt) ||
+                other.superUserBecameAt == superUserBecameAt) &&
+            (identical(
+                  other.superUserScoreUpdatedAt,
+                  superUserScoreUpdatedAt,
+                ) ||
+                other.superUserScoreUpdatedAt == superUserScoreUpdatedAt) &&
             (identical(other.preferences, preferences) ||
                 other.preferences == preferences));
   }
@@ -309,6 +403,10 @@ class _$AppUserImpl implements _AppUser {
     role,
     emailVerified,
     premium,
+    superUserScore,
+    superUserStats,
+    superUserBecameAt,
+    superUserScoreUpdatedAt,
     preferences,
   );
 
@@ -336,6 +434,10 @@ abstract class _AppUser implements AppUser {
     final String role,
     final bool emailVerified,
     final bool premium,
+    final double superUserScore,
+    final SuperUserStats superUserStats,
+    @TimestampConverter() final DateTime? superUserBecameAt,
+    @TimestampConverter() final DateTime? superUserScoreUpdatedAt,
     final UserPreferences preferences,
   }) = _$AppUserImpl;
 
@@ -358,6 +460,16 @@ abstract class _AppUser implements AppUser {
   @override
   bool get premium;
   @override
+  double get superUserScore;
+  @override
+  SuperUserStats get superUserStats;
+  @override
+  @TimestampConverter()
+  DateTime? get superUserBecameAt;
+  @override
+  @TimestampConverter()
+  DateTime? get superUserScoreUpdatedAt;
+  @override
   UserPreferences get preferences;
 
   /// Create a copy of AppUser
@@ -365,6 +477,246 @@ abstract class _AppUser implements AppUser {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$AppUserImplCopyWith<_$AppUserImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+SuperUserStats _$SuperUserStatsFromJson(Map<String, dynamic> json) {
+  return _SuperUserStats.fromJson(json);
+}
+
+/// @nodoc
+mixin _$SuperUserStats {
+  int get placesCount => throw _privateConstructorUsedError;
+  int get chatCount => throw _privateConstructorUsedError;
+  int get reviewsCount => throw _privateConstructorUsedError;
+  double get averageReviewRating => throw _privateConstructorUsedError;
+
+  /// Serializes this SuperUserStats to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of SuperUserStats
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $SuperUserStatsCopyWith<SuperUserStats> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $SuperUserStatsCopyWith<$Res> {
+  factory $SuperUserStatsCopyWith(
+    SuperUserStats value,
+    $Res Function(SuperUserStats) then,
+  ) = _$SuperUserStatsCopyWithImpl<$Res, SuperUserStats>;
+  @useResult
+  $Res call({
+    int placesCount,
+    int chatCount,
+    int reviewsCount,
+    double averageReviewRating,
+  });
+}
+
+/// @nodoc
+class _$SuperUserStatsCopyWithImpl<$Res, $Val extends SuperUserStats>
+    implements $SuperUserStatsCopyWith<$Res> {
+  _$SuperUserStatsCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of SuperUserStats
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? placesCount = null,
+    Object? chatCount = null,
+    Object? reviewsCount = null,
+    Object? averageReviewRating = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            placesCount: null == placesCount
+                ? _value.placesCount
+                : placesCount // ignore: cast_nullable_to_non_nullable
+                      as int,
+            chatCount: null == chatCount
+                ? _value.chatCount
+                : chatCount // ignore: cast_nullable_to_non_nullable
+                      as int,
+            reviewsCount: null == reviewsCount
+                ? _value.reviewsCount
+                : reviewsCount // ignore: cast_nullable_to_non_nullable
+                      as int,
+            averageReviewRating: null == averageReviewRating
+                ? _value.averageReviewRating
+                : averageReviewRating // ignore: cast_nullable_to_non_nullable
+                      as double,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$SuperUserStatsImplCopyWith<$Res>
+    implements $SuperUserStatsCopyWith<$Res> {
+  factory _$$SuperUserStatsImplCopyWith(
+    _$SuperUserStatsImpl value,
+    $Res Function(_$SuperUserStatsImpl) then,
+  ) = __$$SuperUserStatsImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    int placesCount,
+    int chatCount,
+    int reviewsCount,
+    double averageReviewRating,
+  });
+}
+
+/// @nodoc
+class __$$SuperUserStatsImplCopyWithImpl<$Res>
+    extends _$SuperUserStatsCopyWithImpl<$Res, _$SuperUserStatsImpl>
+    implements _$$SuperUserStatsImplCopyWith<$Res> {
+  __$$SuperUserStatsImplCopyWithImpl(
+    _$SuperUserStatsImpl _value,
+    $Res Function(_$SuperUserStatsImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of SuperUserStats
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? placesCount = null,
+    Object? chatCount = null,
+    Object? reviewsCount = null,
+    Object? averageReviewRating = null,
+  }) {
+    return _then(
+      _$SuperUserStatsImpl(
+        placesCount: null == placesCount
+            ? _value.placesCount
+            : placesCount // ignore: cast_nullable_to_non_nullable
+                  as int,
+        chatCount: null == chatCount
+            ? _value.chatCount
+            : chatCount // ignore: cast_nullable_to_non_nullable
+                  as int,
+        reviewsCount: null == reviewsCount
+            ? _value.reviewsCount
+            : reviewsCount // ignore: cast_nullable_to_non_nullable
+                  as int,
+        averageReviewRating: null == averageReviewRating
+            ? _value.averageReviewRating
+            : averageReviewRating // ignore: cast_nullable_to_non_nullable
+                  as double,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$SuperUserStatsImpl implements _SuperUserStats {
+  const _$SuperUserStatsImpl({
+    this.placesCount = 0,
+    this.chatCount = 0,
+    this.reviewsCount = 0,
+    this.averageReviewRating = 0.0,
+  });
+
+  factory _$SuperUserStatsImpl.fromJson(Map<String, dynamic> json) =>
+      _$$SuperUserStatsImplFromJson(json);
+
+  @override
+  @JsonKey()
+  final int placesCount;
+  @override
+  @JsonKey()
+  final int chatCount;
+  @override
+  @JsonKey()
+  final int reviewsCount;
+  @override
+  @JsonKey()
+  final double averageReviewRating;
+
+  @override
+  String toString() {
+    return 'SuperUserStats(placesCount: $placesCount, chatCount: $chatCount, reviewsCount: $reviewsCount, averageReviewRating: $averageReviewRating)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$SuperUserStatsImpl &&
+            (identical(other.placesCount, placesCount) ||
+                other.placesCount == placesCount) &&
+            (identical(other.chatCount, chatCount) ||
+                other.chatCount == chatCount) &&
+            (identical(other.reviewsCount, reviewsCount) ||
+                other.reviewsCount == reviewsCount) &&
+            (identical(other.averageReviewRating, averageReviewRating) ||
+                other.averageReviewRating == averageReviewRating));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    placesCount,
+    chatCount,
+    reviewsCount,
+    averageReviewRating,
+  );
+
+  /// Create a copy of SuperUserStats
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$SuperUserStatsImplCopyWith<_$SuperUserStatsImpl> get copyWith =>
+      __$$SuperUserStatsImplCopyWithImpl<_$SuperUserStatsImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$SuperUserStatsImplToJson(this);
+  }
+}
+
+abstract class _SuperUserStats implements SuperUserStats {
+  const factory _SuperUserStats({
+    final int placesCount,
+    final int chatCount,
+    final int reviewsCount,
+    final double averageReviewRating,
+  }) = _$SuperUserStatsImpl;
+
+  factory _SuperUserStats.fromJson(Map<String, dynamic> json) =
+      _$SuperUserStatsImpl.fromJson;
+
+  @override
+  int get placesCount;
+  @override
+  int get chatCount;
+  @override
+  int get reviewsCount;
+  @override
+  double get averageReviewRating;
+
+  /// Create a copy of SuperUserStats
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$SuperUserStatsImplCopyWith<_$SuperUserStatsImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 

@@ -74,6 +74,56 @@ class AppLocalizationsEn extends AppLocalizations {
   String get discoverRefreshLocation => 'Refresh location';
 
   @override
+  String get superUsersDiscoverTitle => 'Top Super Locals';
+
+  @override
+  String get superUsersDiscoverBody =>
+      'See contributors whose places, chats and reviews rank highest.';
+
+  @override
+  String get superUsersTitle => 'Super Users';
+
+  @override
+  String get superUsersBadge => 'Super Local';
+
+  @override
+  String get superUsersScore => 'Score';
+
+  @override
+  String superUsersStats(int places, int chats, int reviews) {
+    return '$places places · $chats chats · $reviews reviews';
+  }
+
+  @override
+  String get superUsersEmpty => 'No Super Users yet';
+
+  @override
+  String get superUsersEmptyBody =>
+      'Contributors appear here after their score reaches the badge threshold.';
+
+  @override
+  String get superUsersError => 'Couldn\'t load Super Users';
+
+  @override
+  String get publicProfileTitle => 'Contributor';
+
+  @override
+  String get publicProfileNotFound => 'Contributor not found';
+
+  @override
+  String get publicProfileNotFoundBody =>
+      'This profile may no longer be available.';
+
+  @override
+  String get publicProfilePlaces => 'Places';
+
+  @override
+  String get publicProfileNoPlaces => 'No public places yet';
+
+  @override
+  String get publicProfileChats => 'Chats';
+
+  @override
   String get categoryAll => 'All';
 
   @override

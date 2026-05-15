@@ -12,6 +12,12 @@ export { geminiTopPick } from "./ai/gemini_pick";
 export { seedEgyptPlaces } from "./seed/egypt";
 export { onChatMessageCreate } from "./chat/onMessage";
 export { sendTestNotification } from "./notifications/test";
+export {
+  onPlaceCreatedRecalculateSuperUser,
+  onPlaceDeletedRecalculateSuperUser,
+  onReviewWrittenRecalculateSuperUser,
+  recalculateSuperUserRank,
+} from "./superUsers/rank";
 
 const STRIPE_SECRET_KEY = defineSecret("STRIPE_SECRET_KEY");
 const STRIPE_WEBHOOK_SECRET = defineSecret("STRIPE_WEBHOOK_SECRET");

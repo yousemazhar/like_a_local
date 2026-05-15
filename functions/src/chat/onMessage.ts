@@ -2,6 +2,7 @@ import { onDocumentCreated } from "firebase-functions/v2/firestore";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import { getMessaging } from "firebase-admin/messaging";
 import { logger } from "firebase-functions";
+import { recalculateSuperUserForUid } from "../superUsers/rank";
 
 /**
  * Fans out a new chat message:
@@ -28,6 +29,7 @@ export const onChatMessageCreate = onDocumentCreated(
 
     const members = (thread.members as string[] | undefined) ?? [];
     const recipients = members.filter((m) => m !== senderUid);
+    await recalculateSuperUserForUid(senderUid);
 
     // Update thread doc — bump unread for each recipient.
     const update: Record<string, unknown> = {

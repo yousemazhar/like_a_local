@@ -171,6 +171,7 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                   ),
                 ),
                 SliverToBoxAdapter(child: _SearchPill()),
+                SliverToBoxAdapter(child: _SuperUsersEntry()),
                 SliverToBoxAdapter(
                   child: SmartSuggestionsBanner(
                     onTap: () => context.push('/ai/recommendations'),
@@ -238,6 +239,65 @@ class _SearchPill extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SuperUsersEntry extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+      child: Material(
+        color: LALColors.surface,
+        borderRadius: LALRadii.lgBorder,
+        child: InkWell(
+          borderRadius: LALRadii.lgBorder,
+          onTap: () => context.push('/super-users'),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: const BoxDecoration(
+                    color: LALColors.accentSoft,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.workspace_premium_rounded,
+                    color: LALColors.accent,
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        t.superUsersDiscoverTitle,
+                        style: LALTypography.labelLarge,
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        t.superUsersDiscoverBody,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: LALTypography.bodySmall,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Icon(Icons.chevron_right_rounded, color: LALColors.c400),
+              ],
+            ),
+          ),
         ),
       ),
     );

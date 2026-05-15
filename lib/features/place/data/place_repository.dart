@@ -12,6 +12,8 @@ class PlaceRepository {
 
   Stream<List<Place>> discoverFeed({int limit = 20}) => _places
       .where('hidden', isEqualTo: false)
+      .orderBy('ownerIsSuper', descending: true)
+      .orderBy('ownerSuperScore', descending: true)
       .orderBy('createdAt', descending: true)
       .limit(limit)
       .snapshots()
@@ -26,6 +28,7 @@ class PlaceRepository {
 
   Stream<List<Place>> trending({int limit = 10}) => _places
       .where('hidden', isEqualTo: false)
+      .orderBy('ownerIsSuper', descending: true)
       .orderBy('saveCount', descending: true)
       .limit(limit)
       .snapshots()
@@ -53,14 +56,17 @@ class PlaceRepository {
 
   Future<String> createPlace(Place place) async {
     final ref = _places.doc();
+    final payload = place.toJson()
+      ..remove('ownerIsSuper')
+      ..remove('ownerSuperScore')
+      ..remove('ratingAvg')
+      ..remove('ratingCount')
+      ..remove('saveCount');
     await ref.set({
-      ...place.toJson(),
+      ...payload,
       'id': ref.id,
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
-      'saveCount': 0,
-      'ratingAvg': 0.0,
-      'ratingCount': 0,
       'hidden': false,
     });
     return ref.id;

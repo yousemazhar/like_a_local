@@ -22,6 +22,7 @@ class Place with _$Place {
     @Default([]) List<String> mediaUrls,
     @Default('') String ownerUid,
     @Default(false) bool ownerIsSuper,
+    @Default(0.0) double ownerSuperScore,
     @Default(0.0) double ratingAvg,
     @Default(0) int ratingCount,
     @Default(0) int saveCount,
@@ -35,10 +36,8 @@ class Place with _$Place {
 
 @freezed
 class PlaceTip with _$PlaceTip {
-  const factory PlaceTip({
-    required String text,
-    required int order,
-  }) = _PlaceTip;
+  const factory PlaceTip({required String text, required int order}) =
+      _PlaceTip;
 
   factory PlaceTip.fromJson(Map<String, dynamic> json) =>
       _$PlaceTipFromJson(json);

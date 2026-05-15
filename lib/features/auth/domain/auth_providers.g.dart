@@ -57,7 +57,7 @@ final authStateProvider = StreamProvider<AppUser?>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef AuthStateRef = StreamProviderRef<AppUser?>;
-String _$currentUserDocHash() => r'3a3b25978ca5852afad470732422a7c2b2f4c8d7';
+String _$currentUserDocHash() => r'6bfeb4a190da1ff23db7c03cd793d78e673c1a54';
 
 /// See also [currentUserDoc].
 @ProviderFor(currentUserDoc)
@@ -74,7 +74,7 @@ final currentUserDocProvider = StreamProvider<AppUser?>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef CurrentUserDocRef = StreamProviderRef<AppUser?>;
-String _$userByIdHash() => r'e2f38400a8ae2c7f3e1cf2b6da6da8a9962fea51';
+String _$userByIdHash() => r'1ab1b8dc5db790558bcda51a4efb00e2c8725f05';
 
 /// Copied from Dart SDK
 class _SystemHash {

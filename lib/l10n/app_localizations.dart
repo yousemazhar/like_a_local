@@ -224,6 +224,96 @@ abstract class AppLocalizations {
   /// **'Refresh location'**
   String get discoverRefreshLocation;
 
+  /// No description provided for @superUsersDiscoverTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Top Super Locals'**
+  String get superUsersDiscoverTitle;
+
+  /// No description provided for @superUsersDiscoverBody.
+  ///
+  /// In en, this message translates to:
+  /// **'See contributors whose places, chats and reviews rank highest.'**
+  String get superUsersDiscoverBody;
+
+  /// No description provided for @superUsersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Super Users'**
+  String get superUsersTitle;
+
+  /// No description provided for @superUsersBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Super Local'**
+  String get superUsersBadge;
+
+  /// No description provided for @superUsersScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Score'**
+  String get superUsersScore;
+
+  /// No description provided for @superUsersStats.
+  ///
+  /// In en, this message translates to:
+  /// **'{places} places · {chats} chats · {reviews} reviews'**
+  String superUsersStats(int places, int chats, int reviews);
+
+  /// No description provided for @superUsersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No Super Users yet'**
+  String get superUsersEmpty;
+
+  /// No description provided for @superUsersEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Contributors appear here after their score reaches the badge threshold.'**
+  String get superUsersEmptyBody;
+
+  /// No description provided for @superUsersError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load Super Users'**
+  String get superUsersError;
+
+  /// No description provided for @publicProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Contributor'**
+  String get publicProfileTitle;
+
+  /// No description provided for @publicProfileNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Contributor not found'**
+  String get publicProfileNotFound;
+
+  /// No description provided for @publicProfileNotFoundBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This profile may no longer be available.'**
+  String get publicProfileNotFoundBody;
+
+  /// No description provided for @publicProfilePlaces.
+  ///
+  /// In en, this message translates to:
+  /// **'Places'**
+  String get publicProfilePlaces;
+
+  /// No description provided for @publicProfileNoPlaces.
+  ///
+  /// In en, this message translates to:
+  /// **'No public places yet'**
+  String get publicProfileNoPlaces;
+
+  /// No description provided for @publicProfileChats.
+  ///
+  /// In en, this message translates to:
+  /// **'Chats'**
+  String get publicProfileChats;
+
   /// No description provided for @categoryAll.
   ///
   /// In en, this message translates to:

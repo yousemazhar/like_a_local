@@ -14,6 +14,9 @@ import 'package:like_a_local/features/reviews/data/review_repository.dart';
 import 'package:like_a_local/features/reviews/domain/review_providers.dart';
 import 'package:like_a_local/features/saved/data/saved_repository.dart';
 import 'package:like_a_local/features/saved/domain/saved_providers.dart';
+import 'package:like_a_local/features/super_users/data/super_user_repository.dart';
+import 'package:like_a_local/features/super_users/domain/super_user_providers.dart';
+import 'package:like_a_local/features/super_users/presentation/super_users_screen.dart';
 import 'package:like_a_local/l10n/app_localizations.dart';
 
 void main() {
@@ -78,6 +81,52 @@ void main() {
 
     expect(find.byType(PlaceScreen), findsOneWidget);
     expect(find.text('Tasca do Chico'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('SuperUsersScreen renders ranked users with stats', (
+    WidgetTester tester,
+  ) async {
+    final firestore = FakeFirebaseFirestore();
+    await firestore.collection('users').doc('super-1').set({
+      'displayName': 'Maya Local',
+      'email': 'maya@example.com',
+      'photoUrl': '',
+      'role': 'super',
+      'superUserScore': 135,
+      'superUserStats': {
+        'placesCount': 3,
+        'chatCount': 10,
+        'reviewsCount': 2,
+        'averageReviewRating': 4.5,
+      },
+    });
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          superUserRepositoryProvider.overrideWith(
+            (ref) => SuperUserRepository(firestore),
+          ),
+        ],
+        child: const MaterialApp(
+          localizationsDelegates: [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: [Locale('en'), Locale('de')],
+          home: SuperUsersScreen(),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Maya Local'), findsOneWidget);
+    expect(find.text('135'), findsOneWidget);
+    expect(find.text('3 places · 10 chats · 2 reviews'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

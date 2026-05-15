@@ -161,11 +161,23 @@ class AuthRepository {
           uid: user.uid,
           email: user.email ?? '',
           displayName: data['displayName'] as String? ?? user.displayName,
-          photoUrl: user.photoURL,
+          photoUrl: (data['photoUrl'] as String?) ?? user.photoURL,
           locale: data['locale'] as String? ?? 'en',
           role: data['role'] as String? ?? 'user',
           emailVerified: user.emailVerified,
           premium: data['premium'] as bool? ?? false,
+          superUserScore: ((data['superUserScore'] as num?)?.toDouble()) ?? 0,
+          superUserStats: data['superUserStats'] != null
+              ? SuperUserStats.fromJson(
+                  Map<String, dynamic>.from(data['superUserStats'] as Map),
+                )
+              : const SuperUserStats(),
+          superUserBecameAt: const TimestampConverter().fromJson(
+            data['superUserBecameAt'],
+          ),
+          superUserScoreUpdatedAt: const TimestampConverter().fromJson(
+            data['superUserScoreUpdatedAt'],
+          ),
           preferences: data['preferences'] != null
               ? UserPreferences.fromJson(
                   Map<String, dynamic>.from(data['preferences'] as Map),

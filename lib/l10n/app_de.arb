@@ -27,6 +27,28 @@
   "discoverNoNearbyPlaces": "Keine Orte in der Nähe",
   "discoverNoNearbyPlacesBody": "Versuche einen größeren Entfernungsfilter.",
   "discoverRefreshLocation": "Standort aktualisieren",
+  "superUsersDiscoverTitle": "Top Super Locals",
+  "superUsersDiscoverBody": "Sieh Beitragende, deren Orte, Chats und Bewertungen am höchsten ranken.",
+  "superUsersTitle": "Super Users",
+  "superUsersBadge": "Super Local",
+  "superUsersScore": "Score",
+  "superUsersStats": "{places} Orte · {chats} Chats · {reviews} Bewertungen",
+  "@superUsersStats": {
+    "placeholders": {
+      "places": { "type": "int" },
+      "chats": { "type": "int" },
+      "reviews": { "type": "int" }
+    }
+  },
+  "superUsersEmpty": "Noch keine Super Users",
+  "superUsersEmptyBody": "Beitragende erscheinen hier, sobald ihr Score den Badge-Schwellenwert erreicht.",
+  "superUsersError": "Super Users konnten nicht geladen werden",
+  "publicProfileTitle": "Beitragender",
+  "publicProfileNotFound": "Beitragender nicht gefunden",
+  "publicProfileNotFoundBody": "Dieses Profil ist möglicherweise nicht mehr verfügbar.",
+  "publicProfilePlaces": "Orte",
+  "publicProfileNoPlaces": "Noch keine öffentlichen Orte",
+  "publicProfileChats": "Chats",
 
   "categoryAll": "Alle",
   "categoryRestaurant": "Restaurant",
