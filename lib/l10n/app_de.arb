@@ -202,8 +202,11 @@
   "@addPlaceNext": {
     "placeholders": { "step": { "type": "String" } }
   },
-  "addPlacePhotosTitle": "Fotos hinzufügen",
-  "addPlacePhotosHint": "Mindestens 1 Foto erforderlich.",
+  "addPlacePhotosTitle": "Fotos & Videos hinzufügen",
+  "addPlacePhotosHint": "Mindestens 1 Foto oder Video erforderlich.",
+  "addPlaceAddMedia": "Medien hinzufügen",
+  "addPlacePickPhoto": "Foto aus Galerie",
+  "addPlacePickVideo": "Video aus Galerie",
   "addPlaceDetailsTitle": "Details zum Ort",
   "addPlaceName": "Name des Orts",
   "addPlaceNeighborhood": "Stadtviertel",

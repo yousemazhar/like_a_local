@@ -506,10 +506,19 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get addPlacePhotosTitle => 'Fotos hinzufügen';
+  String get addPlacePhotosTitle => 'Fotos & Videos hinzufügen';
 
   @override
-  String get addPlacePhotosHint => 'Mindestens 1 Foto erforderlich.';
+  String get addPlacePhotosHint => 'Mindestens 1 Foto oder Video erforderlich.';
+
+  @override
+  String get addPlaceAddMedia => 'Medien hinzufügen';
+
+  @override
+  String get addPlacePickPhoto => 'Foto aus Galerie';
+
+  @override
+  String get addPlacePickVideo => 'Video aus Galerie';
 
   @override
   String get addPlaceDetailsTitle => 'Details zum Ort';

@@ -23,6 +23,7 @@ import '../../reviews/presentation/review_composer_sheet.dart';
 import '../../saved/domain/saved_providers.dart';
 import '../domain/place.dart';
 import '../domain/place_providers.dart';
+import 'widgets/media_gallery.dart';
 
 const _contentOverlap = 22.0;
 
@@ -191,41 +192,9 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  if (place.mediaUrls.isNotEmpty)
-                    CachedNetworkImage(
-                      imageUrl: place.mediaUrls.first,
-                      fit: BoxFit.cover,
-                      placeholder: (_, __) =>
-                          const ColoredBox(color: LALColors.c100),
-                      errorWidget: (_, __, ___) => const _HeroPlaceholder(),
-                    )
-                  else
-                    const _HeroPlaceholder(),
-                  if (place.mediaUrls.length > 1)
-                    Positioned(
-                      bottom: 16,
-                      right: 16,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.5),
-                          borderRadius: LALRadii.pillBorder,
-                        ),
-                        child: Text(
-                          '1 / ${place.mediaUrls.length}',
-                          style: LALTypography.labelSmall.copyWith(
-                            color: LALColors.surface,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
+              background: PlaceMediaGallery(
+                photoUrls: place.mediaUrls,
+                videoUrls: place.videoUrls,
               ),
             ),
           ),
@@ -552,22 +521,6 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
       ),
     );
   }
-}
-
-class _HeroPlaceholder extends StatelessWidget {
-  const _HeroPlaceholder();
-
-  @override
-  Widget build(BuildContext context) => Container(
-    color: LALColors.c100,
-    child: const Center(
-      child: Icon(
-        Icons.image_not_supported_outlined,
-        color: LALColors.c300,
-        size: 40,
-      ),
-    ),
-  );
 }
 
 class _TipsCard extends StatelessWidget {

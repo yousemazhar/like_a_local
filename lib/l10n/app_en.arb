@@ -345,10 +345,16 @@
   "@addPlaceNext": {
     "placeholders": { "step": { "type": "String" } }
   },
-  "addPlacePhotosTitle": "Add photos",
+  "addPlacePhotosTitle": "Add photos & videos",
   "@addPlacePhotosTitle": {},
-  "addPlacePhotosHint": "At least 1 photo required.",
+  "addPlacePhotosHint": "At least 1 photo or video required.",
   "@addPlacePhotosHint": {},
+  "addPlaceAddMedia": "Add media",
+  "@addPlaceAddMedia": {},
+  "addPlacePickPhoto": "Photo from gallery",
+  "@addPlacePickPhoto": {},
+  "addPlacePickVideo": "Video from gallery",
+  "@addPlacePickVideo": {},
   "addPlaceDetailsTitle": "Place details",
   "@addPlaceDetailsTitle": {},
   "addPlaceName": "Place name",

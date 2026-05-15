@@ -23,6 +23,8 @@ import '../../place/domain/place_providers.dart';
 class _Draft {
   final List<XFile> photos = [];
   final List<String> existingPhotoUrls = [];
+  final List<XFile> videos = [];
+  final List<String> existingVideoUrls = [];
   final titleCtrl = TextEditingController();
   final neighborhoodCtrl = TextEditingController();
   final addressCtrl = TextEditingController();
@@ -65,6 +67,8 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
   final _draft = _Draft();
   bool _publishing = false;
   bool _prefilled = false;
+  double? _uploadProgress;
+  String? _uploadLabel;
 
   bool get _isEdit => widget.placeId != null;
 
@@ -88,6 +92,7 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
       ..addAll(p.moods);
     _draft.priceLevel = p.priceLevel;
     _draft.existingPhotoUrls.addAll(p.mediaUrls);
+    _draft.existingVideoUrls.addAll(p.videoUrls);
     if (p.lat != 0 || p.lng != 0) {
       _draft.lat = p.lat;
       _draft.lng = p.lng;
@@ -112,7 +117,9 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
     final t = AppLocalizations.of(context)!;
     if (_step == 0 &&
         _draft.photos.isEmpty &&
-        _draft.existingPhotoUrls.isEmpty) {
+        _draft.existingPhotoUrls.isEmpty &&
+        _draft.videos.isEmpty &&
+        _draft.existingVideoUrls.isEmpty) {
       _snack(t.addPlacePhotosHint);
       return;
     }
@@ -168,6 +175,67 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
     }
   }
 
+  Future<void> _pickVideo() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickVideo(
+      source: ImageSource.gallery,
+      maxDuration: const Duration(seconds: 60),
+    );
+    if (picked != null) {
+      setState(() => _draft.videos.add(picked));
+    }
+  }
+
+  Future<void> _showAddMediaSheet() async {
+    final t = AppLocalizations.of(context)!;
+    final choice = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: LALColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: LALRadii.lg),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: LALColors.c200,
+                borderRadius: LALRadii.pillBorder,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ListTile(
+              leading: const Icon(
+                Icons.photo_outlined,
+                color: LALColors.c700,
+              ),
+              title: Text(t.addPlacePickPhoto),
+              onTap: () => Navigator.of(ctx).pop('photo'),
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.videocam_outlined,
+                color: LALColors.c700,
+              ),
+              title: Text(t.addPlacePickVideo),
+              onTap: () => Navigator.of(ctx).pop('video'),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+    if (choice == 'photo') {
+      await _pickPhoto();
+    } else if (choice == 'video') {
+      await _pickVideo();
+    }
+  }
+
   Future<({double? lat, double? lng})> _currentPosition() async {
     try {
       var perm = await Geolocator.checkPermission();
@@ -189,18 +257,96 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
     }
   }
 
+  Future<String> _uploadWithProgress({
+    required Reference ref,
+    required File file,
+    required SettableMetadata metadata,
+    required String label,
+  }) async {
+    final task = ref.putFile(file, metadata);
+    if (mounted) {
+      setState(() {
+        _uploadLabel = label;
+        _uploadProgress = 0;
+      });
+    }
+    final sub = task.snapshotEvents.listen((snap) {
+      final total = snap.totalBytes;
+      if (total > 0 && mounted) {
+        setState(() => _uploadProgress = snap.bytesTransferred / total);
+      }
+    });
+    try {
+      await task;
+    } finally {
+      await sub.cancel();
+    }
+    return ref.getDownloadURL();
+  }
+
   Future<List<String>> _uploadNewPhotos(String placeId) async {
     final urls = <String>[];
     final storage = FirebaseStorage.instance;
     final baseIndex = _draft.existingPhotoUrls.length;
-    for (var i = 0; i < _draft.photos.length; i++) {
+    final total = _draft.photos.length;
+    for (var i = 0; i < total; i++) {
       final file = File(_draft.photos[i].path);
       final ts = DateTime.now().millisecondsSinceEpoch;
       final ref = storage.ref('places/$placeId/photo_${baseIndex + i}_$ts.jpg');
-      await ref.putFile(file, SettableMetadata(contentType: 'image/jpeg'));
-      urls.add(await ref.getDownloadURL());
+      urls.add(await _uploadWithProgress(
+        ref: ref,
+        file: file,
+        metadata: SettableMetadata(contentType: 'image/jpeg'),
+        label: 'Photo ${i + 1}/$total',
+      ));
     }
     return urls;
+  }
+
+  Future<List<String>> _uploadNewVideos(String placeId) async {
+    final urls = <String>[];
+    final storage = FirebaseStorage.instance;
+    final baseIndex = _draft.existingVideoUrls.length;
+    final total = _draft.videos.length;
+    for (var i = 0; i < total; i++) {
+      final xfile = _draft.videos[i];
+      final file = File(xfile.path);
+      final ts = DateTime.now().millisecondsSinceEpoch;
+      final ext = _videoExt(xfile.path);
+      final contentType = _videoMime(ext);
+      final ref = storage.ref(
+        'places/$placeId/video_${baseIndex + i}_$ts.$ext',
+      );
+      urls.add(await _uploadWithProgress(
+        ref: ref,
+        file: file,
+        metadata: SettableMetadata(contentType: contentType),
+        label: 'Video ${i + 1}/$total',
+      ));
+    }
+    return urls;
+  }
+
+  static String _videoExt(String path) {
+    final dot = path.lastIndexOf('.');
+    if (dot < 0 || dot == path.length - 1) return 'mp4';
+    final ext = path.substring(dot + 1).toLowerCase();
+    const allowed = {'mp4', 'mov', 'm4v', 'webm', '3gp'};
+    return allowed.contains(ext) ? ext : 'mp4';
+  }
+
+  static String _videoMime(String ext) {
+    switch (ext) {
+      case 'mov':
+      case 'm4v':
+        return 'video/quicktime';
+      case 'webm':
+        return 'video/webm';
+      case '3gp':
+        return 'video/3gpp';
+      default:
+        return 'video/mp4';
+    }
   }
 
   Future<void> _publish() async {
@@ -214,13 +360,19 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
       _snack(t.authErrorSignInFailed);
       return;
     }
-    setState(() => _publishing = true);
+    setState(() {
+      _publishing = true;
+      _uploadProgress = null;
+      _uploadLabel = null;
+    });
     try {
       final placeId = _isEdit
           ? widget.placeId!
           : FirebaseFirestore.instance.collection('places').doc().id;
       final newUrls = await _uploadNewPhotos(placeId);
       final allUrls = [..._draft.existingPhotoUrls, ...newUrls];
+      final newVideoUrls = await _uploadNewVideos(placeId);
+      final allVideoUrls = [..._draft.existingVideoUrls, ...newVideoUrls];
       final tips = <Map<String, dynamic>>[];
       for (var i = 0; i < _draft.tipCtrls.length; i++) {
         final txt = _draft.tipCtrls[i].text.trim();
@@ -250,6 +402,7 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
           'tips': tips,
           'dishes': dishes,
           'mediaUrls': allUrls,
+          'videoUrls': allVideoUrls,
           'updatedAt': FieldValue.serverTimestamp(),
         }, SetOptions(merge: true));
       } else {
@@ -268,6 +421,7 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
           'tips': tips,
           'dishes': dishes,
           'mediaUrls': allUrls,
+          'videoUrls': allVideoUrls,
           'ownerUid': user.uid,
           'featured': false,
           'hidden': false,
@@ -279,13 +433,22 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
         }, SetOptions(merge: true));
       }
       if (!mounted) return;
-      _snack(_isEdit ? 'Place updated' : t.addPlaceReadyTitle);
+      _snack(
+        _isEdit ? 'Place updated' : t.addPlaceReadyTitle,
+        kind: LALToastKind.success,
+      );
       context.pop();
     } catch (e) {
       if (!mounted) return;
       _snack('$e');
     } finally {
-      if (mounted) setState(() => _publishing = false);
+      if (mounted) {
+        setState(() {
+          _publishing = false;
+          _uploadProgress = null;
+          _uploadLabel = null;
+        });
+      }
     }
   }
 
@@ -324,6 +487,17 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
           onPressed: _back,
         ),
         actions: [
+          if (_isEdit)
+            TextButton(
+              onPressed: _publishing ? null : _publish,
+              child: Text(
+                'Save',
+                style: TextStyle(
+                  color: _publishing ? LALColors.c400 : LALColors.accent,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
           TextButton(
             onPressed: () => context.pop(),
             child: Text(t.buttonCancel),
@@ -359,10 +533,14 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
               children: [
                 _PhotosStep(
                   draft: _draft,
-                  onPick: _pickPhoto,
+                  onPick: _showAddMediaSheet,
                   onRemoveNew: (i) => setState(() => _draft.photos.removeAt(i)),
                   onRemoveExisting: (i) =>
                       setState(() => _draft.existingPhotoUrls.removeAt(i)),
+                  onRemoveNewVideo: (i) =>
+                      setState(() => _draft.videos.removeAt(i)),
+                  onRemoveExistingVideo: (i) =>
+                      setState(() => _draft.existingVideoUrls.removeAt(i)),
                 ),
                 _BasicsStep(
                   draft: _draft,
@@ -420,24 +598,63 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
               color: LALColors.surface,
               border: Border(top: BorderSide(color: LALColors.c100)),
             ),
-            child: ElevatedButton(
-              onPressed: _publishing
-                  ? null
-                  : (_step < steps.length - 1 ? _next : _publish),
-              child: _publishing
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (_publishing && _uploadProgress != null) ...[
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          _uploadLabel ?? 'Uploading…',
+                          style: LALTypography.labelSmall,
+                        ),
                       ),
-                    )
-                  : Text(
-                      _step < steps.length - 1
-                          ? t.addPlaceNext(steps[_step + 1])
-                          : (_isEdit ? 'Save changes' : t.addPlacePublish),
+                      Text(
+                        '${(_uploadProgress! * 100).clamp(0, 100).toStringAsFixed(0)}%',
+                        style: LALTypography.labelSmall,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  ClipRRect(
+                    borderRadius: LALRadii.pillBorder,
+                    child: LinearProgressIndicator(
+                      value: _uploadProgress,
+                      minHeight: 6,
+                      backgroundColor: LALColors.c100,
+                      valueColor: const AlwaysStoppedAnimation(
+                        LALColors.accent,
+                      ),
                     ),
+                  ),
+                  const SizedBox(height: 10),
+                ],
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _publishing
+                        ? null
+                        : (_step < steps.length - 1 ? _next : _publish),
+                    child: _publishing
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(
+                            _step < steps.length - 1
+                                ? t.addPlaceNext(steps[_step + 1])
+                                : (_isEdit
+                                    ? 'Save changes'
+                                    : t.addPlacePublish),
+                          ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -452,12 +669,16 @@ class _PhotosStep extends StatelessWidget {
     required this.onPick,
     required this.onRemoveNew,
     required this.onRemoveExisting,
+    required this.onRemoveNewVideo,
+    required this.onRemoveExistingVideo,
   });
 
   final _Draft draft;
   final VoidCallback onPick;
   final ValueChanged<int> onRemoveNew;
   final ValueChanged<int> onRemoveExisting;
+  final ValueChanged<int> onRemoveNewVideo;
+  final ValueChanged<int> onRemoveExistingVideo;
 
   @override
   Widget build(BuildContext context) {
@@ -539,6 +760,16 @@ class _PhotosStep extends StatelessWidget {
                     ),
                   ],
                 ),
+              for (var i = 0; i < draft.existingVideoUrls.length; i++)
+                _VideoTile(
+                  label: 'Video',
+                  onRemove: () => onRemoveExistingVideo(i),
+                ),
+              for (var i = 0; i < draft.videos.length; i++)
+                _VideoTile(
+                  label: 'Video',
+                  onRemove: () => onRemoveNewVideo(i),
+                ),
               GestureDetector(
                 onTap: onPick,
                 child: Container(
@@ -549,7 +780,7 @@ class _PhotosStep extends StatelessWidget {
                   ),
                   child: const Center(
                     child: Icon(
-                      Icons.add_a_photo_outlined,
+                      Icons.add_photo_alternate_outlined,
                       color: LALColors.c500,
                       size: 24,
                     ),
@@ -959,6 +1190,57 @@ class _PreviewStep extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _VideoTile extends StatelessWidget {
+  const _VideoTile({required this.label, required this.onRemove});
+
+  final String label;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: LALColors.c900,
+            borderRadius: LALRadii.lgBorder,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.play_circle_fill_rounded,
+                color: Colors.white,
+                size: 32,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: LALTypography.labelSmall.copyWith(
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Positioned(
+          top: 4,
+          right: 4,
+          child: GestureDetector(
+            onTap: onRemove,
+            child: const CircleAvatar(
+              radius: 12,
+              backgroundColor: Colors.black54,
+              child: Icon(Icons.close, size: 14, color: Colors.white),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

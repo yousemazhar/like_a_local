@@ -33,6 +33,9 @@ _$PlaceImpl _$$PlaceImplFromJson(Map<String, dynamic> json) => _$PlaceImpl(
   mediaUrls:
       (json['mediaUrls'] as List<dynamic>?)?.map((e) => e as String).toList() ??
       const [],
+  videoUrls:
+      (json['videoUrls'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const [],
   ownerUid: json['ownerUid'] as String? ?? '',
   ownerIsSuper: json['ownerIsSuper'] as bool? ?? false,
   ownerSuperScore: (json['ownerSuperScore'] as num?)?.toDouble() ?? 0.0,
@@ -60,6 +63,7 @@ Map<String, dynamic> _$$PlaceImplToJson(_$PlaceImpl instance) =>
       'tips': instance.tips,
       'dishes': instance.dishes,
       'mediaUrls': instance.mediaUrls,
+      'videoUrls': instance.videoUrls,
       'ownerUid': instance.ownerUid,
       'ownerIsSuper': instance.ownerIsSuper,
       'ownerSuperScore': instance.ownerSuperScore,

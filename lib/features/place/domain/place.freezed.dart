@@ -35,6 +35,7 @@ mixin _$Place {
   List<PlaceTip> get tips => throw _privateConstructorUsedError;
   List<PlaceDish> get dishes => throw _privateConstructorUsedError;
   List<String> get mediaUrls => throw _privateConstructorUsedError;
+  List<String> get videoUrls => throw _privateConstructorUsedError;
   String get ownerUid => throw _privateConstructorUsedError;
   bool get ownerIsSuper => throw _privateConstructorUsedError;
   double get ownerSuperScore => throw _privateConstructorUsedError;
@@ -75,6 +76,7 @@ abstract class $PlaceCopyWith<$Res> {
     List<PlaceTip> tips,
     List<PlaceDish> dishes,
     List<String> mediaUrls,
+    List<String> videoUrls,
     String ownerUid,
     bool ownerIsSuper,
     double ownerSuperScore,
@@ -116,6 +118,7 @@ class _$PlaceCopyWithImpl<$Res, $Val extends Place>
     Object? tips = null,
     Object? dishes = null,
     Object? mediaUrls = null,
+    Object? videoUrls = null,
     Object? ownerUid = null,
     Object? ownerIsSuper = null,
     Object? ownerSuperScore = null,
@@ -184,6 +187,10 @@ class _$PlaceCopyWithImpl<$Res, $Val extends Place>
                 ? _value.mediaUrls
                 : mediaUrls // ignore: cast_nullable_to_non_nullable
                       as List<String>,
+            videoUrls: null == videoUrls
+                ? _value.videoUrls
+                : videoUrls // ignore: cast_nullable_to_non_nullable
+                      as List<String>,
             ownerUid: null == ownerUid
                 ? _value.ownerUid
                 : ownerUid // ignore: cast_nullable_to_non_nullable
@@ -249,6 +256,7 @@ abstract class _$$PlaceImplCopyWith<$Res> implements $PlaceCopyWith<$Res> {
     List<PlaceTip> tips,
     List<PlaceDish> dishes,
     List<String> mediaUrls,
+    List<String> videoUrls,
     String ownerUid,
     bool ownerIsSuper,
     double ownerSuperScore,
@@ -289,6 +297,7 @@ class __$$PlaceImplCopyWithImpl<$Res>
     Object? tips = null,
     Object? dishes = null,
     Object? mediaUrls = null,
+    Object? videoUrls = null,
     Object? ownerUid = null,
     Object? ownerIsSuper = null,
     Object? ownerSuperScore = null,
@@ -357,6 +366,10 @@ class __$$PlaceImplCopyWithImpl<$Res>
             ? _value._mediaUrls
             : mediaUrls // ignore: cast_nullable_to_non_nullable
                   as List<String>,
+        videoUrls: null == videoUrls
+            ? _value._videoUrls
+            : videoUrls // ignore: cast_nullable_to_non_nullable
+                  as List<String>,
         ownerUid: null == ownerUid
             ? _value.ownerUid
             : ownerUid // ignore: cast_nullable_to_non_nullable
@@ -416,6 +429,7 @@ class _$PlaceImpl implements _Place {
     final List<PlaceTip> tips = const [],
     final List<PlaceDish> dishes = const [],
     final List<String> mediaUrls = const [],
+    final List<String> videoUrls = const [],
     this.ownerUid = '',
     this.ownerIsSuper = false,
     this.ownerSuperScore = 0.0,
@@ -428,7 +442,8 @@ class _$PlaceImpl implements _Place {
   }) : _moods = moods,
        _tips = tips,
        _dishes = dishes,
-       _mediaUrls = mediaUrls;
+       _mediaUrls = mediaUrls,
+       _videoUrls = videoUrls;
 
   factory _$PlaceImpl.fromJson(Map<String, dynamic> json) =>
       _$$PlaceImplFromJson(json);
@@ -495,6 +510,15 @@ class _$PlaceImpl implements _Place {
     return EqualUnmodifiableListView(_mediaUrls);
   }
 
+  final List<String> _videoUrls;
+  @override
+  @JsonKey()
+  List<String> get videoUrls {
+    if (_videoUrls is EqualUnmodifiableListView) return _videoUrls;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_videoUrls);
+  }
+
   @override
   @JsonKey()
   final String ownerUid;
@@ -525,7 +549,7 @@ class _$PlaceImpl implements _Place {
 
   @override
   String toString() {
-    return 'Place(id: $id, title: $title, description: $description, category: $category, moods: $moods, priceLevel: $priceLevel, city: $city, neighborhood: $neighborhood, address: $address, lat: $lat, lng: $lng, tips: $tips, dishes: $dishes, mediaUrls: $mediaUrls, ownerUid: $ownerUid, ownerIsSuper: $ownerIsSuper, ownerSuperScore: $ownerSuperScore, ratingAvg: $ratingAvg, ratingCount: $ratingCount, saveCount: $saveCount, featured: $featured, hidden: $hidden, createdAt: $createdAt)';
+    return 'Place(id: $id, title: $title, description: $description, category: $category, moods: $moods, priceLevel: $priceLevel, city: $city, neighborhood: $neighborhood, address: $address, lat: $lat, lng: $lng, tips: $tips, dishes: $dishes, mediaUrls: $mediaUrls, videoUrls: $videoUrls, ownerUid: $ownerUid, ownerIsSuper: $ownerIsSuper, ownerSuperScore: $ownerSuperScore, ratingAvg: $ratingAvg, ratingCount: $ratingCount, saveCount: $saveCount, featured: $featured, hidden: $hidden, createdAt: $createdAt)';
   }
 
   @override
@@ -553,6 +577,10 @@ class _$PlaceImpl implements _Place {
             const DeepCollectionEquality().equals(
               other._mediaUrls,
               _mediaUrls,
+            ) &&
+            const DeepCollectionEquality().equals(
+              other._videoUrls,
+              _videoUrls,
             ) &&
             (identical(other.ownerUid, ownerUid) ||
                 other.ownerUid == ownerUid) &&
@@ -591,6 +619,7 @@ class _$PlaceImpl implements _Place {
     const DeepCollectionEquality().hash(_tips),
     const DeepCollectionEquality().hash(_dishes),
     const DeepCollectionEquality().hash(_mediaUrls),
+    const DeepCollectionEquality().hash(_videoUrls),
     ownerUid,
     ownerIsSuper,
     ownerSuperScore,
@@ -632,6 +661,7 @@ abstract class _Place implements Place {
     final List<PlaceTip> tips,
     final List<PlaceDish> dishes,
     final List<String> mediaUrls,
+    final List<String> videoUrls,
     final String ownerUid,
     final bool ownerIsSuper,
     final double ownerSuperScore,
@@ -673,6 +703,8 @@ abstract class _Place implements Place {
   List<PlaceDish> get dishes;
   @override
   List<String> get mediaUrls;
+  @override
+  List<String> get videoUrls;
   @override
   String get ownerUid;
   @override

@@ -1019,14 +1019,32 @@ abstract class AppLocalizations {
   /// No description provided for @addPlacePhotosTitle.
   ///
   /// In en, this message translates to:
-  /// **'Add photos'**
+  /// **'Add photos & videos'**
   String get addPlacePhotosTitle;
 
   /// No description provided for @addPlacePhotosHint.
   ///
   /// In en, this message translates to:
-  /// **'At least 1 photo required.'**
+  /// **'At least 1 photo or video required.'**
   String get addPlacePhotosHint;
+
+  /// No description provided for @addPlaceAddMedia.
+  ///
+  /// In en, this message translates to:
+  /// **'Add media'**
+  String get addPlaceAddMedia;
+
+  /// No description provided for @addPlacePickPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo from gallery'**
+  String get addPlacePickPhoto;
+
+  /// No description provided for @addPlacePickVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Video from gallery'**
+  String get addPlacePickVideo;
 
   /// No description provided for @addPlaceDetailsTitle.
   ///

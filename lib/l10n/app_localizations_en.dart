@@ -501,10 +501,19 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get addPlacePhotosTitle => 'Add photos';
+  String get addPlacePhotosTitle => 'Add photos & videos';
 
   @override
-  String get addPlacePhotosHint => 'At least 1 photo required.';
+  String get addPlacePhotosHint => 'At least 1 photo or video required.';
+
+  @override
+  String get addPlaceAddMedia => 'Add media';
+
+  @override
+  String get addPlacePickPhoto => 'Photo from gallery';
+
+  @override
+  String get addPlacePickVideo => 'Video from gallery';
 
   @override
   String get addPlaceDetailsTitle => 'Place details';
