@@ -540,6 +540,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addPlaceAddDish => 'Add a dish';
 
   @override
+  String get placeAbout => 'About';
+
+  @override
+  String get placeMoodsTitle => 'Vibes';
+
+  @override
+  String get placePriceLevel => 'Price level';
+
+  @override
+  String get addPlaceMoods => 'Moods';
+
+  @override
+  String get addPlaceBudget => 'Budget';
+
+  @override
+  String get addPlaceMoodsHint => 'Pick all that apply';
+
+  @override
   String get addPlaceReadyTitle => 'Ready to publish?';
 
   @override

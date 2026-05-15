@@ -314,6 +314,113 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
                                 ],
                               ),
                             ],
+                            if ((place.priceLevel ?? '').isNotEmpty) ...[
+                              const SizedBox(height: 12),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: const BoxDecoration(
+                                  color: LALColors.surfaceAlt,
+                                  borderRadius: LALRadii.pillBorder,
+                                ),
+                                child: Text(
+                                  place.priceLevel!,
+                                  style: LALTypography.labelSmall,
+                                ),
+                              ),
+                            ],
+                            if (place.address.isNotEmpty) ...[
+                              const SizedBox(height: 12),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Icon(
+                                    Icons.place_outlined,
+                                    size: 16,
+                                    color: LALColors.c500,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(
+                                      place.address,
+                                      style: LALTypography.bodySmall,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                            if (place.description.isNotEmpty) ...[
+                              const SizedBox(height: 20),
+                              Text(
+                                t.placeAbout,
+                                style: LALTypography.labelLarge,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                place.description,
+                                style: LALTypography.bodyMedium,
+                              ),
+                            ],
+                            if (place.moods.isNotEmpty) ...[
+                              const SizedBox(height: 20),
+                              Text(
+                                t.placeMoodsTitle,
+                                style: LALTypography.labelLarge,
+                              ),
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: [
+                                  for (final m in place.moods)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 6,
+                                      ),
+                                      decoration: const BoxDecoration(
+                                        color: LALColors.surfaceAlt,
+                                        borderRadius: LALRadii.pillBorder,
+                                      ),
+                                      child: Text(
+                                        _localizeMood(t, m),
+                                        style: LALTypography.labelSmall,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ],
+                            if (place.dishes.isNotEmpty) ...[
+                              const SizedBox(height: 20),
+                              Text(
+                                t.placeDishes,
+                                style: LALTypography.labelLarge,
+                              ),
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: [
+                                  for (final d in place.dishes)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 6,
+                                      ),
+                                      decoration: const BoxDecoration(
+                                        color: LALColors.surface,
+                                        borderRadius: LALRadii.pillBorder,
+                                      ),
+                                      child: Text(
+                                        d.name,
+                                        style: LALTypography.labelSmall,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ],
                           ],
                         ),
                       ),
@@ -531,6 +638,27 @@ class _TipsCard extends StatelessWidget {
   }
 }
 
+String _localizeMood(AppLocalizations t, String key) {
+  switch (key) {
+    case 'Romantic':
+      return t.moodRomantic;
+    case 'Family':
+      return t.moodFamily;
+    case 'Hidden Gem':
+      return t.moodHiddenGem;
+    case 'Lively':
+      return t.moodLively;
+    case 'Peaceful':
+      return t.moodPeaceful;
+    case 'Foodie':
+      return t.moodFoodie;
+    case 'Off-the-beaten-track':
+      return t.moodOffBeaten;
+    default:
+      return key;
+  }
+}
+
 class _ContributorCard extends ConsumerWidget {
   const _ContributorCard({
     required this.ownerIsSuper,
@@ -545,9 +673,11 @@ class _ContributorCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context)!;
-    final ownerDisplayName = ownerUid.isEmpty
-        ? ''
-        : ref.watch(userByIdProvider(ownerUid)).valueOrNull?.displayName ?? '';
+    final ownerUser = ownerUid.isEmpty
+        ? null
+        : ref.watch(userByIdProvider(ownerUid)).valueOrNull;
+    final ownerDisplayName = ownerUser?.displayName ?? '';
+    final ownerPhotoUrl = ownerUser?.photoUrl;
     final currentUid = ref.watch(authStateProvider).valueOrNull?.uid;
     final isOwnPlace = currentUid != null && ownerUid == currentUid;
 
@@ -557,6 +687,47 @@ class _ContributorCard extends ConsumerWidget {
         : const <String, dynamic>{};
     final chatEnabled = (chatSettings['enabled'] as bool?) ?? true;
     final awayMode = (chatSettings['awayMode'] as bool?) ?? false;
+
+    Future<void> openChat() async {
+      if (currentUid == null || ownerUid.isEmpty) return;
+      if (awayMode) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(t.chatOwnerAway)));
+        return;
+      }
+      final availability = await ref
+          .read(chatRepositoryProvider)
+          .checkOwnerAvailability(ownerUid);
+      if (!context.mounted) return;
+      if (availability == ChatAvailability.outsideSchedule) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(t.chatOwnerUnavailable)));
+        return;
+      }
+      String? threadId;
+      try {
+        threadId = await ref
+            .read(chatNotifierProvider.notifier)
+            .openWithUser(
+              otherUid: ownerUid,
+              otherDisplayName: ownerDisplayName.isNotEmpty
+                  ? ownerDisplayName
+                  : t.placeAnonymous,
+              otherIsSuper: ownerIsSuper,
+              placeContext: placeId,
+            );
+      } on OfflineException {
+        if (context.mounted) {
+          showOfflineActionSnackBar(context);
+        }
+        return;
+      }
+      if (threadId != null && context.mounted) {
+        context.push('/chat/$threadId');
+      }
+    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: LALSpacing.xl),
@@ -572,37 +743,14 @@ class _ContributorCard extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                Stack(
-                  children: [
-                    const CircleAvatar(
-                      radius: 24,
-                      backgroundColor: LALColors.c100,
-                      child: Icon(Icons.person, color: LALColors.c400),
-                    ),
-                    if (ownerIsSuper)
-                      Positioned(
-                        top: 0,
-                        right: 0,
-                        child: Container(
-                          width: 14,
-                          height: 14,
-                          decoration: const BoxDecoration(
-                            color: LALColors.accent,
-                            shape: BoxShape.circle,
-                            border: Border.fromBorderSide(
-                              BorderSide(color: Colors.white, width: 1.5),
-                            ),
-                          ),
-                          child: const Icon(
-                            Icons.workspace_premium_rounded,
-                            color: Colors.white,
-                            size: 8,
-                          ),
-                        ),
-                      ),
-                  ],
+                Icon(
+                  ownerIsSuper
+                      ? Icons.workspace_premium_rounded
+                      : Icons.person_outline,
+                  size: 16,
+                  color: LALColors.accent,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 6),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -628,7 +776,7 @@ class _ContributorCard extends ConsumerWidget {
                       horizontal: 12,
                       vertical: 8,
                     ),
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: LALColors.surfaceAlt,
                       borderRadius: LALRadii.pillBorder,
                     ),
@@ -639,69 +787,61 @@ class _ContributorCard extends ConsumerWidget {
                       ),
                     ),
                   )
-                else if (chatEnabled)
-                  ElevatedButton(
-                    onPressed: currentUid == null || ownerUid.isEmpty
-                        ? null
-                        : () async {
-                            if (awayMode) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(t.chatOwnerAway)),
-                              );
-                              return;
-                            }
-                            final availability = await ref
-                                .read(chatRepositoryProvider)
-                                .checkOwnerAvailability(ownerUid);
-                            if (!context.mounted) return;
-                            if (availability ==
-                                ChatAvailability.outsideSchedule) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(t.chatOwnerUnavailable)),
-                              );
-                              return;
-                            }
-                            String? threadId;
-                            try {
-                              threadId = await ref
-                                  .read(chatNotifierProvider.notifier)
-                                  .openWithUser(
-                                    otherUid: ownerUid,
-                                    otherDisplayName:
-                                        ownerDisplayName.isNotEmpty
-                                        ? ownerDisplayName
-                                        : t.placeAnonymous,
-                                    otherIsSuper: ownerIsSuper,
-                                    placeContext: placeId,
-                                  );
-                            } on OfflineException {
-                              if (context.mounted) {
-                                showOfflineActionSnackBar(context);
-                              }
-                              return;
-                            }
-                            if (threadId != null && context.mounted) {
-                              context.push('/chat/$threadId');
-                            }
-                          },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: LALColors.accent,
-                      foregroundColor: Colors.white,
-                      disabledBackgroundColor: LALColors.c200,
-                      disabledForegroundColor: LALColors.c500,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 18,
-                        vertical: 10,
-                      ),
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      elevation: 0,
-                    ),
-                    child: Text(
-                      t.placeChat,
-                      style: LALTypography.labelMedium.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
+                else if (chatEnabled && ownerUid.isNotEmpty)
+                  Semantics(
+                    label: t.placeChatContributor,
+                    button: true,
+                    child: GestureDetector(
+                      onTap: openChat,
+                      child: SizedBox(
+                        width: 48,
+                        height: 48,
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            CircleAvatar(
+                              radius: 24,
+                              backgroundColor: LALColors.c100,
+                              backgroundImage:
+                                  (ownerPhotoUrl != null &&
+                                      ownerPhotoUrl.isNotEmpty)
+                                  ? CachedNetworkImageProvider(ownerPhotoUrl)
+                                  : null,
+                              child:
+                                  (ownerPhotoUrl == null ||
+                                      ownerPhotoUrl.isEmpty)
+                                  ? const Icon(
+                                      Icons.person,
+                                      color: LALColors.c400,
+                                    )
+                                  : null,
+                            ),
+                            if (ownerIsSuper)
+                              Positioned(
+                                bottom: -2,
+                                right: -2,
+                                child: Container(
+                                  width: 16,
+                                  height: 16,
+                                  decoration: const BoxDecoration(
+                                    color: LALColors.accent,
+                                    shape: BoxShape.circle,
+                                    border: Border.fromBorderSide(
+                                      BorderSide(
+                                        color: Colors.white,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                  ),
+                                  child: const Icon(
+                                    Icons.workspace_premium_rounded,
+                                    color: Colors.white,
+                                    size: 8,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

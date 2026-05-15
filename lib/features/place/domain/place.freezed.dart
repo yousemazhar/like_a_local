@@ -33,6 +33,7 @@ mixin _$Place {
   double get lat => throw _privateConstructorUsedError;
   double get lng => throw _privateConstructorUsedError;
   List<PlaceTip> get tips => throw _privateConstructorUsedError;
+  List<PlaceDish> get dishes => throw _privateConstructorUsedError;
   List<String> get mediaUrls => throw _privateConstructorUsedError;
   String get ownerUid => throw _privateConstructorUsedError;
   bool get ownerIsSuper => throw _privateConstructorUsedError;
@@ -72,6 +73,7 @@ abstract class $PlaceCopyWith<$Res> {
     double lat,
     double lng,
     List<PlaceTip> tips,
+    List<PlaceDish> dishes,
     List<String> mediaUrls,
     String ownerUid,
     bool ownerIsSuper,
@@ -112,6 +114,7 @@ class _$PlaceCopyWithImpl<$Res, $Val extends Place>
     Object? lat = null,
     Object? lng = null,
     Object? tips = null,
+    Object? dishes = null,
     Object? mediaUrls = null,
     Object? ownerUid = null,
     Object? ownerIsSuper = null,
@@ -173,6 +176,10 @@ class _$PlaceCopyWithImpl<$Res, $Val extends Place>
                 ? _value.tips
                 : tips // ignore: cast_nullable_to_non_nullable
                       as List<PlaceTip>,
+            dishes: null == dishes
+                ? _value.dishes
+                : dishes // ignore: cast_nullable_to_non_nullable
+                      as List<PlaceDish>,
             mediaUrls: null == mediaUrls
                 ? _value.mediaUrls
                 : mediaUrls // ignore: cast_nullable_to_non_nullable
@@ -240,6 +247,7 @@ abstract class _$$PlaceImplCopyWith<$Res> implements $PlaceCopyWith<$Res> {
     double lat,
     double lng,
     List<PlaceTip> tips,
+    List<PlaceDish> dishes,
     List<String> mediaUrls,
     String ownerUid,
     bool ownerIsSuper,
@@ -279,6 +287,7 @@ class __$$PlaceImplCopyWithImpl<$Res>
     Object? lat = null,
     Object? lng = null,
     Object? tips = null,
+    Object? dishes = null,
     Object? mediaUrls = null,
     Object? ownerUid = null,
     Object? ownerIsSuper = null,
@@ -340,6 +349,10 @@ class __$$PlaceImplCopyWithImpl<$Res>
             ? _value._tips
             : tips // ignore: cast_nullable_to_non_nullable
                   as List<PlaceTip>,
+        dishes: null == dishes
+            ? _value._dishes
+            : dishes // ignore: cast_nullable_to_non_nullable
+                  as List<PlaceDish>,
         mediaUrls: null == mediaUrls
             ? _value._mediaUrls
             : mediaUrls // ignore: cast_nullable_to_non_nullable
@@ -401,6 +414,7 @@ class _$PlaceImpl implements _Place {
     this.lat = 0.0,
     this.lng = 0.0,
     final List<PlaceTip> tips = const [],
+    final List<PlaceDish> dishes = const [],
     final List<String> mediaUrls = const [],
     this.ownerUid = '',
     this.ownerIsSuper = false,
@@ -413,6 +427,7 @@ class _$PlaceImpl implements _Place {
     @TimestampConverter() this.createdAt,
   }) : _moods = moods,
        _tips = tips,
+       _dishes = dishes,
        _mediaUrls = mediaUrls;
 
   factory _$PlaceImpl.fromJson(Map<String, dynamic> json) =>
@@ -462,6 +477,15 @@ class _$PlaceImpl implements _Place {
     return EqualUnmodifiableListView(_tips);
   }
 
+  final List<PlaceDish> _dishes;
+  @override
+  @JsonKey()
+  List<PlaceDish> get dishes {
+    if (_dishes is EqualUnmodifiableListView) return _dishes;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_dishes);
+  }
+
   final List<String> _mediaUrls;
   @override
   @JsonKey()
@@ -501,7 +525,7 @@ class _$PlaceImpl implements _Place {
 
   @override
   String toString() {
-    return 'Place(id: $id, title: $title, description: $description, category: $category, moods: $moods, priceLevel: $priceLevel, city: $city, neighborhood: $neighborhood, address: $address, lat: $lat, lng: $lng, tips: $tips, mediaUrls: $mediaUrls, ownerUid: $ownerUid, ownerIsSuper: $ownerIsSuper, ownerSuperScore: $ownerSuperScore, ratingAvg: $ratingAvg, ratingCount: $ratingCount, saveCount: $saveCount, featured: $featured, hidden: $hidden, createdAt: $createdAt)';
+    return 'Place(id: $id, title: $title, description: $description, category: $category, moods: $moods, priceLevel: $priceLevel, city: $city, neighborhood: $neighborhood, address: $address, lat: $lat, lng: $lng, tips: $tips, dishes: $dishes, mediaUrls: $mediaUrls, ownerUid: $ownerUid, ownerIsSuper: $ownerIsSuper, ownerSuperScore: $ownerSuperScore, ratingAvg: $ratingAvg, ratingCount: $ratingCount, saveCount: $saveCount, featured: $featured, hidden: $hidden, createdAt: $createdAt)';
   }
 
   @override
@@ -525,6 +549,7 @@ class _$PlaceImpl implements _Place {
             (identical(other.lat, lat) || other.lat == lat) &&
             (identical(other.lng, lng) || other.lng == lng) &&
             const DeepCollectionEquality().equals(other._tips, _tips) &&
+            const DeepCollectionEquality().equals(other._dishes, _dishes) &&
             const DeepCollectionEquality().equals(
               other._mediaUrls,
               _mediaUrls,
@@ -564,6 +589,7 @@ class _$PlaceImpl implements _Place {
     lat,
     lng,
     const DeepCollectionEquality().hash(_tips),
+    const DeepCollectionEquality().hash(_dishes),
     const DeepCollectionEquality().hash(_mediaUrls),
     ownerUid,
     ownerIsSuper,
@@ -604,6 +630,7 @@ abstract class _Place implements Place {
     final double lat,
     final double lng,
     final List<PlaceTip> tips,
+    final List<PlaceDish> dishes,
     final List<String> mediaUrls,
     final String ownerUid,
     final bool ownerIsSuper,
@@ -642,6 +669,8 @@ abstract class _Place implements Place {
   double get lng;
   @override
   List<PlaceTip> get tips;
+  @override
+  List<PlaceDish> get dishes;
   @override
   List<String> get mediaUrls;
   @override
@@ -835,5 +864,154 @@ abstract class _PlaceTip implements PlaceTip {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$PlaceTipImplCopyWith<_$PlaceTipImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+PlaceDish _$PlaceDishFromJson(Map<String, dynamic> json) {
+  return _PlaceDish.fromJson(json);
+}
+
+/// @nodoc
+mixin _$PlaceDish {
+  String get name => throw _privateConstructorUsedError;
+
+  /// Serializes this PlaceDish to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of PlaceDish
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $PlaceDishCopyWith<PlaceDish> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $PlaceDishCopyWith<$Res> {
+  factory $PlaceDishCopyWith(PlaceDish value, $Res Function(PlaceDish) then) =
+      _$PlaceDishCopyWithImpl<$Res, PlaceDish>;
+  @useResult
+  $Res call({String name});
+}
+
+/// @nodoc
+class _$PlaceDishCopyWithImpl<$Res, $Val extends PlaceDish>
+    implements $PlaceDishCopyWith<$Res> {
+  _$PlaceDishCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of PlaceDish
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? name = null}) {
+    return _then(
+      _value.copyWith(
+            name: null == name
+                ? _value.name
+                : name // ignore: cast_nullable_to_non_nullable
+                      as String,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$PlaceDishImplCopyWith<$Res>
+    implements $PlaceDishCopyWith<$Res> {
+  factory _$$PlaceDishImplCopyWith(
+    _$PlaceDishImpl value,
+    $Res Function(_$PlaceDishImpl) then,
+  ) = __$$PlaceDishImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({String name});
+}
+
+/// @nodoc
+class __$$PlaceDishImplCopyWithImpl<$Res>
+    extends _$PlaceDishCopyWithImpl<$Res, _$PlaceDishImpl>
+    implements _$$PlaceDishImplCopyWith<$Res> {
+  __$$PlaceDishImplCopyWithImpl(
+    _$PlaceDishImpl _value,
+    $Res Function(_$PlaceDishImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of PlaceDish
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? name = null}) {
+    return _then(
+      _$PlaceDishImpl(
+        name: null == name
+            ? _value.name
+            : name // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$PlaceDishImpl implements _PlaceDish {
+  const _$PlaceDishImpl({required this.name});
+
+  factory _$PlaceDishImpl.fromJson(Map<String, dynamic> json) =>
+      _$$PlaceDishImplFromJson(json);
+
+  @override
+  final String name;
+
+  @override
+  String toString() {
+    return 'PlaceDish(name: $name)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$PlaceDishImpl &&
+            (identical(other.name, name) || other.name == name));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, name);
+
+  /// Create a copy of PlaceDish
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$PlaceDishImplCopyWith<_$PlaceDishImpl> get copyWith =>
+      __$$PlaceDishImplCopyWithImpl<_$PlaceDishImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$PlaceDishImplToJson(this);
+  }
+}
+
+abstract class _PlaceDish implements PlaceDish {
+  const factory _PlaceDish({required final String name}) = _$PlaceDishImpl;
+
+  factory _PlaceDish.fromJson(Map<String, dynamic> json) =
+      _$PlaceDishImpl.fromJson;
+
+  @override
+  String get name;
+
+  /// Create a copy of PlaceDish
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$PlaceDishImplCopyWith<_$PlaceDishImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

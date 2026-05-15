@@ -1094,6 +1094,42 @@ abstract class AppLocalizations {
   /// **'Add a dish'**
   String get addPlaceAddDish;
 
+  /// No description provided for @placeAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get placeAbout;
+
+  /// No description provided for @placeMoodsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Vibes'**
+  String get placeMoodsTitle;
+
+  /// No description provided for @placePriceLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Price level'**
+  String get placePriceLevel;
+
+  /// No description provided for @addPlaceMoods.
+  ///
+  /// In en, this message translates to:
+  /// **'Moods'**
+  String get addPlaceMoods;
+
+  /// No description provided for @addPlaceBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget'**
+  String get addPlaceBudget;
+
+  /// No description provided for @addPlaceMoodsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick all that apply'**
+  String get addPlaceMoodsHint;
+
   /// No description provided for @addPlaceReadyTitle.
   ///
   /// In en, this message translates to:

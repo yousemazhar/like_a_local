@@ -28,6 +28,8 @@ class _Draft {
   final addressCtrl = TextEditingController();
   final descriptionCtrl = TextEditingController();
   String category = '';
+  final Set<String> moods = <String>{};
+  String? priceLevel;
   double? lat;
   double? lng;
   final tipCtrls = <TextEditingController>[TextEditingController()];
@@ -81,6 +83,10 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
     _draft.addressCtrl.text = p.address;
     _draft.descriptionCtrl.text = p.description;
     _draft.category = p.category;
+    _draft.moods
+      ..clear()
+      ..addAll(p.moods);
+    _draft.priceLevel = p.priceLevel;
     _draft.existingPhotoUrls.addAll(p.mediaUrls);
     if (p.lat != 0 || p.lng != 0) {
       _draft.lat = p.lat;
@@ -93,7 +99,13 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
     if (_draft.tipCtrls.isEmpty) {
       _draft.tipCtrls.add(TextEditingController());
     }
-    // Dishes are not in Place model fields exposed today; skip prefill.
+    _draft.dishCtrls.clear();
+    for (final d in p.dishes) {
+      _draft.dishCtrls.add(TextEditingController(text: d.name));
+    }
+    if (_draft.dishCtrls.isEmpty) {
+      _draft.dishCtrls.add(TextEditingController());
+    }
   }
 
   void _next() {
@@ -229,6 +241,8 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
           'title': _draft.titleCtrl.text.trim(),
           'description': _draft.descriptionCtrl.text.trim(),
           'category': _draft.category,
+          'moods': _draft.moods.toList(),
+          'priceLevel': _draft.priceLevel,
           'neighborhood': _draft.neighborhoodCtrl.text.trim(),
           'address': _draft.addressCtrl.text.trim(),
           if (_draft.lat != null) 'lat': _draft.lat,
@@ -244,7 +258,8 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
           'title': _draft.titleCtrl.text.trim(),
           'description': _draft.descriptionCtrl.text.trim(),
           'category': _draft.category,
-          'moods': const <String>[],
+          'moods': _draft.moods.toList(),
+          'priceLevel': _draft.priceLevel,
           'city': '',
           'neighborhood': _draft.neighborhoodCtrl.text.trim(),
           'address': _draft.addressCtrl.text.trim(),
@@ -352,6 +367,16 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
                 _BasicsStep(
                   draft: _draft,
                   onCategory: (c) => setState(() => _draft.category = c),
+                  onToggleMood: (m) => setState(() {
+                    if (_draft.moods.contains(m)) {
+                      _draft.moods.remove(m);
+                    } else {
+                      _draft.moods.add(m);
+                    }
+                  }),
+                  onPriceLevel: (p) => setState(() {
+                    _draft.priceLevel = _draft.priceLevel == p ? null : p;
+                  }),
                 ),
                 _LocationStep(
                   draft: _draft,
@@ -540,9 +565,16 @@ class _PhotosStep extends StatelessWidget {
 }
 
 class _BasicsStep extends StatelessWidget {
-  const _BasicsStep({required this.draft, required this.onCategory});
+  const _BasicsStep({
+    required this.draft,
+    required this.onCategory,
+    required this.onToggleMood,
+    required this.onPriceLevel,
+  });
   final _Draft draft;
   final ValueChanged<String> onCategory;
+  final ValueChanged<String> onToggleMood;
+  final ValueChanged<String> onPriceLevel;
 
   @override
   Widget build(BuildContext context) {
@@ -555,6 +587,16 @@ class _BasicsStep extends StatelessWidget {
       t.categoryViewpoint,
       t.categoryMuseum,
     ];
+    final moodOptions = <({String key, String label})>[
+      (key: 'Romantic', label: t.moodRomantic),
+      (key: 'Family', label: t.moodFamily),
+      (key: 'Hidden Gem', label: t.moodHiddenGem),
+      (key: 'Lively', label: t.moodLively),
+      (key: 'Peaceful', label: t.moodPeaceful),
+      (key: 'Foodie', label: t.moodFoodie),
+      (key: 'Off-the-beaten-track', label: t.moodOffBeaten),
+    ];
+    const budgets = [r'$', r'$$', r'$$$', r'$$$$'];
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -597,6 +639,38 @@ class _BasicsStep extends StatelessWidget {
                   label: c,
                   isSelected: draft.category == c,
                   onTap: () => onCategory(c),
+                ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Text(t.addPlaceMoods, style: LALTypography.labelMedium),
+          const SizedBox(height: 4),
+          Text(t.addPlaceMoodsHint, style: LALTypography.bodySmall),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final m in moodOptions)
+                LALChip(
+                  label: m.label,
+                  isSelected: draft.moods.contains(m.key),
+                  onTap: () => onToggleMood(m.key),
+                ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Text(t.addPlaceBudget, style: LALTypography.labelMedium),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final b in budgets)
+                LALChip(
+                  label: b,
+                  isSelected: draft.priceLevel == b,
+                  onTap: () => onPriceLevel(b),
                 ),
             ],
           ),

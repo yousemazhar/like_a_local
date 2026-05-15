@@ -25,6 +25,11 @@ _$PlaceImpl _$$PlaceImplFromJson(Map<String, dynamic> json) => _$PlaceImpl(
           ?.map((e) => PlaceTip.fromJson(e as Map<String, dynamic>))
           .toList() ??
       const [],
+  dishes:
+      (json['dishes'] as List<dynamic>?)
+          ?.map((e) => PlaceDish.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
   mediaUrls:
       (json['mediaUrls'] as List<dynamic>?)?.map((e) => e as String).toList() ??
       const [],
@@ -53,6 +58,7 @@ Map<String, dynamic> _$$PlaceImplToJson(_$PlaceImpl instance) =>
       'lat': instance.lat,
       'lng': instance.lng,
       'tips': instance.tips,
+      'dishes': instance.dishes,
       'mediaUrls': instance.mediaUrls,
       'ownerUid': instance.ownerUid,
       'ownerIsSuper': instance.ownerIsSuper,
@@ -73,3 +79,9 @@ _$PlaceTipImpl _$$PlaceTipImplFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$$PlaceTipImplToJson(_$PlaceTipImpl instance) =>
     <String, dynamic>{'text': instance.text, 'order': instance.order};
+
+_$PlaceDishImpl _$$PlaceDishImplFromJson(Map<String, dynamic> json) =>
+    _$PlaceDishImpl(name: json['name'] as String);
+
+Map<String, dynamic> _$$PlaceDishImplToJson(_$PlaceDishImpl instance) =>
+    <String, dynamic>{'name': instance.name};

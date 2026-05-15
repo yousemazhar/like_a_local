@@ -215,6 +215,13 @@
   "addPlaceAddTip": "Weiteren Tipp hinzufügen",
   "addPlaceDishName": "Gerichtsname",
   "addPlaceAddDish": "Gericht hinzufügen",
+  "placeAbout": "Über",
+  "placeMoodsTitle": "Stimmung",
+  "placePriceLevel": "Preisniveau",
+  "addPlaceMoods": "Stimmungen",
+  "addPlaceBudget": "Budget",
+  "addPlaceMoodsHint": "Wähle alle passenden aus",
+
   "addPlaceReadyTitle": "Bereit zu veröffentlichen?",
   "addPlaceReadyBody": "Dein Ort ist nach dem Veröffentlichen für alle sichtbar.",
 

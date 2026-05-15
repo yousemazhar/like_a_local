@@ -545,6 +545,24 @@ class AppLocalizationsDe extends AppLocalizations {
   String get addPlaceAddDish => 'Gericht hinzufügen';
 
   @override
+  String get placeAbout => 'Über';
+
+  @override
+  String get placeMoodsTitle => 'Stimmung';
+
+  @override
+  String get placePriceLevel => 'Preisniveau';
+
+  @override
+  String get addPlaceMoods => 'Stimmungen';
+
+  @override
+  String get addPlaceBudget => 'Budget';
+
+  @override
+  String get addPlaceMoodsHint => 'Wähle alle passenden aus';
+
+  @override
   String get addPlaceReadyTitle => 'Bereit zu veröffentlichen?';
 
   @override

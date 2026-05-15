@@ -19,6 +19,7 @@ class Place with _$Place {
     @Default(0.0) double lat,
     @Default(0.0) double lng,
     @Default([]) List<PlaceTip> tips,
+    @Default([]) List<PlaceDish> dishes,
     @Default([]) List<String> mediaUrls,
     @Default('') String ownerUid,
     @Default(false) bool ownerIsSuper,
@@ -41,6 +42,14 @@ class PlaceTip with _$PlaceTip {
 
   factory PlaceTip.fromJson(Map<String, dynamic> json) =>
       _$PlaceTipFromJson(json);
+}
+
+@freezed
+class PlaceDish with _$PlaceDish {
+  const factory PlaceDish({required String name}) = _PlaceDish;
+
+  factory PlaceDish.fromJson(Map<String, dynamic> json) =>
+      _$PlaceDishFromJson(json);
 }
 
 class TimestampConverter implements JsonConverter<DateTime?, dynamic> {
