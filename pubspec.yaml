@@ -29,6 +29,7 @@ dependencies:
   firebase_analytics: ^11.3.0
   firebase_remote_config: ^5.1.0
   cloud_functions: ^5.1.0
+  firebase_app_check: ^0.3.2
 
   # Navigation
   go_router: ^14.6.3
