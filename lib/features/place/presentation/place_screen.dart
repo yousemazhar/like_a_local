@@ -743,14 +743,49 @@ class _ContributorCard extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                Icon(
-                  ownerIsSuper
-                      ? Icons.workspace_premium_rounded
-                      : Icons.person_outline,
-                  size: 16,
-                  color: LALColors.accent,
+                SizedBox(
+                  width: 48,
+                  height: 48,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      CircleAvatar(
+                        radius: 24,
+                        backgroundColor: LALColors.c100,
+                        backgroundImage:
+                            (ownerPhotoUrl != null && ownerPhotoUrl.isNotEmpty)
+                            ? CachedNetworkImageProvider(ownerPhotoUrl)
+                            : null,
+                        child:
+                            (ownerPhotoUrl == null || ownerPhotoUrl.isEmpty)
+                            ? const Icon(Icons.person, color: LALColors.c400)
+                            : null,
+                      ),
+                      if (ownerIsSuper)
+                        Positioned(
+                          bottom: -2,
+                          right: -2,
+                          child: Container(
+                            width: 16,
+                            height: 16,
+                            decoration: const BoxDecoration(
+                              color: LALColors.accent,
+                              shape: BoxShape.circle,
+                              border: Border.fromBorderSide(
+                                BorderSide(color: Colors.white, width: 1.5),
+                              ),
+                            ),
+                            child: const Icon(
+                              Icons.workspace_premium_rounded,
+                              color: Colors.white,
+                              size: 8,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
-                const SizedBox(width: 6),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -788,60 +823,26 @@ class _ContributorCard extends ConsumerWidget {
                     ),
                   )
                 else if (chatEnabled && ownerUid.isNotEmpty)
-                  Semantics(
-                    label: t.placeChatContributor,
-                    button: true,
-                    child: GestureDetector(
-                      onTap: openChat,
-                      child: SizedBox(
-                        width: 48,
-                        height: 48,
-                        child: Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            CircleAvatar(
-                              radius: 24,
-                              backgroundColor: LALColors.c100,
-                              backgroundImage:
-                                  (ownerPhotoUrl != null &&
-                                      ownerPhotoUrl.isNotEmpty)
-                                  ? CachedNetworkImageProvider(ownerPhotoUrl)
-                                  : null,
-                              child:
-                                  (ownerPhotoUrl == null ||
-                                      ownerPhotoUrl.isEmpty)
-                                  ? const Icon(
-                                      Icons.person,
-                                      color: LALColors.c400,
-                                    )
-                                  : null,
-                            ),
-                            if (ownerIsSuper)
-                              Positioned(
-                                bottom: -2,
-                                right: -2,
-                                child: Container(
-                                  width: 16,
-                                  height: 16,
-                                  decoration: const BoxDecoration(
-                                    color: LALColors.accent,
-                                    shape: BoxShape.circle,
-                                    border: Border.fromBorderSide(
-                                      BorderSide(
-                                        color: Colors.white,
-                                        width: 1.5,
-                                      ),
-                                    ),
-                                  ),
-                                  child: const Icon(
-                                    Icons.workspace_premium_rounded,
-                                    color: Colors.white,
-                                    size: 8,
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
+                  ElevatedButton(
+                    onPressed: currentUid == null ? null : openChat,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: LALColors.accent,
+                      foregroundColor: Colors.white,
+                      disabledBackgroundColor: LALColors.c200,
+                      disabledForegroundColor: LALColors.c500,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 18,
+                        vertical: 10,
+                      ),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      elevation: 0,
+                    ),
+                    child: Text(
+                      t.placeChat,
+                      style: LALTypography.labelMedium.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
