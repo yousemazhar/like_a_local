@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/providers/connectivity_provider.dart';
+import '../../../core/widgets/async_error_view.dart';
 import '../../../core/widgets/empty_view.dart';
-import '../../../core/widgets/error_view.dart';
-import '../../../core/widgets/offline_action_snack_bar.dart';
+import '../../../core/widgets/lal_toast.dart';
 import '../../../core/widgets/skeleton.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
@@ -46,7 +46,7 @@ class NotificationsScreen extends ConsumerWidget {
           TextButton(
             onPressed: () {
               if (ref.read(isOnlineProvider).valueOrNull == false) {
-                showOfflineActionSnackBar(context);
+                LALToast.showOffline(context);
                 return;
               }
               ref.read(notificationActionsProvider.notifier).markAllRead();
@@ -63,7 +63,10 @@ class NotificationsScreen extends ConsumerWidget {
             child: SkeletonBox(width: double.infinity, height: 64),
           ),
         ),
-        error: (e, _) => ErrorView(message: '$e'),
+        error: (e, _) => AsyncErrorView(
+          error: e,
+          onRetry: () => ref.invalidate(myNotificationsProvider),
+        ),
         data: (items) {
           if (items.isEmpty) {
             return EmptyView(
@@ -92,7 +95,7 @@ class NotificationsScreen extends ConsumerWidget {
                     icon: _iconForType(n.type),
                     onTap: () {
                       if (ref.read(isOnlineProvider).valueOrNull == false) {
-                        showOfflineActionSnackBar(context);
+                        LALToast.showOffline(context);
                         return;
                       }
                       ref
@@ -109,7 +112,7 @@ class NotificationsScreen extends ConsumerWidget {
                     icon: _iconForType(n.type),
                     onTap: () {
                       if (ref.read(isOnlineProvider).valueOrNull == false) {
-                        showOfflineActionSnackBar(context);
+                        LALToast.showOffline(context);
                         return;
                       }
                       ref

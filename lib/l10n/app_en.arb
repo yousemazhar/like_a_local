@@ -724,5 +724,74 @@
   "authSignUpWithGoogle": "Sign up with Google",
   "@authSignUpWithGoogle": {
     "description": "Button label for signing up with Google"
-  }
+  },
+
+  "stateOfflineTitle": "You're offline",
+  "@stateOfflineTitle": {},
+  "stateOfflineBody": "Some things still work — your saved places and offline tips are ready.",
+  "@stateOfflineBody": {},
+  "stateNoResultsTitle": "Nothing here yet",
+  "@stateNoResultsTitle": {},
+  "stateNoResultsBody": "Try different keywords or widen your filters.",
+  "@stateNoResultsBody": {},
+  "stateEmptyTitle": "Nothing to show",
+  "@stateEmptyTitle": {},
+  "stateEmptyBody": "Items will appear here once available.",
+  "@stateEmptyBody": {},
+  "stateUploadFailedTitle": "Upload didn't go through",
+  "@stateUploadFailedTitle": {},
+  "stateUploadFailedBody": "We'll keep trying when you're back online. Your draft is safe.",
+  "@stateUploadFailedBody": {},
+  "stateNotFoundTitle": "Not found",
+  "@stateNotFoundTitle": {},
+  "stateNotFoundBody": "This content may no longer be available.",
+  "@stateNotFoundBody": {},
+
+  "actionRetry": "Try again",
+  "@actionRetry": {},
+  "actionRetryNow": "Retry now",
+  "@actionRetryNow": {},
+  "actionDiscard": "Discard",
+  "@actionDiscard": {},
+  "actionDismiss": "Dismiss",
+  "@actionDismiss": {},
+
+  "errorNetwork": "No internet connection. Please check your network.",
+  "@errorNetwork": {},
+  "errorTimeout": "The request timed out. Please try again.",
+  "@errorTimeout": {},
+  "errorUnauthorized": "Please sign in to continue.",
+  "@errorUnauthorized": {},
+  "errorPermissionDenied": "You don't have permission to do this.",
+  "@errorPermissionDenied": {},
+  "errorNotFound": "This content is no longer available.",
+  "@errorNotFound": {},
+  "errorQuotaExceeded": "You've reached the limit for this action.",
+  "@errorQuotaExceeded": {},
+  "errorInvalidInput": "Some of the values you entered are invalid.",
+  "@errorInvalidInput": {},
+  "errorUploadFailed": "Upload failed. Please try again.",
+  "@errorUploadFailed": {},
+  "errorUnknown": "An unexpected error occurred.",
+  "@errorUnknown": {},
+
+  "validatorRequired": "This field is required.",
+  "@validatorRequired": {},
+  "validatorEmail": "Please enter a valid email address.",
+  "@validatorEmail": {},
+  "validatorMinLength": "Must be at least {min} characters.",
+  "@validatorMinLength": {
+    "placeholders": { "min": { "type": "int" } }
+  },
+  "validatorMaxLength": "Must be at most {max} characters.",
+  "@validatorMaxLength": {
+    "placeholders": { "max": { "type": "int" } }
+  },
+  "validatorUrl": "Please enter a valid URL.",
+  "@validatorUrl": {},
+
+  "toastSavedOffline": "Saved offline — will sync when you're back online.",
+  "@toastSavedOffline": {},
+  "toastChangesSynced": "Changes synced.",
+  "@toastChangesSynced": {}
 }

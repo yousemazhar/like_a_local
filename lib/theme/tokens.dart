@@ -23,7 +23,14 @@ class LALColors {
   static const accentDark = Color(0xFFA85F45);
 
   static const error = Color(0xFFD32F2F);
+  static const errorSoft = Color(0xFFFBE7E0);
+  static const errorDark = Color(0xFFA04020);
   static const success = Color(0xFF388E3C);
+  static const successSoft = Color(0xFFE3F1E5);
+  static const warning = Color(0xFFFFA726);
+  static const warningSoft = Color(0xFFFFF1DB);
+
+  static const border = Color(0xFFE6E9EC);
 }
 
 class LALSpacing {

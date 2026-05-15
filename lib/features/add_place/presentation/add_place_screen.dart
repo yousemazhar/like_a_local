@@ -11,8 +11,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../core/providers/connectivity_provider.dart';
-import '../../../core/widgets/offline_action_snack_bar.dart';
 import '../../../core/widgets/lal_chip.dart';
+import '../../../core/widgets/lal_toast.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
@@ -152,8 +152,8 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
     }
   }
 
-  void _snack(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  void _snack(String msg, {LALToastKind kind = LALToastKind.warning}) {
+    LALToast.show(context, msg, kind: kind);
   }
 
   Future<void> _pickPhoto() async {
@@ -206,7 +206,7 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
   Future<void> _publish() async {
     final t = AppLocalizations.of(context)!;
     if (ref.read(isOnlineProvider).valueOrNull == false) {
-      showOfflineActionSnackBar(context);
+      LALToast.showOffline(context);
       return;
     }
     final user = ref.read(authStateProvider).valueOrNull;

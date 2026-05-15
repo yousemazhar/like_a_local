@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/errors/offline_exception.dart';
-import '../../core/widgets/offline_action_snack_bar.dart';
 import '../../features/saved/domain/saved_providers.dart';
+import 'lal_toast.dart';
 import 'place_card.dart';
 
 /// Wraps [PlaceCard] with live save state from Firestore. The heart / bookmark
@@ -49,15 +49,19 @@ class SavablePlaceCard extends ConsumerWidget {
           await ref.read(savedNotifierProvider.notifier).togglePin(placeId);
         } on OfflineException {
           if (!context.mounted) return;
-          showOfflineActionSnackBar(context);
+          LALToast.showOffline(context);
+          return;
+        } catch (e) {
+          if (!context.mounted) return;
+          LALToast.showError(context, e);
           return;
         }
         if (!context.mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            duration: const Duration(seconds: 1),
-            content: Text(isSaved ? 'Removed from saved' : 'Saved'),
-          ),
+        LALToast.show(
+          context,
+          isSaved ? 'Removed from saved' : 'Saved',
+          kind: LALToastKind.success,
+          duration: const Duration(seconds: 1),
         );
       },
     );

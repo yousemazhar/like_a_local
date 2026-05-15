@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/widgets/error_view.dart';
+import '../../../core/widgets/async_error_view.dart';
+import '../../../core/widgets/lal_state_view.dart';
 import '../../../core/widgets/savable_place_card.dart';
 import '../../../core/widgets/skeleton.dart';
 import '../../../l10n/app_localizations.dart';
@@ -32,12 +33,16 @@ class PublicUserProfileScreen extends ConsumerWidget {
       ),
       body: userAsync.when(
         loading: () => const _ProfileLoading(),
-        error: (_, __) => ErrorView(
-          message: t.publicProfileNotFound,
+        error: (e, __) => AsyncErrorView(
+          error: e,
           onRetry: () => ref.invalidate(publicUserProvider(uid)),
         ),
         data: (user) => user == null
-            ? ErrorView(message: t.publicProfileNotFoundBody)
+            ? LALStateView(
+                kind: LALStateKind.notFound,
+                title: t.publicProfileNotFound,
+                body: t.publicProfileNotFoundBody,
+              )
             : CustomScrollView(
                 slivers: [
                   SliverToBoxAdapter(child: _ProfileHeader(user: user)),

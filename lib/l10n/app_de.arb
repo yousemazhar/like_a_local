@@ -406,5 +406,46 @@
   "authSignUpWithGoogle": "Mit Google registrieren",
   "@authSignUpWithGoogle": {
     "description": "Button label for signing up with Google"
-  }
+  },
+
+  "stateOfflineTitle": "Du bist offline",
+  "stateOfflineBody": "Vieles funktioniert weiterhin — deine gespeicherten Orte und Offline-Tipps sind bereit.",
+  "stateNoResultsTitle": "Noch nichts hier",
+  "stateNoResultsBody": "Versuche andere Stichwörter oder erweitere die Filter.",
+  "stateEmptyTitle": "Nichts zu zeigen",
+  "stateEmptyBody": "Inhalte erscheinen hier, sobald sie verfügbar sind.",
+  "stateUploadFailedTitle": "Upload nicht abgeschlossen",
+  "stateUploadFailedBody": "Wir versuchen es erneut, sobald du wieder online bist. Dein Entwurf ist sicher.",
+  "stateNotFoundTitle": "Nicht gefunden",
+  "stateNotFoundBody": "Dieser Inhalt ist möglicherweise nicht mehr verfügbar.",
+
+  "actionRetry": "Erneut versuchen",
+  "actionRetryNow": "Jetzt erneut versuchen",
+  "actionDiscard": "Verwerfen",
+  "actionDismiss": "Schließen",
+
+  "errorNetwork": "Keine Internetverbindung. Bitte überprüfe dein Netzwerk.",
+  "errorTimeout": "Zeitüberschreitung. Bitte erneut versuchen.",
+  "errorUnauthorized": "Bitte melde dich an, um fortzufahren.",
+  "errorPermissionDenied": "Du hast keine Berechtigung dafür.",
+  "errorNotFound": "Dieser Inhalt ist nicht mehr verfügbar.",
+  "errorQuotaExceeded": "Du hast das Limit für diese Aktion erreicht.",
+  "errorInvalidInput": "Einige eingegebene Werte sind ungültig.",
+  "errorUploadFailed": "Upload fehlgeschlagen. Bitte erneut versuchen.",
+  "errorUnknown": "Ein unerwarteter Fehler ist aufgetreten.",
+
+  "validatorRequired": "Dieses Feld ist erforderlich.",
+  "validatorEmail": "Bitte gib eine gültige E-Mail-Adresse ein.",
+  "validatorMinLength": "Muss mindestens {min} Zeichen lang sein.",
+  "@validatorMinLength": {
+    "placeholders": { "min": { "type": "int" } }
+  },
+  "validatorMaxLength": "Darf höchstens {max} Zeichen lang sein.",
+  "@validatorMaxLength": {
+    "placeholders": { "max": { "type": "int" } }
+  },
+  "validatorUrl": "Bitte gib eine gültige URL ein.",
+
+  "toastSavedOffline": "Offline gespeichert — wird synchronisiert, sobald du online bist.",
+  "toastChangesSynced": "Änderungen synchronisiert."
 }

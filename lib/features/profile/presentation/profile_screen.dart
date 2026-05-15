@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../core/widgets/lal_toast.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
@@ -270,20 +271,16 @@ class _TestPushButtonState extends State<_TestPushButton> {
       final tokens = data?['tokens'] ?? 0;
       final delivered = data?['delivered'] ?? 0;
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            tokens == 0
-                ? 'Inbox written. No FCM tokens registered yet — open the app once on a real device to register.'
-                : 'Push sent · $delivered / $tokens token(s) delivered.',
-          ),
-        ),
+      LALToast.show(
+        context,
+        tokens == 0
+            ? 'Inbox written. No FCM tokens registered yet — open the app once on a real device to register.'
+            : 'Push sent · $delivered / $tokens token(s) delivered.',
+        kind: tokens == 0 ? LALToastKind.warning : LALToastKind.success,
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Test push failed: $e')));
+      LALToast.showError(context, e);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -326,12 +323,10 @@ class _ShowFcmTokensButton extends StatelessWidget {
     final tokens = await _loadTokens();
     if (!context.mounted) return;
     if (tokens.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'No FCM tokens registered yet. Open the app on a real device first.',
-          ),
-        ),
+      LALToast.show(
+        context,
+        'No FCM tokens registered yet. Open the app on a real device first.',
+        kind: LALToastKind.warning,
       );
       return;
     }
@@ -367,12 +362,10 @@ class _ShowFcmTokensButton extends StatelessWidget {
               await Clipboard.setData(ClipboardData(text: tokens.join('\n')));
               if (!ctx.mounted) return;
               Navigator.of(ctx).pop();
-              ScaffoldMessenger.of(ctx).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    'Copied ${tokens.length} token(s) to clipboard',
-                  ),
-                ),
+              LALToast.show(
+                ctx,
+                'Copied ${tokens.length} token(s) to clipboard',
+                kind: LALToastKind.success,
               );
             },
             child: const Text('Copy all'),

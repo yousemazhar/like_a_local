@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/widgets/error_view.dart';
+import '../../../core/widgets/async_error_view.dart';
+import '../../../core/widgets/lal_toast.dart';
 import '../../../core/widgets/skeleton.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
@@ -35,16 +36,14 @@ class SuperUsersScreen extends ConsumerWidget {
                     .recalculateAllScores();
                 ref.invalidate(superUsersProvider);
                 if (!context.mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(t.superUsersRecalculatedScores(count)),
-                  ),
+                LALToast.show(
+                  context,
+                  t.superUsersRecalculatedScores(count),
+                  kind: LALToastKind.success,
                 );
               } catch (error) {
                 if (!context.mounted) return;
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text(error.toString())));
+                LALToast.showError(context, error);
               }
             },
           ),
@@ -57,8 +56,8 @@ class SuperUsersScreen extends ConsumerWidget {
           itemBuilder: (_, __) =>
               const SkeletonCard(width: double.infinity, height: 88),
         ),
-        error: (error, stackTrace) => ErrorView(
-          message: t.superUsersError,
+        error: (error, stackTrace) => AsyncErrorView(
+          error: error,
           onRetry: () => ref.invalidate(superUsersProvider),
         ),
         data: (users) => users.isEmpty

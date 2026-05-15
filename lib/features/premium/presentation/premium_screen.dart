@@ -4,7 +4,7 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/providers/connectivity_provider.dart';
-import '../../../core/widgets/offline_action_snack_bar.dart';
+import '../../../core/widgets/lal_toast.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
@@ -24,7 +24,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
 
   Future<void> _purchase() async {
     if (ref.read(isOnlineProvider).valueOrNull == false) {
-      showOfflineActionSnackBar(context);
+      LALToast.showOffline(context);
       return;
     }
     setState(() => _busy = true);
@@ -33,31 +33,25 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
           .read(paymentRepositoryProvider)
           .runTestCheckout(plan: _yearlySelected ? 'yearly' : 'monthly');
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          duration: Duration(seconds: 3),
-          content: Text(
-            'Payment submitted — your premium status will activate shortly.',
-          ),
-        ),
+      LALToast.show(
+        context,
+        'Payment submitted — your premium status will activate shortly.',
+        kind: LALToastKind.success,
+        duration: const Duration(seconds: 3),
       );
     } on StripeException catch (e) {
       if (!mounted) return;
       final code = e.error.code.toString();
       // User cancelled — silent.
       if (code.toLowerCase().contains('cancel')) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Payment failed: ${e.error.localizedMessage ?? e.error.code}',
-          ),
-        ),
+      LALToast.show(
+        context,
+        'Payment failed: ${e.error.localizedMessage ?? e.error.code}',
+        kind: LALToastKind.error,
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Payment error: $e')));
+      LALToast.showError(context, e);
     } finally {
       if (mounted) setState(() => _busy = false);
     }

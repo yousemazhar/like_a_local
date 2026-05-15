@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/widgets/error_view.dart';
+import '../../../core/widgets/async_error_view.dart';
 import '../../../core/widgets/lal_chip.dart';
 import '../../../core/widgets/place_card.dart';
 import '../../../core/widgets/savable_place_card.dart';
@@ -305,7 +305,10 @@ class _SearchResults extends ConsumerWidget {
     final feed = ref.watch(discoverFeedProvider);
     return feed.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => ErrorView(message: '$e'),
+      error: (e, _) => AsyncErrorView(
+        error: e,
+        onRetry: () => ref.invalidate(discoverFeedProvider),
+      ),
       data: (places) {
         final results = places
             .where((p) => _matchesQuery(p, query) && _matchesFilters(p))

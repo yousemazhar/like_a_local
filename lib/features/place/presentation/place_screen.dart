@@ -7,7 +7,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/errors/offline_exception.dart';
 import '../../../core/providers/connectivity_provider.dart';
-import '../../../core/widgets/offline_action_snack_bar.dart';
+import '../../../core/widgets/lal_state_view.dart';
+import '../../../core/widgets/lal_toast.dart';
 import '../../../core/widgets/skeleton.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
@@ -87,26 +88,11 @@ class _PlaceScaffoldError extends StatelessWidget {
     return Scaffold(
       backgroundColor: LALColors.bg,
       appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.error_outline, color: LALColors.c300, size: 48),
-              const SizedBox(height: 16),
-              Text(t.placeNotFound, style: LALTypography.labelLarge),
-              const SizedBox(height: 8),
-              Text(
-                t.placeNotFoundBody,
-                style: LALTypography.bodySmall,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(onPressed: onBack, child: Text(t.placeGoBack)),
-            ],
-          ),
-        ),
+      body: LALStateView(
+        kind: LALStateKind.notFound,
+        title: t.placeNotFound,
+        body: t.placeNotFoundBody,
+        actions: [LALStateAction(label: t.placeGoBack, onTap: onBack)],
       ),
     );
   }
@@ -171,7 +157,7 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
                       ),
                       onPressed: () {
                         if (ref.read(isOnlineProvider).valueOrNull == false) {
-                          showOfflineActionSnackBar(context);
+                          LALToast.showOffline(context);
                           return;
                         }
                         context.push('/edit-place/${place.id}');
@@ -193,11 +179,11 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
                       final link = 'likealocal://place/${place.id}';
                       await Clipboard.setData(ClipboardData(text: link));
                       if (!context.mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          duration: Duration(seconds: 2),
-                          content: Text('Link copied to clipboard'),
-                        ),
+                      LALToast.show(
+                        context,
+                        'Link copied to clipboard',
+                        kind: LALToastKind.info,
+                        duration: const Duration(seconds: 2),
                       );
                     },
                   ),
@@ -461,12 +447,12 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
             }
             await ref.read(savedNotifierProvider.notifier).togglePin(place.id);
           } on OfflineException {
-            if (context.mounted) showOfflineActionSnackBar(context);
+            if (context.mounted) LALToast.showOffline(context);
           }
         },
         onToggleReminder: () async {
           if (ref.read(isOnlineProvider).valueOrNull == false) {
-            showOfflineActionSnackBar(context);
+            LALToast.showOffline(context);
             return;
           }
           final uid = FirebaseAuth.instance.currentUser?.uid;
@@ -475,11 +461,11 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
           if (isReminded) {
             await repo.remove(uid, place.id);
             if (!context.mounted) return;
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                duration: const Duration(seconds: 2),
-                content: Text(t.reminderRemovedFor(place.title)),
-              ),
+            LALToast.show(
+              context,
+              t.reminderRemovedFor(place.title),
+              kind: LALToastKind.success,
+              duration: const Duration(seconds: 2),
             );
           } else {
             if (!isPremium) {
@@ -493,11 +479,11 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
             }
             if (place.lat == 0.0 && place.lng == 0.0) {
               if (!context.mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  duration: const Duration(seconds: 2),
-                  content: Text(t.errorGenericBody),
-                ),
+              LALToast.show(
+                context,
+                t.errorGenericBody,
+                kind: LALToastKind.error,
+                duration: const Duration(seconds: 2),
               );
               return;
             }
@@ -509,11 +495,11 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
               lng: place.lng,
             );
             if (!context.mounted) return;
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                duration: const Duration(seconds: 2),
-                content: Text(t.reminderNearPlace(place.title)),
-              ),
+            LALToast.show(
+              context,
+              t.reminderNearPlace(place.title),
+              kind: LALToastKind.success,
+              duration: const Duration(seconds: 2),
             );
           }
         },
@@ -691,9 +677,7 @@ class _ContributorCard extends ConsumerWidget {
     Future<void> openChat() async {
       if (currentUid == null || ownerUid.isEmpty) return;
       if (awayMode) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(t.chatOwnerAway)));
+        LALToast.show(context, t.chatOwnerAway, kind: LALToastKind.warning);
         return;
       }
       final availability = await ref
@@ -701,9 +685,11 @@ class _ContributorCard extends ConsumerWidget {
           .checkOwnerAvailability(ownerUid);
       if (!context.mounted) return;
       if (availability == ChatAvailability.outsideSchedule) {
-        ScaffoldMessenger.of(
+        LALToast.show(
           context,
-        ).showSnackBar(SnackBar(content: Text(t.chatOwnerUnavailable)));
+          t.chatOwnerUnavailable,
+          kind: LALToastKind.warning,
+        );
         return;
       }
       String? threadId;
@@ -720,7 +706,7 @@ class _ContributorCard extends ConsumerWidget {
             );
       } on OfflineException {
         if (context.mounted) {
-          showOfflineActionSnackBar(context);
+          LALToast.showOffline(context);
         }
         return;
       }
@@ -952,7 +938,7 @@ class _ReviewsSection extends ConsumerWidget {
                 TextButton.icon(
                   onPressed: () {
                     if (ref.read(isOnlineProvider).valueOrNull == false) {
-                      showOfflineActionSnackBar(context);
+                      LALToast.showOffline(context);
                       return;
                     }
                     ReviewComposerSheet.show(
@@ -1007,7 +993,7 @@ class _ReviewsSection extends ConsumerWidget {
                           onDelete: () async {
                             if (ref.read(isOnlineProvider).valueOrNull ==
                                 false) {
-                              showOfflineActionSnackBar(context);
+                              LALToast.showOffline(context);
                               return;
                             }
                             try {
@@ -1016,7 +1002,7 @@ class _ReviewsSection extends ConsumerWidget {
                                   .delete(placeId, r.id);
                             } on OfflineException {
                               if (context.mounted) {
-                                showOfflineActionSnackBar(context);
+                                LALToast.showOffline(context);
                               }
                             }
                           },

@@ -1068,4 +1068,107 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get authSignUpWithGoogle => 'Mit Google registrieren';
+
+  @override
+  String get stateOfflineTitle => 'Du bist offline';
+
+  @override
+  String get stateOfflineBody =>
+      'Vieles funktioniert weiterhin — deine gespeicherten Orte und Offline-Tipps sind bereit.';
+
+  @override
+  String get stateNoResultsTitle => 'Noch nichts hier';
+
+  @override
+  String get stateNoResultsBody =>
+      'Versuche andere Stichwörter oder erweitere die Filter.';
+
+  @override
+  String get stateEmptyTitle => 'Nichts zu zeigen';
+
+  @override
+  String get stateEmptyBody =>
+      'Inhalte erscheinen hier, sobald sie verfügbar sind.';
+
+  @override
+  String get stateUploadFailedTitle => 'Upload nicht abgeschlossen';
+
+  @override
+  String get stateUploadFailedBody =>
+      'Wir versuchen es erneut, sobald du wieder online bist. Dein Entwurf ist sicher.';
+
+  @override
+  String get stateNotFoundTitle => 'Nicht gefunden';
+
+  @override
+  String get stateNotFoundBody =>
+      'Dieser Inhalt ist möglicherweise nicht mehr verfügbar.';
+
+  @override
+  String get actionRetry => 'Erneut versuchen';
+
+  @override
+  String get actionRetryNow => 'Jetzt erneut versuchen';
+
+  @override
+  String get actionDiscard => 'Verwerfen';
+
+  @override
+  String get actionDismiss => 'Schließen';
+
+  @override
+  String get errorNetwork =>
+      'Keine Internetverbindung. Bitte überprüfe dein Netzwerk.';
+
+  @override
+  String get errorTimeout => 'Zeitüberschreitung. Bitte erneut versuchen.';
+
+  @override
+  String get errorUnauthorized => 'Bitte melde dich an, um fortzufahren.';
+
+  @override
+  String get errorPermissionDenied => 'Du hast keine Berechtigung dafür.';
+
+  @override
+  String get errorNotFound => 'Dieser Inhalt ist nicht mehr verfügbar.';
+
+  @override
+  String get errorQuotaExceeded =>
+      'Du hast das Limit für diese Aktion erreicht.';
+
+  @override
+  String get errorInvalidInput => 'Einige eingegebene Werte sind ungültig.';
+
+  @override
+  String get errorUploadFailed =>
+      'Upload fehlgeschlagen. Bitte erneut versuchen.';
+
+  @override
+  String get errorUnknown => 'Ein unerwarteter Fehler ist aufgetreten.';
+
+  @override
+  String get validatorRequired => 'Dieses Feld ist erforderlich.';
+
+  @override
+  String get validatorEmail => 'Bitte gib eine gültige E-Mail-Adresse ein.';
+
+  @override
+  String validatorMinLength(int min) {
+    return 'Muss mindestens $min Zeichen lang sein.';
+  }
+
+  @override
+  String validatorMaxLength(int max) {
+    return 'Darf höchstens $max Zeichen lang sein.';
+  }
+
+  @override
+  String get validatorUrl => 'Bitte gib eine gültige URL ein.';
+
+  @override
+  String get toastSavedOffline =>
+      'Offline gespeichert — wird synchronisiert, sobald du online bist.';
+
+  @override
+  String get toastChangesSynced => 'Änderungen synchronisiert.';
 }

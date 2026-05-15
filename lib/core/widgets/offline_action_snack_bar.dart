@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../l10n/app_localizations.dart';
+import 'lal_toast.dart';
 
+/// Compatibility shim — prefer `LALToast.showOffline(context)` in new code.
 void showOfflineActionSnackBar(BuildContext context) {
-  final t = AppLocalizations.of(context)!;
-  ScaffoldMessenger.of(
-    context,
-  ).showSnackBar(SnackBar(content: Text(t.offlineActionUnavailable)));
+  LALToast.showOffline(context);
 }

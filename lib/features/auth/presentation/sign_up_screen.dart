@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/forms/validators.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
@@ -16,6 +17,7 @@ class SignUpScreen extends ConsumerStatefulWidget {
 }
 
 class _SignUpScreenState extends ConsumerState<SignUpScreen> {
+  final _formKey = GlobalKey<FormState>();
   final _name = TextEditingController();
   final _email = TextEditingController();
   final _password = TextEditingController();
@@ -51,7 +53,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
+          child: Form(
+            key: _formKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 16),
@@ -78,25 +83,31 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 ),
                 const SizedBox(height: 16),
               ],
-              TextField(
+              TextFormField(
                 controller: _name,
                 textCapitalization: TextCapitalization.words,
                 textInputAction: TextInputAction.next,
+                autofillHints: const [AutofillHints.name],
+                validator: LALValidators.required(t),
                 decoration: InputDecoration(labelText: t.authName),
               ),
               const SizedBox(height: 16),
-              TextField(
+              TextFormField(
                 controller: _email,
                 keyboardType: TextInputType.emailAddress,
                 textInputAction: TextInputAction.next,
+                autofillHints: const [AutofillHints.email],
+                validator: LALValidators.email(t),
                 decoration: InputDecoration(labelText: t.authEmail),
               ),
               const SizedBox(height: 16),
-              TextField(
+              TextFormField(
                 controller: _password,
                 obscureText: true,
                 textInputAction: TextInputAction.done,
-                onSubmitted: (_) => _signUp(),
+                onFieldSubmitted: (_) => _signUp(),
+                autofillHints: const [AutofillHints.newPassword],
+                validator: LALValidators.minLength(t, 6),
                 decoration: InputDecoration(
                   labelText: t.authPassword,
                   helperText: t.authPasswordHelper,
@@ -144,6 +155,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             ],
           ),
         ),
+        ),
       ),
     );
   }
@@ -169,16 +181,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
   Future<void> _signUp() async {
     final t = AppLocalizations.of(context)!;
-    if (_name.text.trim().isEmpty) {
-      setState(() => _error = t.authEnterName);
-      return;
-    }
-    if (_email.text.trim().isEmpty) {
-      setState(() => _error = t.authEnterEmail);
-      return;
-    }
-    if (_password.text.length < 6) {
-      setState(() => _error = t.authPasswordMinLength);
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      setState(() => _error = t.authEnterEmailPassword);
       return;
     }
 

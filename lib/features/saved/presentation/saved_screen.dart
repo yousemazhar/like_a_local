@@ -6,8 +6,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/errors/offline_exception.dart';
 import '../../../core/providers/connectivity_provider.dart';
-import '../../../core/widgets/offline_action_snack_bar.dart';
 import '../../../core/widgets/empty_view.dart';
+import '../../../core/widgets/lal_toast.dart';
 import '../../../core/widgets/skeleton.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
@@ -74,7 +74,7 @@ class _SavedScreenState extends ConsumerState<SavedScreen>
                   IconButton(
                     onPressed: () {
                       if (ref.read(isOnlineProvider).valueOrNull == false) {
-                        showOfflineActionSnackBar(context);
+                        LALToast.showOffline(context);
                         return;
                       }
                       context.push('/add-place');
@@ -203,7 +203,7 @@ class _CollectionsTab extends ConsumerWidget {
   Future<void> _createCollection(BuildContext context, WidgetRef ref) async {
     final t = AppLocalizations.of(context)!;
     if (ref.read(isOnlineProvider).valueOrNull == false) {
-      showOfflineActionSnackBar(context);
+      LALToast.showOffline(context);
       return;
     }
     final isPremium =
@@ -262,7 +262,7 @@ class _CollectionsTab extends ConsumerWidget {
         try {
           await ref.read(savedNotifierProvider.notifier).createCollection(name);
         } on OfflineException {
-          if (context.mounted) showOfflineActionSnackBar(context);
+          if (context.mounted) LALToast.showOffline(context);
         }
       }
     } finally {
@@ -483,15 +483,13 @@ class _RemindersTab extends ConsumerWidget {
                       final count = await ReminderLocationService.instance
                           .debugTriggerNearby(uid);
                       if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            duration: const Duration(seconds: 3),
-                            content: Text(
-                              count == 0
-                                  ? '[DEBUG] No reminders within range'
-                                  : '[DEBUG] Triggered $count reminder${count == 1 ? '' : 's'} within range',
-                            ),
-                          ),
+                        LALToast.show(
+                          context,
+                          count == 0
+                              ? '[DEBUG] No reminders within range'
+                              : '[DEBUG] Triggered $count reminder${count == 1 ? '' : 's'} within range',
+                          kind: LALToastKind.info,
+                          duration: const Duration(seconds: 3),
                         );
                       }
                     },
@@ -587,7 +585,7 @@ class _ReminderListItem extends ConsumerWidget {
               activeTrackColor: LALColors.accent,
               onChanged: (v) async {
                 if (ref.read(isOnlineProvider).valueOrNull == false) {
-                  showOfflineActionSnackBar(context);
+                  LALToast.showOffline(context);
                   return;
                 }
                 final uid = ref.read(authStateProvider).valueOrNull?.uid;
@@ -605,7 +603,7 @@ class _ReminderListItem extends ConsumerWidget {
               ),
               onPressed: () async {
                 if (ref.read(isOnlineProvider).valueOrNull == false) {
-                  showOfflineActionSnackBar(context);
+                  LALToast.showOffline(context);
                   return;
                 }
                 final uid = ref.read(authStateProvider).valueOrNull?.uid;

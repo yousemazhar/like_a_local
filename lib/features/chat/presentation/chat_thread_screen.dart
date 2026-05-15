@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/errors/offline_exception.dart';
-import '../../../core/widgets/offline_action_snack_bar.dart';
-import '../../../core/widgets/error_view.dart';
+import '../../../core/widgets/async_error_view.dart';
+import '../../../core/widgets/lal_toast.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
@@ -43,8 +43,10 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
     if (recipientUid.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Chat not ready yet — try again.')),
+      LALToast.show(
+        context,
+        'Chat not ready yet — try again.',
+        kind: LALToastKind.warning,
       );
       return;
     }
@@ -60,12 +62,11 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     } on OfflineException {
       if (!mounted) return;
       _controller.text = text;
-      showOfflineActionSnackBar(context);
+      LALToast.showOffline(context);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Could not send: $e')));
+      _controller.text = text;
+      LALToast.showError(context, e);
     }
   }
 
@@ -143,7 +144,11 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
           Expanded(
             child: messagesAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => ErrorView(message: '$e'),
+              error: (e, _) => AsyncErrorView(
+                error: e,
+                onRetry: () =>
+                    ref.invalidate(chatMessagesProvider(widget.threadId)),
+              ),
               data: (messages) => ListView.builder(
                 padding: const EdgeInsets.all(16),
                 itemCount: messages.length,

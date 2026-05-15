@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/providers/connectivity_provider.dart';
-import '../../../core/widgets/offline_action_snack_bar.dart';
+import '../../../core/widgets/lal_toast.dart';
 import '../../../features/auth/domain/auth_providers.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
@@ -115,7 +115,7 @@ class _ChatScheduleScreenState extends ConsumerState<ChatScheduleScreen> {
 
   Future<void> _save() async {
     if (ref.read(isOnlineProvider).valueOrNull == false) {
-      showOfflineActionSnackBar(context);
+      LALToast.showOffline(context);
       return;
     }
     final uid = FirebaseAuth.instance.currentUser?.uid;
@@ -135,9 +135,7 @@ class _ChatScheduleScreenState extends ConsumerState<ChatScheduleScreen> {
     if (mounted) {
       setState(() => _saving = false);
       final t = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(t.chatScheduleSaved)),
-      );
+      LALToast.show(context, t.chatScheduleSaved, kind: LALToastKind.success);
     }
   }
 

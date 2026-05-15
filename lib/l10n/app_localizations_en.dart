@@ -1047,4 +1047,103 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get authSignUpWithGoogle => 'Sign up with Google';
+
+  @override
+  String get stateOfflineTitle => 'You\'re offline';
+
+  @override
+  String get stateOfflineBody =>
+      'Some things still work — your saved places and offline tips are ready.';
+
+  @override
+  String get stateNoResultsTitle => 'Nothing here yet';
+
+  @override
+  String get stateNoResultsBody =>
+      'Try different keywords or widen your filters.';
+
+  @override
+  String get stateEmptyTitle => 'Nothing to show';
+
+  @override
+  String get stateEmptyBody => 'Items will appear here once available.';
+
+  @override
+  String get stateUploadFailedTitle => 'Upload didn\'t go through';
+
+  @override
+  String get stateUploadFailedBody =>
+      'We\'ll keep trying when you\'re back online. Your draft is safe.';
+
+  @override
+  String get stateNotFoundTitle => 'Not found';
+
+  @override
+  String get stateNotFoundBody => 'This content may no longer be available.';
+
+  @override
+  String get actionRetry => 'Try again';
+
+  @override
+  String get actionRetryNow => 'Retry now';
+
+  @override
+  String get actionDiscard => 'Discard';
+
+  @override
+  String get actionDismiss => 'Dismiss';
+
+  @override
+  String get errorNetwork =>
+      'No internet connection. Please check your network.';
+
+  @override
+  String get errorTimeout => 'The request timed out. Please try again.';
+
+  @override
+  String get errorUnauthorized => 'Please sign in to continue.';
+
+  @override
+  String get errorPermissionDenied => 'You don\'t have permission to do this.';
+
+  @override
+  String get errorNotFound => 'This content is no longer available.';
+
+  @override
+  String get errorQuotaExceeded => 'You\'ve reached the limit for this action.';
+
+  @override
+  String get errorInvalidInput => 'Some of the values you entered are invalid.';
+
+  @override
+  String get errorUploadFailed => 'Upload failed. Please try again.';
+
+  @override
+  String get errorUnknown => 'An unexpected error occurred.';
+
+  @override
+  String get validatorRequired => 'This field is required.';
+
+  @override
+  String get validatorEmail => 'Please enter a valid email address.';
+
+  @override
+  String validatorMinLength(int min) {
+    return 'Must be at least $min characters.';
+  }
+
+  @override
+  String validatorMaxLength(int max) {
+    return 'Must be at most $max characters.';
+  }
+
+  @override
+  String get validatorUrl => 'Please enter a valid URL.';
+
+  @override
+  String get toastSavedOffline =>
+      'Saved offline — will sync when you\'re back online.';
+
+  @override
+  String get toastChangesSynced => 'Changes synced.';
 }

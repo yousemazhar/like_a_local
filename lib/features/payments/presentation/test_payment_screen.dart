@@ -5,7 +5,7 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/providers/connectivity_provider.dart';
-import '../../../core/widgets/offline_action_snack_bar.dart';
+import '../../../core/widgets/lal_toast.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
 import '../../auth/domain/auth_providers.dart';
@@ -23,14 +23,16 @@ class _TestPaymentScreenState extends ConsumerState<TestPaymentScreen> {
 
   Future<void> _pay() async {
     if (ref.read(isOnlineProvider).valueOrNull == false) {
-      showOfflineActionSnackBar(context);
+      LALToast.showOffline(context);
       return;
     }
     // Confirm Firebase Auth has a current user before hitting the callable.
     final firebaseUser = FirebaseAuth.instance.currentUser;
     if (firebaseUser == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Not signed in — please sign in first.')),
+      LALToast.show(
+        context,
+        'Not signed in — please sign in first.',
+        kind: LALToastKind.warning,
       );
       return;
     }
@@ -41,25 +43,21 @@ class _TestPaymentScreenState extends ConsumerState<TestPaymentScreen> {
       await firebaseUser.getIdToken(true);
       await ref.read(paymentRepositoryProvider).runTestCheckout();
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Payment submitted — waiting on webhook to flip premium…',
-          ),
-        ),
+      LALToast.show(
+        context,
+        'Payment submitted — waiting on webhook to flip premium…',
+        kind: LALToastKind.success,
       );
     } on StripeException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Stripe: ${e.error.localizedMessage ?? e.error.code}'),
-        ),
+      LALToast.show(
+        context,
+        'Stripe: ${e.error.localizedMessage ?? e.error.code}',
+        kind: LALToastKind.error,
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      LALToast.showError(context, e);
     } finally {
       if (mounted) setState(() => _busy = false);
     }

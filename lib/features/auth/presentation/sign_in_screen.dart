@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/forms/validators.dart';
+import '../../../core/widgets/lal_toast.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
@@ -16,6 +18,7 @@ class SignInScreen extends ConsumerStatefulWidget {
 }
 
 class _SignInScreenState extends ConsumerState<SignInScreen> {
+  final _formKey = GlobalKey<FormState>();
   final _email = TextEditingController();
   final _password = TextEditingController();
   bool _loading = false;
@@ -37,7 +40,10 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
+          child: Form(
+            key: _formKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 60),
@@ -66,18 +72,22 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                 ),
                 const SizedBox(height: 16),
               ],
-              TextField(
+              TextFormField(
                 controller: _email,
                 keyboardType: TextInputType.emailAddress,
                 textInputAction: TextInputAction.next,
+                autofillHints: const [AutofillHints.email],
+                validator: LALValidators.email(t),
                 decoration: InputDecoration(labelText: t.authEmail),
               ),
               const SizedBox(height: 16),
-              TextField(
+              TextFormField(
                 controller: _password,
                 obscureText: true,
                 textInputAction: TextInputAction.done,
-                onSubmitted: (_) => _signIn(),
+                onFieldSubmitted: (_) => _signIn(),
+                autofillHints: const [AutofillHints.password],
+                validator: LALValidators.minLength(t, 6),
                 decoration: InputDecoration(labelText: t.authPassword),
               ),
               Align(
@@ -129,13 +139,14 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
             ],
           ),
         ),
+        ),
       ),
     );
   }
 
   Future<void> _signIn() async {
     final t = AppLocalizations.of(context)!;
-    if (_email.text.trim().isEmpty || _password.text.isEmpty) {
+    if (!(_formKey.currentState?.validate() ?? false)) {
       setState(() => _error = t.authEnterEmailPassword);
       return;
     }
@@ -200,9 +211,11 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                     .read(authRepositoryProvider)
                     .sendPasswordResetEmail(emailCtrl.text);
                 if (context.mounted) {
-                  ScaffoldMessenger.of(
+                  LALToast.show(
                     context,
-                  ).showSnackBar(SnackBar(content: Text(t.authResetSent)));
+                    t.authResetSent,
+                    kind: LALToastKind.success,
+                  );
                 }
               } catch (_) {}
             },

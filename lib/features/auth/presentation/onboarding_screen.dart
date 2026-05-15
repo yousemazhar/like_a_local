@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/providers/connectivity_provider.dart';
-import '../../../core/widgets/offline_action_snack_bar.dart';
+import '../../../core/widgets/lal_toast.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
@@ -188,7 +188,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   Future<void> _save() async {
     if (ref.read(isOnlineProvider).valueOrNull == false) {
-      showOfflineActionSnackBar(context);
+      LALToast.showOffline(context);
       return;
     }
     final user = ref.read(authStateProvider).valueOrNull;
@@ -212,11 +212,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       );
       await ref.read(authRepositoryProvider).updatePreferences(user.uid, prefs);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          duration: Duration(seconds: 2),
-          content: Text('Preferences saved'),
-        ),
+      LALToast.show(
+        context,
+        'Preferences saved',
+        kind: LALToastKind.success,
+        duration: const Duration(seconds: 2),
       );
     } catch (_) {
     } finally {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/offline_exception.dart';
-import '../../../core/widgets/offline_action_snack_bar.dart';
+import '../../../core/widgets/lal_toast.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
@@ -61,7 +61,7 @@ class _ReviewComposerSheetState extends ConsumerState<ReviewComposerSheet> {
           .submit(placeId: widget.placeId, rating: _rating, text: text);
       if (mounted) Navigator.of(context).pop();
     } on OfflineException {
-      if (mounted) showOfflineActionSnackBar(context);
+      if (mounted) LALToast.showOffline(context);
     } finally {
       if (mounted) setState(() => _submitting = false);
     }

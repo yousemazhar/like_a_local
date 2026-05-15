@@ -2083,6 +2083,186 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sign up with Google'**
   String get authSignUpWithGoogle;
+
+  /// No description provided for @stateOfflineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline'**
+  String get stateOfflineTitle;
+
+  /// No description provided for @stateOfflineBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Some things still work — your saved places and offline tips are ready.'**
+  String get stateOfflineBody;
+
+  /// No description provided for @stateNoResultsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here yet'**
+  String get stateNoResultsTitle;
+
+  /// No description provided for @stateNoResultsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Try different keywords or widen your filters.'**
+  String get stateNoResultsBody;
+
+  /// No description provided for @stateEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to show'**
+  String get stateEmptyTitle;
+
+  /// No description provided for @stateEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Items will appear here once available.'**
+  String get stateEmptyBody;
+
+  /// No description provided for @stateUploadFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload didn\'t go through'**
+  String get stateUploadFailedTitle;
+
+  /// No description provided for @stateUploadFailedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll keep trying when you\'re back online. Your draft is safe.'**
+  String get stateUploadFailedBody;
+
+  /// No description provided for @stateNotFoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not found'**
+  String get stateNotFoundTitle;
+
+  /// No description provided for @stateNotFoundBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This content may no longer be available.'**
+  String get stateNotFoundBody;
+
+  /// No description provided for @actionRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get actionRetry;
+
+  /// No description provided for @actionRetryNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry now'**
+  String get actionRetryNow;
+
+  /// No description provided for @actionDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get actionDiscard;
+
+  /// No description provided for @actionDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get actionDismiss;
+
+  /// No description provided for @errorNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection. Please check your network.'**
+  String get errorNetwork;
+
+  /// No description provided for @errorTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'The request timed out. Please try again.'**
+  String get errorTimeout;
+
+  /// No description provided for @errorUnauthorized.
+  ///
+  /// In en, this message translates to:
+  /// **'Please sign in to continue.'**
+  String get errorUnauthorized;
+
+  /// No description provided for @errorPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t have permission to do this.'**
+  String get errorPermissionDenied;
+
+  /// No description provided for @errorNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This content is no longer available.'**
+  String get errorNotFound;
+
+  /// No description provided for @errorQuotaExceeded.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve reached the limit for this action.'**
+  String get errorQuotaExceeded;
+
+  /// No description provided for @errorInvalidInput.
+  ///
+  /// In en, this message translates to:
+  /// **'Some of the values you entered are invalid.'**
+  String get errorInvalidInput;
+
+  /// No description provided for @errorUploadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload failed. Please try again.'**
+  String get errorUploadFailed;
+
+  /// No description provided for @errorUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'An unexpected error occurred.'**
+  String get errorUnknown;
+
+  /// No description provided for @validatorRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required.'**
+  String get validatorRequired;
+
+  /// No description provided for @validatorEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email address.'**
+  String get validatorEmail;
+
+  /// No description provided for @validatorMinLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Must be at least {min} characters.'**
+  String validatorMinLength(int min);
+
+  /// No description provided for @validatorMaxLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Must be at most {max} characters.'**
+  String validatorMaxLength(int max);
+
+  /// No description provided for @validatorUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid URL.'**
+  String get validatorUrl;
+
+  /// No description provided for @toastSavedOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved offline — will sync when you\'re back online.'**
+  String get toastSavedOffline;
+
+  /// No description provided for @toastChangesSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes synced.'**
+  String get toastChangesSynced;
 }
 
 class _AppLocalizationsDelegate

@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/providers/connectivity_provider.dart';
 import '../../../core/providers/locale_provider.dart';
-import '../../../core/widgets/offline_action_snack_bar.dart';
+import '../../../core/widgets/lal_toast.dart';
 import '../../../features/auth/domain/auth_providers.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
@@ -32,17 +32,17 @@ class SettingsScreen extends ConsumerStatefulWidget {
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   void _comingSoon(String label) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        duration: const Duration(seconds: 2),
-        content: Text('$label · coming soon'),
-      ),
+    LALToast.show(
+      context,
+      '$label · coming soon',
+      kind: LALToastKind.info,
+      duration: const Duration(seconds: 2),
     );
   }
 
   Future<void> _patch(Map<String, dynamic> patch) async {
     if (ref.read(isOnlineProvider).valueOrNull == false) {
-      showOfflineActionSnackBar(context);
+      LALToast.showOffline(context);
       return;
     }
     final uid = FirebaseAuth.instance.currentUser?.uid;

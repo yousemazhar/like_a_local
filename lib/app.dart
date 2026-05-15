@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/providers/connectivity_provider.dart';
 import 'core/providers/locale_provider.dart';
+import 'core/widgets/lal_toast.dart';
 import 'core/widgets/offline_banner.dart';
 import 'features/auth/domain/auth_providers.dart';
 import 'features/notifications/data/fcm_service.dart';
@@ -71,11 +72,11 @@ class _ConnectivityShellState extends ConsumerState<_ConnectivityShell> {
         _hasSeenConnectivity = true;
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          duration: const Duration(seconds: 2),
-          content: Text(online ? t.offlineBackOnline : t.offlineBanner),
-        ),
+      LALToast.show(
+        context,
+        online ? t.offlineBackOnline : t.offlineBanner,
+        kind: online ? LALToastKind.success : LALToastKind.warning,
+        duration: const Duration(seconds: 2),
       );
     });
 

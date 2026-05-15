@@ -8,7 +8,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/errors/offline_exception.dart';
-import '../../../core/widgets/offline_action_snack_bar.dart';
+import '../../../core/widgets/lal_toast.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
@@ -253,10 +253,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     if (!mounted) {
       return;
     }
-
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    LALToast.show(context, message, kind: LALToastKind.info);
   }
 
   Future<void> _openDirections(_DemoMapPlace place) async {
@@ -670,15 +667,15 @@ class _MapBottomSheet extends ConsumerWidget {
                           .togglePin(place.id);
                     } on OfflineException {
                       if (!context.mounted) return;
-                      showOfflineActionSnackBar(context);
+                      LALToast.showOffline(context);
                       return;
                     }
                     if (!context.mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        duration: const Duration(seconds: 1),
-                        content: Text(isSaved ? 'Removed from saved' : 'Saved'),
-                      ),
+                    LALToast.show(
+                      context,
+                      isSaved ? 'Removed from saved' : 'Saved',
+                      kind: LALToastKind.success,
+                      duration: const Duration(seconds: 1),
                     );
                   },
                   icon: Icon(
