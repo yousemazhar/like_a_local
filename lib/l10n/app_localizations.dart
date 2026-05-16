@@ -626,6 +626,126 @@ abstract class AppLocalizations {
   /// **'Free plan includes up to 3 collections. Upgrade to Premium for unlimited collections.'**
   String get collectionFreeLimitBody;
 
+  /// No description provided for @collectionRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get collectionRename;
+
+  /// No description provided for @collectionDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get collectionDelete;
+
+  /// No description provided for @collectionRenameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename collection'**
+  String get collectionRenameTitle;
+
+  /// No description provided for @collectionSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get collectionSave;
+
+  /// No description provided for @collectionDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete collection?'**
+  String get collectionDeleteConfirmTitle;
+
+  /// No description provided for @collectionDeleteConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Places in “{name}” will stay saved but won\'t belong to a collection anymore.'**
+  String collectionDeleteConfirmBody(String name);
+
+  /// No description provided for @collectionDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Collection deleted'**
+  String get collectionDeleted;
+
+  /// No description provided for @collectionEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No places in this collection'**
+  String get collectionEmpty;
+
+  /// No description provided for @collectionEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add saved places to organize them here.'**
+  String get collectionEmptyBody;
+
+  /// No description provided for @collectionAddPlace.
+  ///
+  /// In en, this message translates to:
+  /// **'Add places'**
+  String get collectionAddPlace;
+
+  /// No description provided for @collectionMoveTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to collection'**
+  String get collectionMoveTo;
+
+  /// No description provided for @collectionNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No collection'**
+  String get collectionNone;
+
+  /// No description provided for @collectionRemoveFromCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from collection'**
+  String get collectionRemoveFromCollection;
+
+  /// No description provided for @collectionAddedToPlural.
+  ///
+  /// In en, this message translates to:
+  /// **'Added {count} places to “{name}”'**
+  String collectionAddedToPlural(int count, String name);
+
+  /// No description provided for @collectionMovedTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Moved to “{name}”'**
+  String collectionMovedTo(String name);
+
+  /// No description provided for @collectionRemovedFromCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from collection'**
+  String get collectionRemovedFromCollection;
+
+  /// No description provided for @collectionPickPlaces.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick places to add'**
+  String get collectionPickPlaces;
+
+  /// No description provided for @collectionNoSavedPlaces.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved places to add'**
+  String get collectionNoSavedPlaces;
+
+  /// No description provided for @collectionNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Collection not found'**
+  String get collectionNotFound;
+
+  /// No description provided for @collectionAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get collectionAdd;
+
   /// No description provided for @inboxTitle.
   ///
   /// In en, this message translates to:

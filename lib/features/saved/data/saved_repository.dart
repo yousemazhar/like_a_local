@@ -57,4 +57,29 @@ class SavedRepository {
     });
     return ref.id;
   }
+
+  Future<void> renameCollection(String uid, String id, String name) =>
+      _collections(uid).doc(id).update({'name': name});
+
+  /// Deletes the collection doc and clears `collectionId` on every pin
+  /// that referenced it, in a single batch.
+  Future<void> deleteCollection(String uid, String id) async {
+    final affected =
+        await _pins(uid).where('collectionId', isEqualTo: id).get();
+    final batch = _db.batch();
+    for (final doc in affected.docs) {
+      batch.update(doc.reference, {'collectionId': null});
+    }
+    batch.delete(_collections(uid).doc(id));
+    await batch.commit();
+  }
+
+  /// Move (or remove) a pinned place from a collection. Pass `null` to clear.
+  /// Place must already be pinned.
+  Future<void> setPinCollection(
+    String uid,
+    String placeId,
+    String? collectionId,
+  ) =>
+      _pins(uid).doc(placeId).update({'collectionId': collectionId});
 }

@@ -64,4 +64,43 @@ class SavedNotifier extends _$SavedNotifier {
     if (user == null) return;
     await ref.read(savedRepositoryProvider).createCollection(user.uid, name);
   }
+
+  Future<void> renameCollection(String id, String name) async {
+    _ensureOnline();
+    final user = ref.read(authStateProvider).valueOrNull;
+    if (user == null) return;
+    await ref
+        .read(savedRepositoryProvider)
+        .renameCollection(user.uid, id, name);
+  }
+
+  Future<void> deleteCollection(String id) async {
+    _ensureOnline();
+    final user = ref.read(authStateProvider).valueOrNull;
+    if (user == null) return;
+    await ref.read(savedRepositoryProvider).deleteCollection(user.uid, id);
+  }
+
+  Future<void> setPinCollection(String placeId, String? collectionId) async {
+    _ensureOnline();
+    final user = ref.read(authStateProvider).valueOrNull;
+    if (user == null) return;
+    await ref
+        .read(savedRepositoryProvider)
+        .setPinCollection(user.uid, placeId, collectionId);
+  }
+}
+
+/// Pins that belong to a specific collection (or unfiled when [collectionId]
+/// is null). Derived synchronously from [savedPinsProvider].
+@riverpod
+AsyncValue<List<SavedPin>> pinsInCollection(
+  PinsInCollectionRef ref,
+  String? collectionId,
+) {
+  return ref.watch(savedPinsProvider).whenData(
+        (pins) => pins
+            .where((p) => p.collectionId == collectionId)
+            .toList(growable: false),
+      );
 }

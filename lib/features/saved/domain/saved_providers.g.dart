@@ -200,7 +200,148 @@ class _IsPlacePinnedProviderElement
   String get placeId => (origin as IsPlacePinnedProvider).placeId;
 }
 
-String _$savedNotifierHash() => r'1303c9ed19d9215699c69e8eac139579e1aca8b5';
+String _$pinsInCollectionHash() => r'd82d082ddd7972c24f468837fa90f16bc9dff92b';
+
+/// Pins that belong to a specific collection (or unfiled when [collectionId]
+/// is null). Derived synchronously from [savedPinsProvider].
+///
+/// Copied from [pinsInCollection].
+@ProviderFor(pinsInCollection)
+const pinsInCollectionProvider = PinsInCollectionFamily();
+
+/// Pins that belong to a specific collection (or unfiled when [collectionId]
+/// is null). Derived synchronously from [savedPinsProvider].
+///
+/// Copied from [pinsInCollection].
+class PinsInCollectionFamily extends Family<AsyncValue<List<SavedPin>>> {
+  /// Pins that belong to a specific collection (or unfiled when [collectionId]
+  /// is null). Derived synchronously from [savedPinsProvider].
+  ///
+  /// Copied from [pinsInCollection].
+  const PinsInCollectionFamily();
+
+  /// Pins that belong to a specific collection (or unfiled when [collectionId]
+  /// is null). Derived synchronously from [savedPinsProvider].
+  ///
+  /// Copied from [pinsInCollection].
+  PinsInCollectionProvider call(String? collectionId) {
+    return PinsInCollectionProvider(collectionId);
+  }
+
+  @override
+  PinsInCollectionProvider getProviderOverride(
+    covariant PinsInCollectionProvider provider,
+  ) {
+    return call(provider.collectionId);
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'pinsInCollectionProvider';
+}
+
+/// Pins that belong to a specific collection (or unfiled when [collectionId]
+/// is null). Derived synchronously from [savedPinsProvider].
+///
+/// Copied from [pinsInCollection].
+class PinsInCollectionProvider
+    extends AutoDisposeProvider<AsyncValue<List<SavedPin>>> {
+  /// Pins that belong to a specific collection (or unfiled when [collectionId]
+  /// is null). Derived synchronously from [savedPinsProvider].
+  ///
+  /// Copied from [pinsInCollection].
+  PinsInCollectionProvider(String? collectionId)
+    : this._internal(
+        (ref) => pinsInCollection(ref as PinsInCollectionRef, collectionId),
+        from: pinsInCollectionProvider,
+        name: r'pinsInCollectionProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$pinsInCollectionHash,
+        dependencies: PinsInCollectionFamily._dependencies,
+        allTransitiveDependencies:
+            PinsInCollectionFamily._allTransitiveDependencies,
+        collectionId: collectionId,
+      );
+
+  PinsInCollectionProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.collectionId,
+  }) : super.internal();
+
+  final String? collectionId;
+
+  @override
+  Override overrideWith(
+    AsyncValue<List<SavedPin>> Function(PinsInCollectionRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: PinsInCollectionProvider._internal(
+        (ref) => create(ref as PinsInCollectionRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        collectionId: collectionId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeProviderElement<AsyncValue<List<SavedPin>>> createElement() {
+    return _PinsInCollectionProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is PinsInCollectionProvider &&
+        other.collectionId == collectionId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, collectionId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin PinsInCollectionRef
+    on AutoDisposeProviderRef<AsyncValue<List<SavedPin>>> {
+  /// The parameter `collectionId` of this provider.
+  String? get collectionId;
+}
+
+class _PinsInCollectionProviderElement
+    extends AutoDisposeProviderElement<AsyncValue<List<SavedPin>>>
+    with PinsInCollectionRef {
+  _PinsInCollectionProviderElement(super.provider);
+
+  @override
+  String? get collectionId => (origin as PinsInCollectionProvider).collectionId;
+}
+
+String _$savedNotifierHash() => r'3b7132928a3cd9feb7594e10232f8f48d98121ac';
 
 /// See also [SavedNotifier].
 @ProviderFor(SavedNotifier)

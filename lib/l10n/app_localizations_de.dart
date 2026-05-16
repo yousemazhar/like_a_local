@@ -298,6 +298,74 @@ class AppLocalizationsDe extends AppLocalizations {
       'Der Gratis-Plan umfasst bis zu 3 Sammlungen. Upgrade auf Premium für unbegrenzte Sammlungen.';
 
   @override
+  String get collectionRename => 'Umbenennen';
+
+  @override
+  String get collectionDelete => 'Löschen';
+
+  @override
+  String get collectionRenameTitle => 'Sammlung umbenennen';
+
+  @override
+  String get collectionSave => 'Speichern';
+
+  @override
+  String get collectionDeleteConfirmTitle => 'Sammlung löschen?';
+
+  @override
+  String collectionDeleteConfirmBody(String name) {
+    return 'Orte in „$name“ bleiben gespeichert, gehören aber zu keiner Sammlung mehr.';
+  }
+
+  @override
+  String get collectionDeleted => 'Sammlung gelöscht';
+
+  @override
+  String get collectionEmpty => 'Keine Orte in dieser Sammlung';
+
+  @override
+  String get collectionEmptyBody =>
+      'Füge gespeicherte Orte hinzu, um sie hier zu sortieren.';
+
+  @override
+  String get collectionAddPlace => 'Orte hinzufügen';
+
+  @override
+  String get collectionMoveTo => 'In Sammlung verschieben';
+
+  @override
+  String get collectionNone => 'Keine Sammlung';
+
+  @override
+  String get collectionRemoveFromCollection => 'Aus Sammlung entfernen';
+
+  @override
+  String collectionAddedToPlural(int count, String name) {
+    return '$count Orte zu „$name“ hinzugefügt';
+  }
+
+  @override
+  String collectionMovedTo(String name) {
+    return 'In „$name“ verschoben';
+  }
+
+  @override
+  String get collectionRemovedFromCollection => 'Aus Sammlung entfernt';
+
+  @override
+  String get collectionPickPlaces => 'Orte zum Hinzufügen wählen';
+
+  @override
+  String get collectionNoSavedPlaces =>
+      'Keine gespeicherten Orte zum Hinzufügen';
+
+  @override
+  String get collectionNotFound => 'Sammlung nicht gefunden';
+
+  @override
+  String get collectionAdd => 'Hinzufügen';
+
+  @override
   String get inboxTitle => 'Nachrichten';
 
   @override

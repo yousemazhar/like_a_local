@@ -19,6 +19,7 @@ import '../features/payments/presentation/test_payment_screen.dart';
 import '../features/place/presentation/place_screen.dart';
 import '../features/premium/presentation/premium_screen.dart';
 import '../features/profile/presentation/profile_screen.dart';
+import '../features/saved/presentation/collection_detail_screen.dart';
 import '../features/saved/presentation/saved_screen.dart';
 import '../features/search/presentation/search_screen.dart';
 import '../features/settings/presentation/chat_schedule_screen.dart';
@@ -106,6 +107,12 @@ GoRouter appRouter(AppRouterRef ref) {
         path: '/premium',
         pageBuilder: (_, __) =>
             const MaterialPage(fullscreenDialog: true, child: PremiumScreen()),
+      ),
+      GoRoute(
+        path: '/saved/collection/:id',
+        builder: (_, state) => CollectionDetailScreen(
+          collectionId: state.pathParameters['id']!,
+        ),
       ),
       GoRoute(
         path: '/test-payment',

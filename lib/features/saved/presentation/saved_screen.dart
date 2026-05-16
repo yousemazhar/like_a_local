@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,6 +21,7 @@ import '../../reminders/domain/reminder.dart';
 import '../../reminders/domain/reminder_providers.dart';
 import '../domain/saved_pin.dart';
 import '../domain/saved_providers.dart';
+import 'collection_pickers.dart';
 
 class SavedScreen extends ConsumerStatefulWidget {
   const SavedScreen({super.key});
@@ -65,27 +67,9 @@ class _SavedScreenState extends ConsumerState<SavedScreen>
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-              child: Row(
-                children: [
-                  Text(
-                    t.savedTitle,
-                    style: Theme.of(context).textTheme.headlineLarge,
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    onPressed: () {
-                      if (ref.read(isOnlineProvider).valueOrNull == false) {
-                        LALToast.showOffline(context);
-                        return;
-                      }
-                      context.push('/add-place');
-                    },
-                    icon: const Icon(
-                      Icons.add_circle_outline,
-                      color: LALColors.c900,
-                    ),
-                  ),
-                ],
+              child: Text(
+                t.savedTitle,
+                style: Theme.of(context).textTheme.headlineLarge,
               ),
             ),
             TabBar(
@@ -183,6 +167,15 @@ class _CollectionsTab extends ConsumerWidget {
             ),
             const SizedBox(height: 20),
           ],
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () => _createCollection(context, ref),
+              icon: const Icon(Icons.add),
+              label: Text(t.savedCreateCollection),
+            ),
+          ),
+          const SizedBox(height: 16),
           collectionsAsync.when(
             loading: () => const SkeletonList(itemCount: 3),
             error: (_, __) => const SizedBox.shrink(),
@@ -191,8 +184,6 @@ class _CollectionsTab extends ConsumerWidget {
                     icon: Icons.collections_bookmark_outlined,
                     title: t.savedNoCollections,
                     body: t.savedNoCollectionsBody,
-                    action: t.savedCreateCollection,
-                    onActionTap: () => _createCollection(context, ref),
                   )
                 : _CollectionsGrid(collections: cols),
           ),
@@ -329,57 +320,214 @@ class _CollectionsGrid extends StatelessWidget {
   }
 }
 
-class _CollectionCard extends StatelessWidget {
+class _CollectionCard extends ConsumerWidget {
   const _CollectionCard({required this.collection});
 
   final SavedCollection collection;
 
   @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = AppLocalizations.of(context)!;
+    // Count places client-side so it stays accurate without a Cloud Function.
+    final pins = ref
+            .watch(pinsInCollectionProvider(collection.id))
+            .valueOrNull ??
+        const [];
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: LALRadii.lgBorder,
+        onTap: () => context.push('/saved/collection/${collection.id}'),
+        onLongPress: () => _showMenu(context, ref),
+        child: Ink(
+          decoration: const BoxDecoration(
+            color: LALColors.surface,
+            borderRadius: LALRadii.lgBorder,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: LALRadii.lg),
+                  child: _CollectionCover(coverPlaceId: pins.isNotEmpty ? pins.first.placeId : null),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      collection.name,
+                      style: LALTypography.labelMedium,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      t.savedPlacesCount(pins.length),
+                      style: LALTypography.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showMenu(BuildContext context, WidgetRef ref) async {
+    final t = AppLocalizations.of(context)!;
+    final choice = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: LALColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: LALRadii.lg),
+      ),
+      builder: (sheetCtx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.drive_file_rename_outline),
+              title: Text(t.collectionRename),
+              onTap: () => Navigator.pop(sheetCtx, 'rename'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_outline, color: Colors.red),
+              title: Text(
+                t.collectionDelete,
+                style: const TextStyle(color: Colors.red),
+              ),
+              onTap: () => Navigator.pop(sheetCtx, 'delete'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (!context.mounted || choice == null) return;
+    if (ref.read(isOnlineProvider).valueOrNull == false) {
+      LALToast.showOffline(context);
+      return;
+    }
+    if (choice == 'rename') {
+      final name = await showDialog<String>(
+        context: context,
+        builder: (_) => _RenameDialog(initial: collection.name),
+      );
+      if (name == null || name.isEmpty || name == collection.name) return;
+      try {
+        await ref
+            .read(savedNotifierProvider.notifier)
+            .renameCollection(collection.id, name);
+      } on OfflineException {
+        if (context.mounted) LALToast.showOffline(context);
+      } catch (e) {
+        if (context.mounted) LALToast.showError(context, e);
+      }
+    } else if (choice == 'delete') {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text(t.collectionDeleteConfirmTitle),
+          content: Text(t.collectionDeleteConfirmBody(collection.name)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(t.buttonCancel),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(t.collectionDelete),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true) return;
+      try {
+        await ref
+            .read(savedNotifierProvider.notifier)
+            .deleteCollection(collection.id);
+        if (context.mounted) {
+          LALToast.show(
+            context,
+            t.collectionDeleted,
+            kind: LALToastKind.success,
+          );
+        }
+      } on OfflineException {
+        if (context.mounted) LALToast.showOffline(context);
+      } catch (e) {
+        if (context.mounted) LALToast.showError(context, e);
+      }
+    }
+  }
+}
+
+class _RenameDialog extends StatefulWidget {
+  const _RenameDialog({required this.initial});
+
+  final String initial;
+
+  @override
+  State<_RenameDialog> createState() => _RenameDialogState();
+}
+
+class _RenameDialogState extends State<_RenameDialog> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _ctrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = TextEditingController(text: widget.initial);
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    Navigator.of(context).pop(_ctrl.text.trim());
+  }
+
+  @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
-    return Container(
-      decoration: const BoxDecoration(
-        color: LALColors.surface,
-        borderRadius: LALRadii.lgBorder,
+    return AlertDialog(
+      title: Text(t.collectionRenameTitle),
+      content: Form(
+        key: _formKey,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        child: TextFormField(
+          controller: _ctrl,
+          autofocus: true,
+          textInputAction: TextInputAction.done,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: InputDecoration(labelText: t.savedCollectionName),
+          validator: LALValidators.compose([
+            LALValidators.required(t),
+            LALValidators.maxLength(t, 40),
+          ]),
+          onFieldSubmitted: (_) => _submit(),
+        ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Container(
-              decoration: const BoxDecoration(
-                color: LALColors.surfaceAlt,
-                borderRadius: BorderRadius.vertical(top: LALRadii.lg),
-              ),
-              child: const Center(
-                child: Icon(
-                  Icons.collections_bookmark_outlined,
-                  color: LALColors.c300,
-                  size: 32,
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  collection.name,
-                  style: LALTypography.labelMedium,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  t.savedPlacesCount(collection.count),
-                  style: LALTypography.bodySmall,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(t.buttonCancel),
+        ),
+        ElevatedButton(
+          onPressed: _submit,
+          child: Text(t.collectionSave),
+        ),
+      ],
     );
   }
 }
@@ -425,10 +573,18 @@ class _PinListItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final t = AppLocalizations.of(context)!;
     final placeAsync = ref.watch(placeDetailProvider(pin.placeId));
     final title = placeAsync.valueOrNull?.title ?? '...';
     return GestureDetector(
       onTap: () => context.push('/place/${pin.placeId}'),
+      onLongPress: () {
+        if (ref.read(isOnlineProvider).valueOrNull == false) {
+          LALToast.showOffline(context);
+          return;
+        }
+        showMovePinToCollectionSheet(context, ref, placeId: pin.placeId);
+      },
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: const BoxDecoration(
@@ -437,19 +593,9 @@ class _PinListItem extends ConsumerWidget {
         ),
         child: Row(
           children: [
-            Container(
-              width: 60,
-              height: 60,
-              decoration: const BoxDecoration(
-                color: LALColors.surfaceAlt,
-                borderRadius: LALRadii.mdBorder,
-              ),
-              child: const Icon(
-                Icons.place_outlined,
-                color: LALColors.c300,
-                size: 28,
-              ),
-            ),
+            _PlaceThumb(mediaUrl: placeAsync.valueOrNull?.mediaUrls.isNotEmpty == true
+                ? placeAsync.valueOrNull!.mediaUrls.first
+                : null),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -473,7 +619,25 @@ class _PinListItem extends ConsumerWidget {
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: LALColors.c400, size: 20),
+            IconButton(
+              tooltip: t.collectionMoveTo,
+              icon: const Icon(
+                Icons.drive_file_move_outline,
+                color: LALColors.c400,
+                size: 20,
+              ),
+              onPressed: () {
+                if (ref.read(isOnlineProvider).valueOrNull == false) {
+                  LALToast.showOffline(context);
+                  return;
+                }
+                showMovePinToCollectionSheet(
+                  context,
+                  ref,
+                  placeId: pin.placeId,
+                );
+              },
+            ),
           ],
         ),
       ),
@@ -709,6 +873,90 @@ class _LocationPermissionBanner extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _PlaceThumb extends StatelessWidget {
+  const _PlaceThumb({required this.mediaUrl});
+
+  final String? mediaUrl;
+  static const double size = 60;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: LALRadii.mdBorder,
+      child: SizedBox(
+        width: size,
+        height: size,
+        child: mediaUrl != null && mediaUrl!.isNotEmpty
+            ? CachedNetworkImage(
+                imageUrl: mediaUrl!,
+                fit: BoxFit.cover,
+                placeholder: (_, __) => Container(color: LALColors.surfaceAlt),
+                errorWidget: (_, __, ___) => Container(
+                  color: LALColors.surfaceAlt,
+                  child: const Icon(
+                    Icons.place_outlined,
+                    color: LALColors.c300,
+                    size: 28,
+                  ),
+                ),
+              )
+            : Container(
+                color: LALColors.surfaceAlt,
+                child: const Icon(
+                  Icons.place_outlined,
+                  color: LALColors.c300,
+                  size: 28,
+                ),
+              ),
+      ),
+    );
+  }
+}
+
+class _CollectionCover extends ConsumerWidget {
+  const _CollectionCover({required this.coverPlaceId});
+
+  final String? coverPlaceId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final url = coverPlaceId == null
+        ? null
+        : ref
+            .watch(placeDetailProvider(coverPlaceId!))
+            .valueOrNull
+            ?.mediaUrls
+            .firstOrNull;
+    if (url == null || url.isEmpty) {
+      return Container(
+        color: LALColors.surfaceAlt,
+        child: const Center(
+          child: Icon(
+            Icons.collections_bookmark_outlined,
+            color: LALColors.c300,
+            size: 32,
+          ),
+        ),
+      );
+    }
+    return CachedNetworkImage(
+      imageUrl: url,
+      fit: BoxFit.cover,
+      placeholder: (_, __) => Container(color: LALColors.surfaceAlt),
+      errorWidget: (_, __, ___) => Container(
+        color: LALColors.surfaceAlt,
+        child: const Center(
+          child: Icon(
+            Icons.collections_bookmark_outlined,
+            color: LALColors.c300,
+            size: 32,
+          ),
+        ),
       ),
     );
   }

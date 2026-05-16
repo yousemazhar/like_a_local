@@ -123,6 +123,38 @@
   "pinFreeLimitBody": "Der Gratis-Plan umfasst bis zu 10 gespeicherte Orte. Upgrade auf Premium für unbegrenzte Speicherungen.",
   "collectionFreeLimitTitle": "Sammlungslimit erreicht",
   "collectionFreeLimitBody": "Der Gratis-Plan umfasst bis zu 3 Sammlungen. Upgrade auf Premium für unbegrenzte Sammlungen.",
+  "collectionRename": "Umbenennen",
+  "collectionDelete": "Löschen",
+  "collectionRenameTitle": "Sammlung umbenennen",
+  "collectionSave": "Speichern",
+  "collectionDeleteConfirmTitle": "Sammlung löschen?",
+  "collectionDeleteConfirmBody": "Orte in „{name}“ bleiben gespeichert, gehören aber zu keiner Sammlung mehr.",
+  "@collectionDeleteConfirmBody": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "collectionDeleted": "Sammlung gelöscht",
+  "collectionEmpty": "Keine Orte in dieser Sammlung",
+  "collectionEmptyBody": "Füge gespeicherte Orte hinzu, um sie hier zu sortieren.",
+  "collectionAddPlace": "Orte hinzufügen",
+  "collectionMoveTo": "In Sammlung verschieben",
+  "collectionNone": "Keine Sammlung",
+  "collectionRemoveFromCollection": "Aus Sammlung entfernen",
+  "collectionAddedToPlural": "{count} Orte zu „{name}“ hinzugefügt",
+  "@collectionAddedToPlural": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "name": { "type": "String" }
+    }
+  },
+  "collectionMovedTo": "In „{name}“ verschoben",
+  "@collectionMovedTo": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "collectionRemovedFromCollection": "Aus Sammlung entfernt",
+  "collectionPickPlaces": "Orte zum Hinzufügen wählen",
+  "collectionNoSavedPlaces": "Keine gespeicherten Orte zum Hinzufügen",
+  "collectionNotFound": "Sammlung nicht gefunden",
+  "collectionAdd": "Hinzufügen",
 
   "inboxTitle": "Nachrichten",
   "inboxEmpty": "Noch keine Nachrichten",

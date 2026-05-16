@@ -296,6 +296,72 @@ class AppLocalizationsEn extends AppLocalizations {
       'Free plan includes up to 3 collections. Upgrade to Premium for unlimited collections.';
 
   @override
+  String get collectionRename => 'Rename';
+
+  @override
+  String get collectionDelete => 'Delete';
+
+  @override
+  String get collectionRenameTitle => 'Rename collection';
+
+  @override
+  String get collectionSave => 'Save';
+
+  @override
+  String get collectionDeleteConfirmTitle => 'Delete collection?';
+
+  @override
+  String collectionDeleteConfirmBody(String name) {
+    return 'Places in “$name” will stay saved but won\'t belong to a collection anymore.';
+  }
+
+  @override
+  String get collectionDeleted => 'Collection deleted';
+
+  @override
+  String get collectionEmpty => 'No places in this collection';
+
+  @override
+  String get collectionEmptyBody => 'Add saved places to organize them here.';
+
+  @override
+  String get collectionAddPlace => 'Add places';
+
+  @override
+  String get collectionMoveTo => 'Move to collection';
+
+  @override
+  String get collectionNone => 'No collection';
+
+  @override
+  String get collectionRemoveFromCollection => 'Remove from collection';
+
+  @override
+  String collectionAddedToPlural(int count, String name) {
+    return 'Added $count places to “$name”';
+  }
+
+  @override
+  String collectionMovedTo(String name) {
+    return 'Moved to “$name”';
+  }
+
+  @override
+  String get collectionRemovedFromCollection => 'Removed from collection';
+
+  @override
+  String get collectionPickPlaces => 'Pick places to add';
+
+  @override
+  String get collectionNoSavedPlaces => 'No saved places to add';
+
+  @override
+  String get collectionNotFound => 'Collection not found';
+
+  @override
+  String get collectionAdd => 'Add';
+
+  @override
   String get inboxTitle => 'Inbox';
 
   @override

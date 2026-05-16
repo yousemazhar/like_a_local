@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../core/providers/connectivity_provider.dart';
 import '../../../core/widgets/lal_toast.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/tokens.dart';
@@ -72,6 +73,24 @@ class ProfileScreen extends ConsumerWidget {
                   placesCount: places.length,
                   pinCount: pinCount,
                   helpfulCount: user?.superUserStats.reviewsCount ?? 0,
+                ),
+                const SizedBox(height: 16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        if (ref.read(isOnlineProvider).valueOrNull == false) {
+                          LALToast.showOffline(context);
+                          return;
+                        }
+                        context.push('/add-place');
+                      },
+                      icon: const Icon(Icons.add),
+                      label: Text(t.addPlaceTitle),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 _TrustStrip(),
