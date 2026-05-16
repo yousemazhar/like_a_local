@@ -6,7 +6,8 @@
       "Bash(gunzip -f /tmp/llll/design.gz)",
       "Read(//tmp/llll/**)",
       "Read(//tmp/**)",
-      "Bash(flutter pub *)"
+      "Bash(flutter pub *)",
+      "Bash(mkdir -p \"C:/Users/youse/StudioProjects/like_a_local/design_output\" && ls \"C:/Users/youse/StudioProjects/like_a_local/design_output\")"
     ]
   },
   "hooks": {

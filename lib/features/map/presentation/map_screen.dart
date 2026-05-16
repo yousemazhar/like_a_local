@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/errors/app_exception.dart';
 import '../../../core/errors/offline_exception.dart';
 import '../../../core/widgets/lal_toast.dart';
 import '../../../l10n/app_localizations.dart';
@@ -669,6 +670,14 @@ class _MapBottomSheet extends ConsumerWidget {
                       if (!context.mounted) return;
                       LALToast.showOffline(context);
                       return;
+                    } on AppException catch (e) {
+                      if (!context.mounted) return;
+                      if (e.kind == LALErrorCode.quotaExceeded) {
+                        _showMapPinLimitDialog(context);
+                      } else {
+                        LALToast.showError(context, e);
+                      }
+                      return;
                     }
                     if (!context.mounted) return;
                     LALToast.show(
@@ -686,6 +695,30 @@ class _MapBottomSheet extends ConsumerWidget {
                 ),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showMapPinLimitDialog(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(t.pinFreeLimitTitle),
+        content: Text(t.pinFreeLimitBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(t.buttonCancel),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.push('/premium');
+            },
+            child: Text(t.savedUpgrade),
           ),
         ],
       ),

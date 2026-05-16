@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../core/errors/app_exception.dart';
 import '../../core/errors/offline_exception.dart';
 import '../../features/saved/domain/saved_providers.dart';
+import '../../l10n/app_localizations.dart';
 import 'lal_toast.dart';
 import 'place_card.dart';
 
@@ -51,6 +54,14 @@ class SavablePlaceCard extends ConsumerWidget {
           if (!context.mounted) return;
           LALToast.showOffline(context);
           return;
+        } on AppException catch (e) {
+          if (!context.mounted) return;
+          if (e.kind == LALErrorCode.quotaExceeded) {
+            _showPinLimitDialog(context);
+          } else {
+            LALToast.showError(context, e);
+          }
+          return;
         } catch (e) {
           if (!context.mounted) return;
           LALToast.showError(context, e);
@@ -64,6 +75,30 @@ class SavablePlaceCard extends ConsumerWidget {
           duration: const Duration(seconds: 1),
         );
       },
+    );
+  }
+
+  void _showPinLimitDialog(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(t.pinFreeLimitTitle),
+        content: Text(t.pinFreeLimitBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(t.buttonCancel),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.push('/premium');
+            },
+            child: Text(t.savedUpgrade),
+          ),
+        ],
+      ),
     );
   }
 }

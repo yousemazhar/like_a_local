@@ -5,6 +5,7 @@ import {
   WriteBatch,
 } from "firebase-admin/firestore";
 import {
+  onDocumentDeleted,
   onDocumentWritten,
 } from "firebase-functions/v2/firestore";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
@@ -229,6 +230,15 @@ export const onPlaceWrittenRecalculateSuperUser = onDocumentWritten(
     await Promise.all(
       [...ownerUids].map((ownerUid) => recalculateSuperUserForUid(ownerUid))
     );
+  }
+);
+
+export const onChatMessageDeleteRecalculateSuperUser = onDocumentDeleted(
+  { document: "chats/{threadId}/messages/{messageId}", region: "us-central1" },
+  async (event) => {
+    const senderUid = event.data?.data()?.senderUid as string | undefined;
+    if (!senderUid) return;
+    await recalculateSuperUserForUid(senderUid);
   }
 );
 

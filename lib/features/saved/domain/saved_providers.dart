@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../core/errors/app_exception.dart';
 import '../../../core/errors/offline_exception.dart';
 import '../../../core/providers/connectivity_provider.dart';
 import '../../auth/domain/auth_providers.dart';
@@ -8,6 +9,10 @@ import '../data/saved_repository.dart';
 import 'saved_pin.dart';
 
 part 'saved_providers.g.dart';
+
+/// Max pinned places a non-premium user may keep. Mirrors the server-side
+/// enforcement in `functions/src/saves/pinLimit.ts`.
+const int kFreePinLimit = 10;
 
 @Riverpod(keepAlive: true)
 SavedRepository savedRepository(SavedRepositoryRef ref) =>
@@ -53,9 +58,17 @@ class SavedNotifier extends _$SavedNotifier {
     final pinned = await repo.isPinned(user.uid, placeId).first;
     if (pinned) {
       await repo.unpinPlace(user.uid, placeId);
-    } else {
-      await repo.pinPlace(user.uid, placeId);
+      return;
     }
+    final profile = ref.read(currentUserDocProvider).valueOrNull ?? user;
+    if (!profile.premium) {
+      final existing = ref.read(savedPinsProvider).valueOrNull ??
+          await repo.pinsStream(user.uid).first;
+      if (existing.length >= kFreePinLimit) {
+        throw AppException.quotaExceeded();
+      }
+    }
+    await repo.pinPlace(user.uid, placeId);
   }
 
   Future<void> createCollection(String name) async {

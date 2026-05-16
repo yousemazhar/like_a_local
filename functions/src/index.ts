@@ -12,7 +12,9 @@ export { geminiTopPick } from "./ai/gemini_pick";
 export { seedEgyptPlaces } from "./seed/egypt";
 export { onChatMessageCreate } from "./chat/onMessage";
 export { sendTestNotification } from "./notifications/test";
+export { enforceFreePinLimit } from "./saves/pinLimit";
 export {
+  onChatMessageDeleteRecalculateSuperUser,
   onPlaceWrittenRecalculateSuperUser,
   onReviewWrittenRecalculateSuperUser,
   recalculateAllSuperUserRanks,

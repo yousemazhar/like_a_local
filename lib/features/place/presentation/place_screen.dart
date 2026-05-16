@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/errors/app_exception.dart';
 import '../../../core/errors/offline_exception.dart';
 import '../../../core/providers/connectivity_provider.dart';
 import '../../../core/widgets/lal_state_view.dart';
@@ -409,7 +410,7 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
           try {
             if (!isSaved && !isPremium) {
               final pins = ref.read(savedPinsProvider).valueOrNull ?? [];
-              if (pins.length >= 10) {
+              if (pins.length >= kFreePinLimit) {
                 _showPinLimitDialog(context, t);
                 return;
               }
@@ -417,6 +418,13 @@ class _PlaceScaffoldDataState extends ConsumerState<_PlaceScaffoldData> {
             await ref.read(savedNotifierProvider.notifier).togglePin(place.id);
           } on OfflineException {
             if (context.mounted) LALToast.showOffline(context);
+          } on AppException catch (e) {
+            if (!context.mounted) return;
+            if (e.kind == LALErrorCode.quotaExceeded) {
+              _showPinLimitDialog(context, t);
+            } else {
+              LALToast.showError(context, e);
+            }
           }
         },
         onToggleReminder: () async {
