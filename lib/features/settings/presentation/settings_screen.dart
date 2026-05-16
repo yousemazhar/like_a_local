@@ -31,15 +31,6 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-  void _comingSoon(String label) {
-    LALToast.show(
-      context,
-      '$label · coming soon',
-      kind: LALToastKind.info,
-      duration: const Duration(seconds: 2),
-    );
-  }
-
   Future<void> _patch(Map<String, dynamic> patch) async {
     if (ref.read(isOnlineProvider).valueOrNull == false) {
       LALToast.showOffline(context);
@@ -111,13 +102,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             value: showLocation,
             onChanged: (v) => _patch({'privacy.shareLocation': v}),
           ),
-          _ActionTile(
-            icon: Icons.visibility_outlined,
-            title: t.settingsWhoCanFindMe,
-            subtitle: t.settingsEveryone,
-            onTap: () => _comingSoon(t.settingsWhoCanFindMe),
-          ),
-
           // Personalization
           _SectionHeader(t.settingsPersonalization),
           _ToggleTile(
