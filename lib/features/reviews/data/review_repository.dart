@@ -10,6 +10,8 @@ class ReviewRepository {
   CollectionReference<Map<String, dynamic>> _reviews(String placeId) =>
       _db.collection('places').doc(placeId).collection('reviews');
 
+  String reservedReviewId(String placeId) => _reviews(placeId).doc().id;
+
   Stream<List<Review>> reviewsStream(String placeId, {int limit = 20}) =>
       _reviews(placeId)
           .orderBy('createdAt', descending: true)
@@ -35,6 +37,9 @@ class ReviewRepository {
     bool isSuper = false,
     required int rating,
     required String text,
+    List<String> photoUrls = const [],
+    List<String> videoUrls = const [],
+    String? reviewId,
   }) async {
     final col = _reviews(placeId);
     final existing =
@@ -48,11 +53,14 @@ class ReviewRepository {
       'authorIsSuper': isSuper,
       'rating': rating,
       'text': text,
+      'photoUrls': photoUrls,
+      'videoUrls': videoUrls,
       'updatedAt': FieldValue.serverTimestamp(),
     };
 
     if (existing.docs.isEmpty) {
-      await col.add({...payload, 'createdAt': FieldValue.serverTimestamp()});
+      final docRef = reviewId != null ? col.doc(reviewId) : col.doc();
+      await docRef.set({...payload, 'createdAt': FieldValue.serverTimestamp()});
     } else {
       await existing.docs.first.reference.update(payload);
     }

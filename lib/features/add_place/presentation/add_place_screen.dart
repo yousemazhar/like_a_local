@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../core/media/upload_with_progress.dart';
 import '../../../core/providers/connectivity_provider.dart';
 import '../../../core/widgets/lal_chip.dart';
 import '../../../core/widgets/lal_toast.dart';
@@ -257,31 +258,13 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
     }
   }
 
-  Future<String> _uploadWithProgress({
-    required Reference ref,
-    required File file,
-    required SettableMetadata metadata,
-    required String label,
-  }) async {
-    final task = ref.putFile(file, metadata);
+  void _onUploadProgress(double p, String label) {
     if (mounted) {
       setState(() {
+        _uploadProgress = p;
         _uploadLabel = label;
-        _uploadProgress = 0;
       });
     }
-    final sub = task.snapshotEvents.listen((snap) {
-      final total = snap.totalBytes;
-      if (total > 0 && mounted) {
-        setState(() => _uploadProgress = snap.bytesTransferred / total);
-      }
-    });
-    try {
-      await task;
-    } finally {
-      await sub.cancel();
-    }
-    return ref.getDownloadURL();
   }
 
   Future<List<String>> _uploadNewPhotos(String placeId) async {
@@ -293,11 +276,12 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
       final file = File(_draft.photos[i].path);
       final ts = DateTime.now().millisecondsSinceEpoch;
       final ref = storage.ref('places/$placeId/photo_${baseIndex + i}_$ts.jpg');
-      urls.add(await _uploadWithProgress(
+      urls.add(await uploadWithProgress(
         ref: ref,
         file: file,
         metadata: SettableMetadata(contentType: 'image/jpeg'),
         label: 'Photo ${i + 1}/$total',
+        onProgress: _onUploadProgress,
       ));
     }
     return urls;
@@ -312,41 +296,19 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
       final xfile = _draft.videos[i];
       final file = File(xfile.path);
       final ts = DateTime.now().millisecondsSinceEpoch;
-      final ext = _videoExt(xfile.path);
-      final contentType = _videoMime(ext);
+      final ext = videoExt(xfile.path);
       final ref = storage.ref(
         'places/$placeId/video_${baseIndex + i}_$ts.$ext',
       );
-      urls.add(await _uploadWithProgress(
+      urls.add(await uploadWithProgress(
         ref: ref,
         file: file,
-        metadata: SettableMetadata(contentType: contentType),
+        metadata: SettableMetadata(contentType: videoMime(ext)),
         label: 'Video ${i + 1}/$total',
+        onProgress: _onUploadProgress,
       ));
     }
     return urls;
-  }
-
-  static String _videoExt(String path) {
-    final dot = path.lastIndexOf('.');
-    if (dot < 0 || dot == path.length - 1) return 'mp4';
-    final ext = path.substring(dot + 1).toLowerCase();
-    const allowed = {'mp4', 'mov', 'm4v', 'webm', '3gp'};
-    return allowed.contains(ext) ? ext : 'mp4';
-  }
-
-  static String _videoMime(String ext) {
-    switch (ext) {
-      case 'mov':
-      case 'm4v':
-        return 'video/quicktime';
-      case 'webm':
-        return 'video/webm';
-      case '3gp':
-        return 'video/3gpp';
-      default:
-        return 'video/mp4';
-    }
   }
 
   Future<void> _publish() async {

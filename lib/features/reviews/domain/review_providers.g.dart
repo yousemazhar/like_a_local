@@ -284,7 +284,7 @@ class _MyPlaceReviewProviderElement
   String get placeId => (origin as MyPlaceReviewProvider).placeId;
 }
 
-String _$reviewNotifierHash() => r'e392af99860ef1cb7726e7dc8664f70b58402350';
+String _$reviewNotifierHash() => r'dc9d77af5ead795c01bb634608ce759ed78d576b';
 
 /// See also [ReviewNotifier].
 @ProviderFor(ReviewNotifier)

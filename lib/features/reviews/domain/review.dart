@@ -16,6 +16,8 @@ class Review with _$Review {
     @Default(false) bool authorIsSuper,
     required int rating,
     @Default('') String text,
+    @Default(<String>[]) List<String> photoUrls,
+    @Default(<String>[]) List<String> videoUrls,
     @TimestampConverter() DateTime? createdAt,
     @TimestampConverter() DateTime? updatedAt,
   }) = _Review;

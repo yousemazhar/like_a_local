@@ -39,6 +39,9 @@ class ReviewNotifier extends _$ReviewNotifier {
     required String placeId,
     required int rating,
     required String text,
+    List<String> photoUrls = const [],
+    List<String> videoUrls = const [],
+    String? reviewId,
   }) async {
     _ensureOnline();
     final user = ref.read(authStateProvider).valueOrNull;
@@ -53,6 +56,9 @@ class ReviewNotifier extends _$ReviewNotifier {
           isSuper: user.role == 'super',
           rating: rating,
           text: text,
+          photoUrls: photoUrls,
+          videoUrls: videoUrls,
+          reviewId: reviewId,
         );
   }
 

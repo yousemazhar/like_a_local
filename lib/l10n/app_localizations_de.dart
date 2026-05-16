@@ -508,6 +508,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get reviewComposerUpdate => 'Bewertung aktualisieren';
 
   @override
+  String get reviewComposerTextRequired =>
+      'Bitte schreibe eine kurze Bewertung, bevor du sie postest.';
+
+  @override
   String get mapTitle => 'Karte';
 
   @override

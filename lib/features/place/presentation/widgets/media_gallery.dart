@@ -20,11 +20,15 @@ class PlaceMediaGallery extends StatefulWidget {
     required this.photoUrls,
     required this.videoUrls,
     this.height = 420,
+    this.photoFit = BoxFit.cover,
+    this.interactive = false,
   });
 
   final List<String> photoUrls;
   final List<String> videoUrls;
   final double height;
+  final BoxFit photoFit;
+  final bool interactive;
 
   List<MediaItem> get items => [
         ...photoUrls.map(MediaItem.photo),
@@ -63,11 +67,18 @@ class _PlaceMediaGalleryState extends State<PlaceMediaGallery> {
             if (item.isVideo) {
               return _VideoPage(url: item.url);
             }
-            return CachedNetworkImage(
+            final image = CachedNetworkImage(
               imageUrl: item.url,
-              fit: BoxFit.cover,
+              fit: widget.interactive ? BoxFit.contain : widget.photoFit,
               placeholder: (_, __) => const ColoredBox(color: LALColors.c100),
               errorWidget: (_, __, ___) => const _HeroPlaceholder(),
+            );
+            if (!widget.interactive) return image;
+            return InteractiveViewer(
+              minScale: 1,
+              maxScale: 5,
+              clipBehavior: Clip.none,
+              child: SizedBox.expand(child: image),
             );
           },
         ),

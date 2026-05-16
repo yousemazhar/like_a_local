@@ -207,6 +207,7 @@
   "reviewComposerHint": "Was hat dir gefallen? Tipps?",
   "reviewComposerSubmit": "Bewertung posten",
   "reviewComposerUpdate": "Bewertung aktualisieren",
+  "reviewComposerTextRequired": "Bitte schreibe eine kurze Bewertung, bevor du sie postest.",
 
   "mapTitle": "Karte",
   "mapNearMe": "In meiner Nähe",

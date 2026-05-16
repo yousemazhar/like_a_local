@@ -1046,7 +1046,142 @@ class _ReviewTile extends StatelessWidget {
             const SizedBox(height: 8),
             Text(review.text, style: LALTypography.bodyMedium),
           ],
+          if (review.photoUrls.isNotEmpty || review.videoUrls.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 84,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  for (var i = 0; i < review.photoUrls.length; i++)
+                    _ReviewMediaThumb(
+                      url: review.photoUrls[i],
+                      isVideo: false,
+                      onTap: () => _openReviewGallery(
+                        context,
+                        review.photoUrls,
+                        review.videoUrls,
+                        i,
+                      ),
+                    ),
+                  for (var i = 0; i < review.videoUrls.length; i++)
+                    _ReviewMediaThumb(
+                      url: review.videoUrls[i],
+                      isVideo: true,
+                      onTap: () => _openReviewGallery(
+                        context,
+                        review.photoUrls,
+                        review.videoUrls,
+                        review.photoUrls.length + i,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
         ],
+      ),
+    );
+  }
+}
+
+void _openReviewGallery(
+  BuildContext context,
+  List<String> photoUrls,
+  List<String> videoUrls,
+  int initialIndex,
+) {
+  Navigator.of(context).push(
+    MaterialPageRoute<void>(
+      fullscreenDialog: true,
+      builder: (_) => _ReviewGalleryScreen(
+        photoUrls: photoUrls,
+        videoUrls: videoUrls,
+        initialIndex: initialIndex,
+      ),
+    ),
+  );
+}
+
+class _ReviewGalleryScreen extends StatelessWidget {
+  const _ReviewGalleryScreen({
+    required this.photoUrls,
+    required this.videoUrls,
+    required this.initialIndex,
+  });
+
+  final List<String> photoUrls;
+  final List<String> videoUrls;
+  final int initialIndex;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+        elevation: 0,
+      ),
+      body: PlaceMediaGallery(
+        photoUrls: photoUrls,
+        videoUrls: videoUrls,
+        height: MediaQuery.of(context).size.height,
+        photoFit: BoxFit.contain,
+        interactive: true,
+      ),
+    );
+  }
+}
+
+class _ReviewMediaThumb extends StatelessWidget {
+  const _ReviewMediaThumb({
+    required this.url,
+    required this.isVideo,
+    required this.onTap,
+  });
+
+  final String url;
+  final bool isVideo;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: GestureDetector(
+        onTap: onTap,
+        child: ClipRRect(
+          borderRadius: LALRadii.mdBorder,
+          child: SizedBox(
+            width: 84,
+            height: 84,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                if (isVideo)
+                  Container(
+                    color: LALColors.c900,
+                    alignment: Alignment.center,
+                    child: const Icon(
+                      Icons.play_circle_outline,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                  )
+                else
+                  CachedNetworkImage(
+                    imageUrl: url,
+                    fit: BoxFit.cover,
+                    placeholder: (_, __) =>
+                        const ColoredBox(color: LALColors.c100),
+                    errorWidget: (_, __, ___) =>
+                        const ColoredBox(color: LALColors.c100),
+                  ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

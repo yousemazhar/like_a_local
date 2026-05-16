@@ -1022,6 +1022,12 @@ abstract class AppLocalizations {
   /// **'Update review'**
   String get reviewComposerUpdate;
 
+  /// No description provided for @reviewComposerTextRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please write a short review before posting.'**
+  String get reviewComposerTextRequired;
+
   /// No description provided for @mapTitle.
   ///
   /// In en, this message translates to:

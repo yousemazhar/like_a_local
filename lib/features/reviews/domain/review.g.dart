@@ -15,6 +15,12 @@ _$ReviewImpl _$$ReviewImplFromJson(Map<String, dynamic> json) => _$ReviewImpl(
   authorIsSuper: json['authorIsSuper'] as bool? ?? false,
   rating: (json['rating'] as num).toInt(),
   text: json['text'] as String? ?? '',
+  photoUrls:
+      (json['photoUrls'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const <String>[],
+  videoUrls:
+      (json['videoUrls'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const <String>[],
   createdAt: const TimestampConverter().fromJson(json['createdAt']),
   updatedAt: const TimestampConverter().fromJson(json['updatedAt']),
 );
@@ -29,6 +35,8 @@ Map<String, dynamic> _$$ReviewImplToJson(_$ReviewImpl instance) =>
       'authorIsSuper': instance.authorIsSuper,
       'rating': instance.rating,
       'text': instance.text,
+      'photoUrls': instance.photoUrls,
+      'videoUrls': instance.videoUrls,
       'createdAt': const TimestampConverter().toJson(instance.createdAt),
       'updatedAt': const TimestampConverter().toJson(instance.updatedAt),
     };

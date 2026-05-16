@@ -29,6 +29,8 @@ mixin _$Review {
   bool get authorIsSuper => throw _privateConstructorUsedError;
   int get rating => throw _privateConstructorUsedError;
   String get text => throw _privateConstructorUsedError;
+  List<String> get photoUrls => throw _privateConstructorUsedError;
+  List<String> get videoUrls => throw _privateConstructorUsedError;
   @TimestampConverter()
   DateTime? get createdAt => throw _privateConstructorUsedError;
   @TimestampConverter()
@@ -57,6 +59,8 @@ abstract class $ReviewCopyWith<$Res> {
     bool authorIsSuper,
     int rating,
     String text,
+    List<String> photoUrls,
+    List<String> videoUrls,
     @TimestampConverter() DateTime? createdAt,
     @TimestampConverter() DateTime? updatedAt,
   });
@@ -85,6 +89,8 @@ class _$ReviewCopyWithImpl<$Res, $Val extends Review>
     Object? authorIsSuper = null,
     Object? rating = null,
     Object? text = null,
+    Object? photoUrls = null,
+    Object? videoUrls = null,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
   }) {
@@ -122,6 +128,14 @@ class _$ReviewCopyWithImpl<$Res, $Val extends Review>
                 ? _value.text
                 : text // ignore: cast_nullable_to_non_nullable
                       as String,
+            photoUrls: null == photoUrls
+                ? _value.photoUrls
+                : photoUrls // ignore: cast_nullable_to_non_nullable
+                      as List<String>,
+            videoUrls: null == videoUrls
+                ? _value.videoUrls
+                : videoUrls // ignore: cast_nullable_to_non_nullable
+                      as List<String>,
             createdAt: freezed == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
@@ -153,6 +167,8 @@ abstract class _$$ReviewImplCopyWith<$Res> implements $ReviewCopyWith<$Res> {
     bool authorIsSuper,
     int rating,
     String text,
+    List<String> photoUrls,
+    List<String> videoUrls,
     @TimestampConverter() DateTime? createdAt,
     @TimestampConverter() DateTime? updatedAt,
   });
@@ -180,6 +196,8 @@ class __$$ReviewImplCopyWithImpl<$Res>
     Object? authorIsSuper = null,
     Object? rating = null,
     Object? text = null,
+    Object? photoUrls = null,
+    Object? videoUrls = null,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
   }) {
@@ -217,6 +235,14 @@ class __$$ReviewImplCopyWithImpl<$Res>
             ? _value.text
             : text // ignore: cast_nullable_to_non_nullable
                   as String,
+        photoUrls: null == photoUrls
+            ? _value._photoUrls
+            : photoUrls // ignore: cast_nullable_to_non_nullable
+                  as List<String>,
+        videoUrls: null == videoUrls
+            ? _value._videoUrls
+            : videoUrls // ignore: cast_nullable_to_non_nullable
+                  as List<String>,
         createdAt: freezed == createdAt
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
@@ -242,9 +268,12 @@ class _$ReviewImpl implements _Review {
     this.authorIsSuper = false,
     required this.rating,
     this.text = '',
+    final List<String> photoUrls = const <String>[],
+    final List<String> videoUrls = const <String>[],
     @TimestampConverter() this.createdAt,
     @TimestampConverter() this.updatedAt,
-  });
+  }) : _photoUrls = photoUrls,
+       _videoUrls = videoUrls;
 
   factory _$ReviewImpl.fromJson(Map<String, dynamic> json) =>
       _$$ReviewImplFromJson(json);
@@ -268,6 +297,24 @@ class _$ReviewImpl implements _Review {
   @override
   @JsonKey()
   final String text;
+  final List<String> _photoUrls;
+  @override
+  @JsonKey()
+  List<String> get photoUrls {
+    if (_photoUrls is EqualUnmodifiableListView) return _photoUrls;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_photoUrls);
+  }
+
+  final List<String> _videoUrls;
+  @override
+  @JsonKey()
+  List<String> get videoUrls {
+    if (_videoUrls is EqualUnmodifiableListView) return _videoUrls;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_videoUrls);
+  }
+
   @override
   @TimestampConverter()
   final DateTime? createdAt;
@@ -277,7 +324,7 @@ class _$ReviewImpl implements _Review {
 
   @override
   String toString() {
-    return 'Review(id: $id, placeId: $placeId, authorUid: $authorUid, authorDisplayName: $authorDisplayName, authorPhotoUrl: $authorPhotoUrl, authorIsSuper: $authorIsSuper, rating: $rating, text: $text, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'Review(id: $id, placeId: $placeId, authorUid: $authorUid, authorDisplayName: $authorDisplayName, authorPhotoUrl: $authorPhotoUrl, authorIsSuper: $authorIsSuper, rating: $rating, text: $text, photoUrls: $photoUrls, videoUrls: $videoUrls, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -297,6 +344,14 @@ class _$ReviewImpl implements _Review {
                 other.authorIsSuper == authorIsSuper) &&
             (identical(other.rating, rating) || other.rating == rating) &&
             (identical(other.text, text) || other.text == text) &&
+            const DeepCollectionEquality().equals(
+              other._photoUrls,
+              _photoUrls,
+            ) &&
+            const DeepCollectionEquality().equals(
+              other._videoUrls,
+              _videoUrls,
+            ) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -315,6 +370,8 @@ class _$ReviewImpl implements _Review {
     authorIsSuper,
     rating,
     text,
+    const DeepCollectionEquality().hash(_photoUrls),
+    const DeepCollectionEquality().hash(_videoUrls),
     createdAt,
     updatedAt,
   );
@@ -343,6 +400,8 @@ abstract class _Review implements Review {
     final bool authorIsSuper,
     required final int rating,
     final String text,
+    final List<String> photoUrls,
+    final List<String> videoUrls,
     @TimestampConverter() final DateTime? createdAt,
     @TimestampConverter() final DateTime? updatedAt,
   }) = _$ReviewImpl;
@@ -365,6 +424,10 @@ abstract class _Review implements Review {
   int get rating;
   @override
   String get text;
+  @override
+  List<String> get photoUrls;
+  @override
+  List<String> get videoUrls;
   @override
   @TimestampConverter()
   DateTime? get createdAt;

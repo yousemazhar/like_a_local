@@ -503,6 +503,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reviewComposerUpdate => 'Update review';
 
   @override
+  String get reviewComposerTextRequired =>
+      'Please write a short review before posting.';
+
+  @override
   String get mapTitle => 'Map';
 
   @override

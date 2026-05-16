@@ -350,6 +350,8 @@
   "@reviewComposerSubmit": {},
   "reviewComposerUpdate": "Update review",
   "@reviewComposerUpdate": {},
+  "reviewComposerTextRequired": "Please write a short review before posting.",
+  "@reviewComposerTextRequired": {},
 
   "mapTitle": "Map",
   "@mapTitle": {},
