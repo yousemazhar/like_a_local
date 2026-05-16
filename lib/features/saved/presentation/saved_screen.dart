@@ -350,7 +350,12 @@ class _CollectionCard extends ConsumerWidget {
               Expanded(
                 child: ClipRRect(
                   borderRadius: const BorderRadius.vertical(top: LALRadii.lg),
-                  child: _CollectionCover(coverPlaceId: pins.isNotEmpty ? pins.first.placeId : null),
+                  child: _CollectionCover(
+                    placeIds: pins
+                        .take(3)
+                        .map((p) => p.placeId)
+                        .toList(growable: false),
+                  ),
                 ),
               ),
               Padding(
@@ -919,20 +924,19 @@ class _PlaceThumb extends StatelessWidget {
 }
 
 class _CollectionCover extends ConsumerWidget {
-  const _CollectionCover({required this.coverPlaceId});
+  const _CollectionCover({required this.placeIds});
 
-  final String? coverPlaceId;
+  final List<String> placeIds;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final url = coverPlaceId == null
-        ? null
-        : ref
-            .watch(placeDetailProvider(coverPlaceId!))
-            .valueOrNull
-            ?.mediaUrls
-            .firstOrNull;
-    if (url == null || url.isEmpty) {
+    final urls = placeIds
+        .map((id) => ref.watch(placeDetailProvider(id)).valueOrNull?.mediaUrls.firstOrNull)
+        .whereType<String>()
+        .where((u) => u.isNotEmpty)
+        .toList(growable: false);
+
+    if (urls.isEmpty) {
       return Container(
         color: LALColors.surfaceAlt,
         child: const Center(
@@ -944,20 +948,22 @@ class _CollectionCover extends ConsumerWidget {
         ),
       );
     }
-    return CachedNetworkImage(
-      imageUrl: url,
-      fit: BoxFit.cover,
-      placeholder: (_, __) => Container(color: LALColors.surfaceAlt),
-      errorWidget: (_, __, ___) => Container(
-        color: LALColors.surfaceAlt,
-        child: const Center(
-          child: Icon(
-            Icons.collections_bookmark_outlined,
-            color: LALColors.c300,
-            size: 32,
-          ),
-        ),
-      ),
+
+    Widget tile(String url) => CachedNetworkImage(
+          imageUrl: url,
+          fit: BoxFit.cover,
+          placeholder: (_, __) => Container(color: LALColors.surfaceAlt),
+          errorWidget: (_, __, ___) =>
+              Container(color: LALColors.surfaceAlt),
+        );
+
+    return Row(
+      children: [
+        for (var i = 0; i < urls.length; i++) ...[
+          if (i > 0) const SizedBox(width: 2),
+          Expanded(child: SizedBox.expand(child: tile(urls[i]))),
+        ],
+      ],
     );
   }
 }
