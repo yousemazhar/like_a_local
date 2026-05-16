@@ -15,8 +15,6 @@ import '../../place/domain/place.dart';
 import '../../place/domain/place_providers.dart';
 import 'filter_sheet.dart';
 
-const _recentSearches = ['Restaurants', 'Cafes', 'Viewpoints'];
-
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
 
@@ -76,9 +74,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             ),
             Expanded(
               child: (_query.isEmpty && _filters.isEmpty)
-                  ? _EmptySearch(onRecentTap: (s) {
-                      _controller.text = s;
-                      setState(() => _query = s);
+                  ? _EmptySearch(onMoodTap: (moodKey) {
+                      setState(() {
+                        _filters = _filters.copyWith(
+                          moods: {..._filters.moods, moodKey},
+                        );
+                      });
                     })
                   : _SearchResults(query: _query, filters: _filters),
             ),
@@ -204,45 +205,28 @@ class _SearchBar extends StatelessWidget {
 }
 
 class _EmptySearch extends StatelessWidget {
-  const _EmptySearch({required this.onRecentTap});
+  const _EmptySearch({required this.onMoodTap});
 
-  final ValueChanged<String> onRecentTap;
+  final ValueChanged<String> onMoodTap;
 
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
-    final moods = <({String label, IconData icon})>[
-      (label: t.moodRomantic, icon: Icons.favorite_outline),
-      (label: t.moodFamily, icon: Icons.family_restroom),
-      (label: t.moodHiddenGem, icon: Icons.star_outline),
-      (label: t.moodLively, icon: Icons.music_note_outlined),
-      (label: t.moodPeaceful, icon: Icons.spa_outlined),
-      (label: t.moodFoodie, icon: Icons.restaurant_outlined),
+    final moods = <({String key, String label, IconData icon})>[
+      (key: 'Romantic', label: t.moodRomantic, icon: Icons.favorite_outline),
+      (key: 'Family', label: t.moodFamily, icon: Icons.family_restroom),
+      (key: 'Hidden Gem', label: t.moodHiddenGem, icon: Icons.star_outline),
+      (key: 'Lively', label: t.moodLively, icon: Icons.music_note_outlined),
+      (key: 'Peaceful', label: t.moodPeaceful, icon: Icons.spa_outlined),
+      (key: 'Foodie', label: t.moodFoodie, icon: Icons.restaurant_outlined),
     ];
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Recent searches
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
-            child: Text(t.searchRecent, style: LALTypography.headlineSmall),
-          ),
-          for (final s in _recentSearches)
-            ListTile(
-              leading: const Icon(Icons.history,
-                  color: LALColors.c400, size: 20),
-              title: Text(s, style: LALTypography.bodyMedium),
-              onTap: () => onRecentTap(s),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
-              minLeadingWidth: 20,
-            ),
-          const Divider(height: 24),
-          // Mood grid
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
             child: Text(t.searchMoods, style: LALTypography.headlineSmall),
           ),
           Padding(
@@ -252,7 +236,11 @@ class _EmptySearch extends StatelessWidget {
               runSpacing: 10,
               children: [
                 for (final m in moods)
-                  LALChip(label: m.label, leadingIcon: m.icon),
+                  LALChip(
+                    label: m.label,
+                    leadingIcon: m.icon,
+                    onTap: () => onMoodTap(m.key),
+                  ),
               ],
             ),
           ),
