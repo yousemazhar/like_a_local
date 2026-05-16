@@ -824,6 +824,12 @@ abstract class AppLocalizations {
   /// **'Places'**
   String get profileStatPlaces;
 
+  /// No description provided for @profileStatChats.
+  ///
+  /// In en, this message translates to:
+  /// **'Chats'**
+  String get profileStatChats;
+
   /// No description provided for @profileStatSaved.
   ///
   /// In en, this message translates to:

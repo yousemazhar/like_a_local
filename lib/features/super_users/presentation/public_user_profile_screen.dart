@@ -176,6 +176,8 @@ class _StatsRow extends StatelessWidget {
           const _Divider(),
           _Stat(value: '${stats.placesCount}', label: t.profileStatPlaces),
           const _Divider(),
+          _Stat(value: '${stats.chatCount}', label: t.profileStatChats),
+          const _Divider(),
           _Stat(value: '${stats.reviewsCount}', label: t.placeReviews),
         ],
       ),

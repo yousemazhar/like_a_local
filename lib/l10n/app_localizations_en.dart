@@ -401,6 +401,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileStatPlaces => 'Places';
 
   @override
+  String get profileStatChats => 'Chats';
+
+  @override
   String get profileStatSaved => 'Saved';
 
   @override

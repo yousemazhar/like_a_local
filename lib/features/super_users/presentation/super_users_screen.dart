@@ -193,8 +193,9 @@ class _SuperUserTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      t.superUsersStatsNoChats(
+                      t.superUsersStats(
                         stats.placesCount,
+                        stats.chatCount,
                         stats.reviewsCount,
                       ),
                       maxLines: 2,

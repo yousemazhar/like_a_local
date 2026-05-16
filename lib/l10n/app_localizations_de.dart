@@ -406,6 +406,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get profileStatPlaces => 'Orte';
 
   @override
+  String get profileStatChats => 'Chats';
+
+  @override
   String get profileStatSaved => 'Gespeichert';
 
   @override

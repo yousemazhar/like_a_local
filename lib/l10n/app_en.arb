@@ -281,6 +281,8 @@
   "@profileLocation": {},
   "profileStatPlaces": "Places",
   "@profileStatPlaces": {},
+  "profileStatChats": "Chats",
+  "@profileStatChats": {},
   "profileStatSaved": "Saved",
   "@profileStatSaved": {},
   "profileStatHelpful": "Helpful",
