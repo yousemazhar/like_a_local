@@ -58,12 +58,14 @@ class LALBottomNav extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               for (var i = 0; i < items.length; i++)
-                _NavItem(
-                  icon: items[i].icon,
-                  activeIcon: items[i].active,
-                  label: items[i].label,
-                  isActive: currentIndex == i,
-                  onTap: () => onTap(i),
+                Expanded(
+                  child: _NavItem(
+                    icon: items[i].icon,
+                    activeIcon: items[i].active,
+                    label: items[i].label,
+                    isActive: currentIndex == i,
+                    onTap: () => onTap(i),
+                  ),
                 ),
             ],
           ),
@@ -95,15 +97,22 @@ class _NavItem extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: SizedBox(
-        width: 64,
+        height: double.infinity,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(isActive ? activeIcon : icon, color: color, size: 22),
             const SizedBox(height: 2),
-            Text(
-              label,
-              style: LALTypography.labelSmall.copyWith(color: color),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                softWrap: false,
+                textAlign: TextAlign.center,
+                style: LALTypography.labelSmall.copyWith(color: color),
+              ),
             ),
           ],
         ),
