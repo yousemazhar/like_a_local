@@ -177,6 +177,7 @@
   "profileVerifiedBody": "Teile 5 Orte, um Super Local zu werden",
   "profileMyPlaces": "Meine Orte",
   "profileNoPlaces": "Noch keine Orte geteilt",
+  "profileDebugTools": "Debug-Tools",
   "profileTestPay": "Test-Zahlung (Debug)",
 
   "placeDetails": "Details",

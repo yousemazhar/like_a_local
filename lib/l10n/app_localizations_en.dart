@@ -422,6 +422,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileNoPlaces => 'No places shared yet';
 
   @override
+  String get profileDebugTools => 'Debug tools';
+
+  @override
   String get profileTestPay => 'Test Pay (debug)';
 
   @override

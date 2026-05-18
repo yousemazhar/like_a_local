@@ -866,6 +866,12 @@ abstract class AppLocalizations {
   /// **'No places shared yet'**
   String get profileNoPlaces;
 
+  /// No description provided for @profileDebugTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Debug tools'**
+  String get profileDebugTools;
+
   /// No description provided for @profileTestPay.
   ///
   /// In en, this message translates to:

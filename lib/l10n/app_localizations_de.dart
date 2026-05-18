@@ -427,6 +427,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get profileNoPlaces => 'Noch keine Orte geteilt';
 
   @override
+  String get profileDebugTools => 'Debug-Tools';
+
+  @override
   String get profileTestPay => 'Test-Zahlung (Debug)';
 
   @override

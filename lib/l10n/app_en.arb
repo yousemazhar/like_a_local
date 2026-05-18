@@ -295,6 +295,8 @@
   "@profileMyPlaces": {},
   "profileNoPlaces": "No places shared yet",
   "@profileNoPlaces": {},
+  "profileDebugTools": "Debug tools",
+  "@profileDebugTools": {},
   "profileTestPay": "Test Pay (debug)",
   "@profileTestPay": {},
 

@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
@@ -16,7 +15,6 @@ import '../../../theme/tokens.dart';
 import '../../../theme/typography.dart';
 import '../../auth/domain/auth_providers.dart';
 import '../../place/domain/place_providers.dart';
-import '../../reminders/data/reminder_location_service.dart';
 import '../../reminders/domain/reminder.dart';
 import '../../reminders/domain/reminder_providers.dart';
 import '../domain/saved_pin.dart';
@@ -670,7 +668,6 @@ class _RemindersTab extends ConsumerWidget {
         body: t.savedNoRemindersBody,
       ),
       data: (reminders) {
-        final uid = ref.read(authStateProvider).valueOrNull?.uid;
         final permission = permissionAsync.valueOrNull;
         final needsAlways = reminders.isNotEmpty &&
             permission != null &&
@@ -678,31 +675,6 @@ class _RemindersTab extends ConsumerWidget {
         return Column(
           children: [
             if (needsAlways) _LocationPermissionBanner(ref: ref),
-            if (kDebugMode && reminders.isNotEmpty && uid != null)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () async {
-                      final count = await ReminderLocationService.instance
-                          .debugTriggerNearby(uid);
-                      if (context.mounted) {
-                        LALToast.show(
-                          context,
-                          count == 0
-                              ? '[DEBUG] No reminders within range'
-                              : '[DEBUG] Triggered $count reminder${count == 1 ? '' : 's'} within range',
-                          kind: LALToastKind.info,
-                          duration: const Duration(seconds: 3),
-                        );
-                      }
-                    },
-                    icon: const Icon(Icons.bug_report_outlined, size: 16),
-                    label: const Text('Trigger nearby reminders (debug)'),
-                  ),
-                ),
-              ),
             if (reminders.isEmpty)
               Expanded(
                 child: EmptyView(

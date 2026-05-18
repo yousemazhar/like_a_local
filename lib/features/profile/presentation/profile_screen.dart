@@ -18,6 +18,7 @@ import '../../auth/domain/app_user.dart';
 import '../../auth/domain/auth_providers.dart';
 import '../../place/domain/place.dart';
 import '../../place/domain/place_providers.dart';
+import '../../reminders/data/reminder_location_service.dart';
 import '../../saved/domain/saved_providers.dart';
 
 part 'profile_screen.g.dart';
@@ -29,11 +30,18 @@ Stream<List<Place>> myOwnedPlaces(MyOwnedPlacesRef ref) {
   return ref.watch(placeRepositoryProvider).byOwner(user.uid);
 }
 
-class ProfileScreen extends ConsumerWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  bool _showDebugButtons = false;
+
+  @override
+  Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
     final userAsync = ref.watch(currentUserDocProvider);
     final pinsAsync = ref.watch(savedPinsProvider);
@@ -98,28 +106,88 @@ class ProfileScreen extends ConsumerWidget {
                   const SizedBox(height: 12),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: OutlinedButton.icon(
-                      onPressed: () => context.push('/test-payment'),
-                      icon: const Icon(Icons.credit_card),
-                      label: Text(t.profileTestPay),
+                    child: _DebugToolsSwitch(
+                      value: _showDebugButtons,
+                      onChanged: (value) {
+                        setState(() => _showDebugButtons = value);
+                      },
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: _TestPushButton(),
-                  ),
-                  const SizedBox(height: 8),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20),
-                    child: _ShowFcmTokensButton(),
-                  ),
+                  if (_showDebugButtons) ...[
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: OutlinedButton.icon(
+                        onPressed: () => context.push('/test-payment'),
+                        icon: const Icon(Icons.credit_card),
+                        label: Text(t.profileTestPay),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      child: _TriggerNearbyRemindersButton(),
+                    ),
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: _TestPushButton(),
+                    ),
+                    const SizedBox(height: 8),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      child: _ShowFcmTokensButton(),
+                    ),
+                  ],
                 ],
                 const SizedBox(height: 24),
                 _PlacesGrid(places: places, loading: placesAsync.isLoading),
                 const SizedBox(height: 40),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DebugToolsSwitch extends StatelessWidget {
+  const _DebugToolsSwitch({
+    required this.value,
+    required this.onChanged,
+  });
+
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: const BoxDecoration(
+        color: LALColors.surface,
+        borderRadius: LALRadii.lgBorder,
+      ),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.bug_report_outlined,
+            color: LALColors.c500,
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              t.profileDebugTools,
+              style: LALTypography.labelMedium,
+            ),
+          ),
+          Switch.adaptive(
+            value: value,
+            activeTrackColor: LALColors.accent,
+            onChanged: onChanged,
           ),
         ],
       ),
@@ -268,6 +336,35 @@ class _TrustStrip extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _TriggerNearbyRemindersButton extends ConsumerWidget {
+  const _TriggerNearbyRemindersButton();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return OutlinedButton.icon(
+      onPressed: () async {
+        final uid = ref.read(authStateProvider).valueOrNull?.uid;
+        if (uid == null) return;
+        final count = await ReminderLocationService.instance.debugTriggerNearby(
+          uid,
+        );
+        if (context.mounted) {
+          LALToast.show(
+            context,
+            count == 0
+                ? '[DEBUG] No reminders within range'
+                : '[DEBUG] Triggered $count reminder${count == 1 ? '' : 's'} within range',
+            kind: LALToastKind.info,
+            duration: const Duration(seconds: 3),
+          );
+        }
+      },
+      icon: const Icon(Icons.bug_report_outlined, size: 16),
+      label: const Text('Trigger nearby reminders (debug)'),
     );
   }
 }
