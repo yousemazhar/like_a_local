@@ -70,7 +70,6 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
         text: t.premiumFeatureUnlimitedCollections,
       ),
       (icon: Icons.auto_awesome_outlined, text: t.premiumFeatureAiChat),
-      (icon: Icons.wifi_off_rounded, text: t.premiumFeatureOfflineMaps),
       (
         icon: Icons.notifications_active_outlined,
         text: t.premiumFeatureReminders,
