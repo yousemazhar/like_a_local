@@ -714,7 +714,17 @@ class AppLocalizationsEn extends AppLocalizations {
       'Upgrade to Premium to get one personalized AI pick with a short reason.';
 
   @override
-  String get smartPickError => 'AI is unavailable right now.';
+  String get smartPickError => 'AI pick is unavailable right now.';
+
+  @override
+  String get smartPickErrorBody =>
+      'Showing your ranked picks below — try the AI pick again in a moment.';
+
+  @override
+  String get smartPickFallbackHeading => 'Picked for you';
+
+  @override
+  String get smartPickFallbackBadge => 'TOP PICK';
 
   @override
   String get settingsPrefPlaceTypes => 'Place types';

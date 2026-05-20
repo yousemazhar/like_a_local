@@ -1,10 +1,15 @@
 import 'package:cloud_functions/cloud_functions.dart';
 
 class SmartPickResult {
-  const SmartPickResult({required this.placeId, required this.reason});
+  const SmartPickResult({
+    required this.placeId,
+    required this.reason,
+    this.fallback = false,
+  });
 
   final String placeId;
   final String reason;
+  final bool fallback;
 }
 
 class SmartPickUnavailableException implements Exception {
@@ -30,7 +35,12 @@ class SmartPickRepository {
       if (placeId == null || reason == null) {
         throw const SmartPickUnavailableException('Malformed response');
       }
-      return SmartPickResult(placeId: placeId, reason: reason);
+      final fallback = data['fallback'] == true;
+      return SmartPickResult(
+        placeId: placeId,
+        reason: reason,
+        fallback: fallback,
+      );
     } on FirebaseFunctionsException catch (e) {
       final detail = e.details?.toString();
       final message = [

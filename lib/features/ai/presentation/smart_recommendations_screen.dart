@@ -191,10 +191,14 @@ class _PremiumPickSection extends StatelessWidget {
           pick.when(
             loading: () =>
                 const SkeletonCard(width: double.infinity, height: 260),
-            error: (error, _) => _SmartPickErrorCard(error: error),
+            error: (error, _) => _SmartPickErrorCard(onRetry: onPick),
             data: (pick) => pick == null
                 ? const SizedBox.shrink()
-                : _SmartPickCard(place: pick.place, reason: pick.reason),
+                : _SmartPickCard(
+                    place: pick.place,
+                    reason: pick.reason,
+                    isFallback: pick.fallback,
+                  ),
           ),
         ],
       ),
@@ -203,9 +207,9 @@ class _PremiumPickSection extends StatelessWidget {
 }
 
 class _SmartPickErrorCard extends StatelessWidget {
-  const _SmartPickErrorCard({required this.error});
+  const _SmartPickErrorCard({required this.onRetry});
 
-  final Object error;
+  final Future<void> Function() onRetry;
 
   @override
   Widget build(BuildContext context) {
@@ -216,26 +220,42 @@ class _SmartPickErrorCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: LALColors.surface,
         borderRadius: LALRadii.xlBorder,
-        border: Border.all(color: LALColors.error.withValues(alpha: 0.25)),
+        border: Border.all(color: LALColors.c100),
       ),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.error_outline_rounded, color: LALColors.error),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(t.smartPickError, style: LALTypography.labelLarge),
-                const SizedBox(height: 4),
-                Text(
-                  error.toString(),
-                  style: LALTypography.bodySmall.copyWith(
-                    color: LALColors.c700,
-                  ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(
+                Icons.auto_awesome_rounded,
+                color: LALColors.c500,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(t.smartPickError, style: LALTypography.labelLarge),
+                    const SizedBox(height: 4),
+                    Text(
+                      t.smartPickErrorBody,
+                      style: LALTypography.bodySmall.copyWith(
+                        color: LALColors.c700,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
+            ],
+          ),
+          const SizedBox(height: LALSpacing.sm),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton(
+              onPressed: onRetry,
+              child: Text(t.errorRetry),
             ),
           ),
         ],
@@ -245,15 +265,22 @@ class _SmartPickErrorCard extends StatelessWidget {
 }
 
 class _SmartPickCard extends StatelessWidget {
-  const _SmartPickCard({required this.place, required this.reason});
+  const _SmartPickCard({
+    required this.place,
+    required this.reason,
+    this.isFallback = false,
+  });
 
   final Place place;
   final String reason;
+  final bool isFallback;
 
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
     final image = place.mediaUrls.isNotEmpty ? place.mediaUrls.first : '';
+    final heading = isFallback ? t.smartPickFallbackHeading : t.smartPickHeading;
+    final badge = isFallback ? t.smartPickFallbackBadge : t.smartPickBadge;
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -306,7 +333,7 @@ class _SmartPickCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            t.smartPickHeading,
+                            heading,
                             style: LALTypography.labelLarge.copyWith(
                               color: LALColors.c900,
                             ),
@@ -349,7 +376,7 @@ class _SmartPickCard extends StatelessWidget {
                           borderRadius: LALRadii.pillBorder,
                         ),
                         child: Text(
-                          t.smartPickBadge,
+                          badge,
                           style: LALTypography.labelSmall.copyWith(
                             color: Colors.white,
                           ),

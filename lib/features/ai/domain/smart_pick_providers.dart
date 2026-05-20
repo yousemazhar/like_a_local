@@ -10,10 +10,15 @@ import 'ranking_providers.dart';
 part 'smart_pick_providers.g.dart';
 
 class SmartPick {
-  const SmartPick({required this.place, required this.reason});
+  const SmartPick({
+    required this.place,
+    required this.reason,
+    this.fallback = false,
+  });
 
   final Place place;
   final String reason;
+  final bool fallback;
 }
 
 @Riverpod(keepAlive: true)
@@ -40,5 +45,9 @@ Future<SmartPick?> smartPick(SmartPickRef ref) async {
   if (place == null) {
     throw const SmartPickUnavailableException('Place not found');
   }
-  return SmartPick(place: place, reason: result.reason);
+  return SmartPick(
+    place: place,
+    reason: result.reason,
+    fallback: result.fallback,
+  );
 }

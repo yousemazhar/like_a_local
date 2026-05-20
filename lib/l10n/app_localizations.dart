@@ -1421,8 +1421,26 @@ abstract class AppLocalizations {
   /// No description provided for @smartPickError.
   ///
   /// In en, this message translates to:
-  /// **'AI is unavailable right now.'**
+  /// **'AI pick is unavailable right now.'**
   String get smartPickError;
+
+  /// No description provided for @smartPickErrorBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing your ranked picks below — try the AI pick again in a moment.'**
+  String get smartPickErrorBody;
+
+  /// No description provided for @smartPickFallbackHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Picked for you'**
+  String get smartPickFallbackHeading;
+
+  /// No description provided for @smartPickFallbackBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'TOP PICK'**
+  String get smartPickFallbackBadge;
 
   /// No description provided for @settingsPrefPlaceTypes.
   ///

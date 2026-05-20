@@ -721,7 +721,17 @@ class AppLocalizationsDe extends AppLocalizations {
       'Upgrade auf Premium für einen personalisierten KI-Tipp mit kurzer Begründung.';
 
   @override
-  String get smartPickError => 'KI ist gerade nicht verfügbar.';
+  String get smartPickError => 'KI-Tipp ist gerade nicht verfügbar.';
+
+  @override
+  String get smartPickErrorBody =>
+      'Deine Empfehlungen siehst du unten – versuche den KI-Tipp gleich noch einmal.';
+
+  @override
+  String get smartPickFallbackHeading => 'Für dich ausgewählt';
+
+  @override
+  String get smartPickFallbackBadge => 'TOP-TIPP';
 
   @override
   String get settingsPrefPlaceTypes => 'Orte';

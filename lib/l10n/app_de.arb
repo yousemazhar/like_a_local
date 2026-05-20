@@ -284,7 +284,10 @@
   "smartPickHeading": "KI-Tipp für dich",
   "smartPickBadge": "KI-TIPP",
   "smartPickPremiumLocked": "Upgrade auf Premium für einen personalisierten KI-Tipp mit kurzer Begründung.",
-  "smartPickError": "KI ist gerade nicht verfügbar.",
+  "smartPickError": "KI-Tipp ist gerade nicht verfügbar.",
+  "smartPickErrorBody": "Deine Empfehlungen siehst du unten – versuche den KI-Tipp gleich noch einmal.",
+  "smartPickFallbackHeading": "Für dich ausgewählt",
+  "smartPickFallbackBadge": "TOP-TIPP",
 
   "settingsPrefPlaceTypes": "Orte",
   "settingsPrefMoods": "Atmosphäre",
