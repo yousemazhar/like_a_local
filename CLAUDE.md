@@ -106,6 +106,46 @@ The implementation follows a phased plan:
 - **App Check** is enabled — new dev environments need a debug token registered; missing tokens cause silent 403s
 - **Cloud Run** endpoints require correct IAM permissions; verify before debugging client-side 4xx/5xx errors
 
+## Public Android Distribution (Firebase Hosting)
+
+The Android APK is distributed publicly via Firebase Hosting on the same project (`likealocal-c33e9`). No GitHub Releases, no Play Store.
+
+| URL | What |
+|---|---|
+| `https://likealocal-c33e9.web.app` | Landing page + QR code + Download button |
+| `https://likealocal-c33e9.web.app/app-release.apk` | The APK itself (forced download via `Content-Disposition`) |
+
+**Hosting payload** lives in `public/`:
+- `index.html` — hand-written single-file landing page using the design tokens (terracotta CTA, Fraunces headline). Do not replace with Flutter web output.
+- `qr.png` — QR encoding the APK URL. Regenerate if the URL changes.
+- `app-release.apk` — built artifact, copied in by hand before each deploy.
+
+**Hosting config** is in `firebase.json` under the `hosting` block — sets `application/vnd.android.package-archive` content type and `attachment; filename="like-a-local.apk"` disposition so browsers download instead of preview.
+
+### Updating the public build
+
+```powershell
+flutter pub get
+flutter analyze                                  # must exit clean
+flutter build apk --release
+Copy-Item build\app\outputs\flutter-apk\app-release.apk public\app-release.apk -Force
+firebase deploy --only hosting --project likealocal-c33e9
+```
+
+Never deploy other targets in the same command — `firebase deploy` without `--only hosting` also pushes functions/firestore/storage.
+
+### Build-config caveats (don't break these without thinking)
+
+- **R8/minification is disabled** for `release` in `android/app/build.gradle.kts` (`isMinifyEnabled = false`, `isShrinkResources = false`). Stripe's React Native push-provisioning classes are referenced but not present, so R8 fails with `Missing class com.stripe.android.pushProvisioning.*`. To re-enable shrinking, add ProGuard `-dontwarn com.stripe.android.pushProvisioning.**` plus keep rules for any other reflective consumers (Firebase, Riverpod-gen, freezed) and verify in a clean build before merging.
+- **Signing**: release uses the debug keystore by design (`signingConfig = signingConfigs.getByName("debug")`). Anyone rebuilding with the standard Android debug key can produce a bit-for-bit-compatible signature — this is *not* a security boundary. Replace with a real keystore before any Play Store work.
+- **applicationId is still `com.example.like_a_local`** — fine for sideload, blocks Play Store publication.
+- **App Check** on sideloaded APK: if Firestore reads silently fail on a new device after install, register the debug-keystore SHA-256 in Firebase Console → App Check → Android → Manage debug tokens. Get the fingerprint with `keytool -list -v -keystore $env:USERPROFILE\.android\debug.keystore -alias androiddebugkey -storepass android -keypass android`.
+
+### Updating the landing page or QR
+
+- Edit `public/index.html` directly. Keep it a single self-contained file using inline CSS and the design tokens (background `#F6F7F8`, terracotta `#C97B5C`, Fraunces serif via Google Fonts CDN).
+- If the APK URL ever changes, regenerate the QR: `npx qrcode -o public/qr.png -t png -w 600 -e H "<new-url>"`.
+
 ## Common Pitfalls (Do Not Repeat)
 
 - UI freeze from sync I/O → always use `async`/`await` or isolates for file/hash/image work
